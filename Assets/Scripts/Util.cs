@@ -9,7 +9,7 @@ public static class Util
     }
 
     /// <summary>
-    /// Resources/Prefab 폴더 내의 지정된 경로에서 Prefab을 로드하여 하이어라키에 추가합니다.
+    /// Resources/Prefabs 폴더 내의 지정된 경로에서 Prefab을 로드하여 하이어라키에 추가합니다.
     /// </summary>
     public static GameObject InstantiatePrefab(string path, Vector3 position = default, Quaternion rotation = default, Transform parent = null)
     {
@@ -24,7 +24,7 @@ public static class Util
     }
 
     /// <summary>
-    /// Resources/Prefab 폴더 내의 지정된 경로에서 Prefab을 로드하여 추가된 하이어라키의 컴포넌트를 가져옵니다.
+    /// Resources/Prefabs 폴더 내의 지정된 경로에서 Prefab을 로드하여 추가된 하이어라키의 컴포넌트를 가져옵니다.
     /// </summary>
     public static T InstantiatePrefabAndGetComponent<T>(string path, Vector3 position = default, Quaternion rotation = default, Transform parent = null) where T : Component
     {

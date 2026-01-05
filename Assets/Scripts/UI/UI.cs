@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UI : MonoBehaviour
@@ -7,6 +8,11 @@ public class UI : MonoBehaviour
     protected virtual void Awake()
     {
         panel = transform.GetChild(0).gameObject;
+    }
+
+    protected virtual void Start()
+    {
+        UIManager.Instance.AddUI(this);
     }
 
     public void SetCanvas(int order)
