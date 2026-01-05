@@ -33,6 +33,21 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
+    public void AddUI(UI ui)
+    {
+        Type uiType = ui.GetType();
+        if (_sceneDict.ContainsKey(uiType))
+        {
+            Debug.Log($"There's Already {uiType.Name} in UIManager");
+            return;
+        }
+        else
+        {
+            _sceneDict[uiType] = ui;
+            Debug.Log($"{uiType.Name} Added to UIManager");
+        }
+    }
+
     public T GetUI<T>() where T : UI
     {
         Type uiType = typeof(T);
