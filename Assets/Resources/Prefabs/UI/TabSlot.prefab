@@ -88,3 +88,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80b28efcdb7ec1445aa0ccc80c1999df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TabSlot
+  iconPrefab: {fileID: 3469580997410504468, guid: 7c8b903847b4a5447bd6cdb43bcd1680, type: 3}
