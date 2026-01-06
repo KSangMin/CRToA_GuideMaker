@@ -12,7 +12,7 @@ public class UI_Grid : UI
     private List<GameObject> _rowGOs = new();
     private int _startRow = 20;
     private int _startCol = 20;
-    private int _spacing = 5;
+    private int _spacing = 0;
 
     protected override void Awake()
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UI_Main : UI
+public class UI_Panel : UI
 {
     
 }
