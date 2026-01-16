@@ -15,16 +15,39 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 35224a181f50c8544b420a8953ba5039
   m_SerializeEntries:
-  - m_GUID: 25043767fc8677142bb764526cbe7ae4
-    m_Address: Assets/Sprites/CRToA
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2653602bcf303e2419efe2364faddade
     m_Address: Assets/Sprites/CRToA/Seasonite
     m_ReadOnly: 0
     m_SerializedLabels:
+    - Seasonite
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 325d9338acf6e0f489aee25a3a3f3380
+    m_Address: Assets/Sprites/CRToA/Potential
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Potential
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d044b36b5ca09c446b413608e46b84da
+    m_Address: Assets/Sprites/CRToA/Artifact
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Artifact
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: da094a7754f4bf54e96253917b4338ff
+    m_Address: Assets/Sprites/CRToA/Equipment
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Equipment
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea420f1f67c730f4e9894952a89e5b41
+    m_Address: Assets/Sprites/CRToA/Cookie
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Cookie
     - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0

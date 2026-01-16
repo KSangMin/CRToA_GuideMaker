@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 35224a181f50c8544b420a8953ba5039
   m_currentHash:
     serializedVersion: 2
-    Hash: e4629081ed835b4b5aa481ba48322e36
+    Hash: 2abc5f9b846e53d2847528062eb073ef
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 1
   m_BundleLocalCatalog: 0
@@ -62,7 +62,6 @@ MonoBehaviour:
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: 340fcc428e9060442ab0834ffc412564, type: 2}
-  - {fileID: 11400000, guid: b531011da7cc0a24192d1ab5726f1553, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -102,6 +101,11 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - Cookie
+    - Equipment
+    - Artifact
+    - Potential
+    - Seasonite
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 7e612fcd58017524aae1f3698a04d87f, type: 2}

@@ -80,3 +80,9 @@ crashlytics-build.properties
 
 /ServerData
 /ServerData/
+
+/Build
+/Build/
+
+/WebGL Builds
+/WebGL Builds/

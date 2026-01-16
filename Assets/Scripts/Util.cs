@@ -35,4 +35,17 @@ public static class Util
         }
         return comp;
     }
+
+    /// <summary>
+    /// 바이트(byte)를 메가바이트(MB)로 변환하여 int로 반환합니다.
+    /// </summary>
+    public static int ConversionToMB(long bytes)
+    {
+        return Mathf.RoundToInt(bytes / (1024f * 1024f));
+    }
+
+    public static int ConversionToMB(float bytes)
+    {
+        return Mathf.RoundToInt(bytes / (1024f * 1024f));
+    }
 }

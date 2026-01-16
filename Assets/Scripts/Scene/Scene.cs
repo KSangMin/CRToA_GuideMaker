@@ -10,7 +10,7 @@ public class Scene : MonoBehaviour
     protected virtual void Init()
     {
         UIManager.Instance.Clear();
-        if(FindObjectOfType<EventSystem>() == null) Util.InstantiatePrefab("UI/EventSystem");
+        if(FindFirstObjectByType<EventSystem>() == null) Util.InstantiatePrefab("UI/EventSystem");
     }
 
     public virtual void Clear()
