@@ -8,8 +8,8 @@ public enum IconType
     Cookie,
     Artifact,
     Equipment,
-    Seasonite,
     Potential,
+    Seasonite,
 }
 
 public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -18,20 +18,14 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     private int _id = -1;
 
     [SerializeField] private GameObject iconPrefab;
-    private Image _icon;
 
     private GameObject _ghost;
-
-    private void Awake()
-    {
-        _icon = GetComponent<Image>();
-    }
 
     public void SetSlot(IconType type, int id, Sprite sprite)
     {
         _type = type;
         _id = id;
-        _icon.sprite = sprite;
+        GetComponent<Image>().sprite = sprite;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

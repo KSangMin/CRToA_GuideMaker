@@ -18,11 +18,11 @@ public class UI_Loading : UI
     {
         base.Start();
 
-        AddressableManager.Instance.onLoadProgress += OnProgressChanged;
-
         AddressableManager.Instance.startLoad += Load;
         AddressableManager.Instance.startCatalogCheck += CheckCatalog;
         AddressableManager.Instance.startDownload += Download;
+        AddressableManager.Instance.startLoadAsset += LoadAsset;
+        AddressableManager.Instance.onLoadProgress += OnProgressChanged;
         AddressableManager.Instance.endLoad += EndLoad;
 
         loadingPercentText.gameObject.SetActive(false);
@@ -34,10 +34,11 @@ public class UI_Loading : UI
 
     private void OnProgressChanged(float progress)
     {
-        int percent = (int)(progress / 100);
+        float percent = progress / 100;
         loadingBar.value = percent;
         loadingPercentText.gameObject.SetActive(true);
-        loadingPercentText.SetText("{0}%", percent);
+        loadingPercentText.SetText("{0}%", progress);
+        Debug.Log($"progress: {progress}, percent: {percent}");
     }
 
     private void Load()
@@ -59,6 +60,7 @@ public class UI_Loading : UI
 
     private IEnumerator Downloading()
     {
+        loadingPercentText.gameObject.SetActive(true);
         loadingMBText.gameObject.SetActive(true);
 
         float cur = 0f;
@@ -75,12 +77,7 @@ public class UI_Loading : UI
 
             if (cur >= AddressableManager.Instance.patchSize)
             {
-                yield return new WaitForSeconds(2f);
-
-                AddressableManager.Instance.startDownload -= Download;
-
-                EndLoad();
-
+                loadingMBText.gameObject.SetActive(false);
                 break;
             }
 
@@ -88,9 +85,28 @@ public class UI_Loading : UI
         }
     }
 
+    private void LoadAsset()
+    {
+        loadingBar.value = 0f;
+        loadingText.SetText("Loading Assets");
+    }
+
+    private new void Clear()
+    {
+        AddressableManager.Instance.startLoad -= Load;
+        AddressableManager.Instance.startCatalogCheck -= CheckCatalog;
+        AddressableManager.Instance.startDownload -= Download;
+        AddressableManager.Instance.startLoadAsset -= LoadAsset;
+        AddressableManager.Instance.onLoadProgress -= OnProgressChanged;
+        AddressableManager.Instance.endLoad -= EndLoad;
+    }
+
     private void EndLoad()
     {
+        Clear();
+
         loadingText.SetText("Loading Complete!");
+        loadingMBText.SetText("100%");
         loadingMBText.gameObject.SetActive(true);
         loadingMBText.SetText("Click Anywhere To Continue");
         continueButton.interactable = true;

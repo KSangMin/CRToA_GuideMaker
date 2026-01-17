@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class TabSelectButton : MonoBehaviour
 {
     public int id = -1;
-    [SerializeField] private GameObject panel;
+    [SerializeField] private TabScrollView panel;
     [SerializeField] private TabController tabController;
     private Button button;
     private Image buttonImage;
@@ -20,9 +20,14 @@ public class TabSelectButton : MonoBehaviour
         button.onClick.AddListener(() => tabController.SelectTab(id));
     }
 
+    public void Init(string label)
+    {
+        panel.Init(label);
+    }
+
     public void SelectButton(bool flag)
     {
         buttonImage.color = flag ? selectedColor : notSelectedColor;
-        panel.SetActive(flag);
+        panel.gameObject.SetActive(flag);
     }
 }

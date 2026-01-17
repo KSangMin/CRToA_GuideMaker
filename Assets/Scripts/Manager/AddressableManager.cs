@@ -11,8 +11,9 @@ public class AddressableManager : Singleton<AddressableManager>
     private AssetLabelReference _defaultLabel = new() { labelString = "default" };
     private List<string> _labels = new()
     {
-        "Cookie", "Equipment", "Artifact", "Potential", "Seasonite"
+        "Cookie", "Artifact", "Equipment", "Potential"/*, "Seasonite"*/
     };
+    public List<string> Labels { get { return _labels; } }
 
     public long patchSize = default;
     public Dictionary<string, long> patchMap = new();
@@ -22,6 +23,7 @@ public class AddressableManager : Singleton<AddressableManager>
     public Action startLoad;
     public Action startCatalogCheck;
     public Action startDownload;
+    public Action startLoadAsset;
     public Action<float> onLoadProgress;
     public Action endLoad;
 
@@ -54,7 +56,6 @@ public class AddressableManager : Singleton<AddressableManager>
         while (!init.IsDone)
         {
             float progress = init.PercentComplete * 100f;
-            onLoadProgress?.Invoke(progress);
             Debug.Log($"Addressables 초기화 진행 중: {progress:F1}%");
 
             yield return null;
@@ -77,7 +78,6 @@ public class AddressableManager : Singleton<AddressableManager>
 
                 while (!updateHandle.IsDone)
                 {
-                    onLoadProgress?.Invoke(updateHandle.PercentComplete * 100f);
                     Debug.Log($"카탈로그 업데이트 중: {updateHandle.PercentComplete * 100f:F1}%");
                     yield return null;
                 }
@@ -109,14 +109,7 @@ public class AddressableManager : Singleton<AddressableManager>
             Addressables.Release(handle);
         }
 
-        if (patchSize > 0)
-        {
-            StartCoroutine(PatchFiles());
-        }
-        else
-        {
-            endLoad?.Invoke();
-        }
+        StartCoroutine(PatchFiles());
     }
 
     IEnumerator PatchFiles()
@@ -144,8 +137,82 @@ public class AddressableManager : Singleton<AddressableManager>
                 Addressables.Release(downloadHandle);
             }
         }
+
+        StartCoroutine(LoadAllCategories());
     }
     #endregion 다운로드
 
-    
+    #region 애셋 로드
+    public IEnumerator LoadAllCategories()
+    {
+        startLoadAsset?.Invoke();
+        Debug.Log("스프라이트 카테고리 로드 시작...");
+
+        for (int i = 0; i < _labels.Count; i++)
+        {
+            string label = _labels[i];
+            var handle = Addressables.LoadAssetsAsync<Sprite>(label, null);
+            _handles.Add(handle);
+
+            while (!handle.IsDone)
+            {
+                float progress = handle.PercentComplete * 100f;
+                onLoadProgress?.Invoke(progress);
+                Debug.Log($"{label} Asset 로드 진행 중: {progress:F1}%");
+
+                yield return null;
+            }
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                Dictionary<string, Sprite> tempDict = new Dictionary<string, Sprite>();
+                foreach (var sprite in handle.Result)
+                {
+                    if (!tempDict.ContainsKey(sprite.name))
+                    {
+                        tempDict.Add(sprite.name, sprite);
+                    }
+                }
+
+                _spriteDict[label] = tempDict;
+                Debug.Log($"[SpriteManager] {label} 분류 완료: {tempDict.Count}개");
+            }
+        }
+
+        Debug.Log("모든 스프라이트 로드 및 분류 완료!");
+
+        endLoad?.Invoke();
+    }
+
+    public List<Sprite> GetAllSpriteByLabel(string label)
+    {
+        if (!_spriteDict.ContainsKey(label))
+        {
+            Debug.LogWarning($"{label} 라벨 없음");
+            return new();
+        }
+
+        return _spriteDict[label].Values.ToList();
+    }
+
+    public Sprite GetSprite(string label, string spriteName)
+    {
+        if (_spriteDict.TryGetValue(label, out var dict))
+        {
+            if (dict.TryGetValue(spriteName, out Sprite s))
+                return s;
+        }
+        Debug.LogWarning($"스프라이트 없음: {label} / {spriteName}");
+        return null;
+    }
+    #endregion 애셋 로드
+
+    private void OnDestroy()
+    {
+        foreach (var handle in _handles)
+        {
+            if (handle.IsValid()) Addressables.Release(handle);
+        }
+        _spriteDict.Clear();
+    }
 }

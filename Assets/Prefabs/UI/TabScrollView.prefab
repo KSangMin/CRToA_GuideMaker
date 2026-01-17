@@ -494,7 +494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 521240966035351743}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -523,3 +523,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91df7da5104dbce4a8d4d62d73f7af28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TabScrollView
+  content: {fileID: 521240966035351743}
+  tabSlotPrefab: {fileID: 8451232707180202227, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
