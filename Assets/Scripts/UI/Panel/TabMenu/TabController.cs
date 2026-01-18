@@ -1,21 +1,33 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+[Serializable]
+struct labelPanelPair
+{
+    public AssetLabelReference label;
+    public TabScrollView panel;
+    public labelPanelPair(AssetLabelReference label, TabScrollView panel)
+    {
+        this.label = label;
+        this.panel = panel;
+    }
+}
 
 public class TabController : MonoBehaviour
 {
     [SerializeField] private List<TabSelectButton> buttons = new();
-
-    private void Awake()
-    {
-        SelectTab(0);
-    }
+    [SerializeField] private List<labelPanelPair> panels = new();
 
     private void Start()
     {
-        for(int i = 0; i < AddressableManager.Instance.Labels.Count; i++)
+        for(int i = 0; i < panels.Count; i++)
         {
-            buttons[i].Init(AddressableManager.Instance.Labels[i]);
+            panels[i].panel.Init(panels[i].label.labelString);
         }
+
+        SelectTab(0);
     }
 
     public void SelectTab(int id)

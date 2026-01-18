@@ -11,7 +11,7 @@ public class TabScrollView : MonoBehaviour
     {
         List<Sprite> sprites = AddressableManager.Instance.GetAllSpriteByLabel(label);
 
-        if (!Enum.TryParse<IconType>(label, out IconType iconType))
+        if (!Enum.TryParse(label, out IconType iconType))
         {
             Debug.LogError($"TabScrollView Init Error: Unable to parse IconType from label '{label}'");
             return;

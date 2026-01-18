@@ -15,6 +15,14 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 35224a181f50c8544b420a8953ba5039
   m_SerializeEntries:
+  - m_GUID: 240834416d8b2954fbc29bbbc1c48639
+    m_Address: Assets/Sprites/CRToA/Artifact/Card
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Artifact
+    - Card
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2653602bcf303e2419efe2364faddade
     m_Address: Assets/Sprites/CRToA/Seasonite
     m_ReadOnly: 0
@@ -29,11 +37,20 @@ MonoBehaviour:
     - Potential
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d044b36b5ca09c446b413608e46b84da
-    m_Address: Assets/Sprites/CRToA/Artifact
+  - m_GUID: 811f1dcf8e2857747869d64bc19da586
+    m_Address: Assets/Sprites/CRToA/Artifact/Thumbnail
     m_ReadOnly: 0
     m_SerializedLabels:
     - Artifact
+    - Thumbnail
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88e1a50af3db64e42a1490aa1273db51
+    m_Address: Assets/Sprites/CRToA/Artifact/Header
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Artifact
+    - Header
     - default
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: da094a7754f4bf54e96253917b4338ff

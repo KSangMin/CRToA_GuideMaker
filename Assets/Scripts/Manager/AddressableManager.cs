@@ -11,7 +11,7 @@ public class AddressableManager : Singleton<AddressableManager>
     private AssetLabelReference _defaultLabel = new() { labelString = "default" };
     private List<string> _labels = new()
     {
-        "Cookie", "Artifact", "Equipment", "Potential"/*, "Seasonite"*/
+        "Cookie", "Artifact", "Equipment", "Potential", "Thumbnail", "Header", "Card"/*, "Seasonite"*/
     };
     public List<string> Labels { get { return _labels; } }
 
@@ -74,7 +74,7 @@ public class AddressableManager : Singleton<AddressableManager>
             {
                 Debug.Log($"업데이트할 카탈로그 발견: {catalogsToUpdate.Count}개");
 
-                var updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, false);
+                var updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate);
 
                 while (!updateHandle.IsDone)
                 {
@@ -151,7 +151,7 @@ public class AddressableManager : Singleton<AddressableManager>
         for (int i = 0; i < _labels.Count; i++)
         {
             string label = _labels[i];
-            var handle = Addressables.LoadAssetsAsync<Sprite>(label, null);
+            var handle = Addressables.LoadAssetsAsync<Sprite>(label);
             _handles.Add(handle);
 
             while (!handle.IsDone)

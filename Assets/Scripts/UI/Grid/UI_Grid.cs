@@ -31,9 +31,11 @@ public class UI_Grid : UI
             GameObject row = new("Row");
             HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
             hlGroup.childControlWidth = false;
+            hlGroup.childControlHeight = false;
             hlGroup.spacing = _spacing;
             ContentSizeFitter fitter = row.AddComponent<ContentSizeFitter>();
             fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             row.transform.SetParent(_gridParent);
             _rowGOs.Add(row);
 

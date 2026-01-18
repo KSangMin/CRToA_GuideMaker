@@ -7,6 +7,9 @@ public enum IconType
 {
     Cookie,
     Artifact,
+    Thumbnail,
+    Header,
+    Card,
     Equipment,
     Potential,
     Seasonite,
@@ -31,6 +34,8 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     public void OnBeginDrag(PointerEventData eventData)
     {
         _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+        KeyValuePair<int, int> wh = GetWidthHeight();
+        _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
         Debug.Log("°í½ºÆ® »ý¼ºµÊ");
     }
 
@@ -38,7 +43,7 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     {
         if (_ghost == null) { return; }
 
-        _ghost.transform.position = eventData.position;
+        _ghost.transform.position = eventData.position + new Vector2(-50, -50);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -53,8 +58,8 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
         {
             if (results[0].gameObject.TryGetComponent<Slot>(out Slot slot))
             {
-                _ghost.transform.position = slot.transform.position;
                 _ghost.transform.SetParent(slot.transform);
+                _ghost.transform.position = slot.transform.position + new Vector3(-50, -50, 0);
                 success = true;
                 Debug.Log("slot Å½ÁöµÊ");
             }
@@ -66,5 +71,23 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
         }
 
         _ghost = null;
+    }
+
+    private KeyValuePair<int, int> GetWidthHeight()
+    {
+        KeyValuePair<int, int> wh = new(1, 1);
+        switch (_type)
+        {
+            case IconType.Header:
+                wh = new(2, 1);
+                break;
+            case IconType.Card:
+                wh = new(1, 2);
+                break;
+            default:
+                break;
+        }
+
+        return wh;
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 35224a181f50c8544b420a8953ba5039
   m_currentHash:
     serializedVersion: 2
-    Hash: 2abc5f9b846e53d2847528062eb073ef
+    Hash: c8d3ef836053c52779ea923dfc27179a
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 1
   m_BundleLocalCatalog: 0
@@ -106,6 +106,9 @@ MonoBehaviour:
     - Artifact
     - Potential
     - Seasonite
+    - Thumbnail
+    - Header
+    - Card
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 7e612fcd58017524aae1f3698a04d87f, type: 2}
