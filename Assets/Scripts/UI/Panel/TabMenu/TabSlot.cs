@@ -43,7 +43,7 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     {
         if (_ghost == null) { return; }
 
-        _ghost.transform.position = eventData.position + new Vector2(-50, -50);
+        _ghost.transform.position = eventData.position + new Vector2(-51.25f, 51.25f);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -59,7 +59,7 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
             if (results[0].gameObject.TryGetComponent<Slot>(out Slot slot))
             {
                 _ghost.transform.SetParent(slot.transform);
-                _ghost.transform.position = slot.transform.position + new Vector3(-50, -50, 0);
+                _ghost.transform.position = slot.transform.position;
                 success = true;
                 Debug.Log("slot Å½ÁöµÊ");
             }
