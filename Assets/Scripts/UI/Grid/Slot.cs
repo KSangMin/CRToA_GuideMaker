@@ -1,28 +1,44 @@
 using System.Collections.Generic;
+using Unity.AppUI.MVVM;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Slot : MonoBehaviour
 {
     private UI_Grid _grid;
+    private Image _image;
+
     private int _row = -1;
     private int _col = -1;
     private Slot masterSlot;
 
-    public void SetSlot(UI_Grid grid, int r, int c)
+    public void InitSlot(UI_Grid grid, int r, int c)
     {
+        _image = GetComponent<Image>();
+
         _grid = grid;
         _row = r;
         _col = c;
     }
 
-    public void CheckSlot(KeyValuePair<int, int> wh)
+    public void SetIconToSlot(GameObject ghost, KeyValuePair<int, int> wh)
     {
         ClearSlot();
 
-        for(int i = 0; i < wh.Value; i++)
+        ghost.transform.SetParent(transform);
+        ghost.transform.position = transform.position;
+        masterSlot = this;
+        _image.raycastTarget = true;
+
+        for (int i = 0; i < wh.Value; i++)
         {
             for(int j = 0; j < wh.Key; j++)
             {
+                if(i == 0 && j == 0)
+                {
+                    continue;
+                }
+
                 int targetRow = _row + i;
                 int targetCol = _col + j;
                 _grid.CheckOccupiedSlot(this, targetRow, targetCol);

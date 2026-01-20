@@ -43,7 +43,7 @@ public class UI_Grid : UI
             for(int j = 0; j < _curCol; j++)
             {
                 Slot slot = Instantiate(_slotPrefab, row.transform).GetComponent<Slot>();
-                slot.SetSlot(this, i, j);
+                slot.InitSlot(this, i, j);
                 tempSlots.Add(slot);
             }
 

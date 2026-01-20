@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -29,7 +30,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
     private GameObject _ghost;
     private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
-    [SerializeField] private float holdTime = 0.25f;
+    [SerializeField] private float holdTime = 0.15f;
     private bool _isCanceled = false;
 
     public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite)
@@ -58,8 +59,6 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
             _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
 
             _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
-
-            Debug.Log("²Ú ´­·¯¼­ °í½ºÆ® »ý¼ºµÊ");
         }
         
         _holdCoroutine = null;
@@ -68,6 +67,15 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
     public void OnPointerUp(PointerEventData eventData)
     {
         CancelHold();
+
+        if (_ghost != null)
+        {
+            if (!eventData.dragging)
+            {
+                Destroy(_ghost);
+                _ghost = null;
+            }
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -118,28 +126,33 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
             return;
         }
 
-        ProcessDrop(eventData);
+        if (!ProcessDrop(eventData))
+        {
+            Destroy(_ghost);
+        }
+        _ghost = null;
     }
 
-    private void ProcessDrop(PointerEventData eventData)
+    private bool ProcessDrop(PointerEventData eventData)
     {
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
-        bool success = false;
-        if (results.Count > 0)
+        foreach(var result in results)
         {
-            if (results[0].gameObject.TryGetComponent<Slot>(out Slot slot))
+            if (result.gameObject.GetComponent<UI_Panel>() != null)
             {
-                slot.CheckSlot(GetWidthHeight());
-                _ghost.transform.SetParent(slot.transform);
-                _ghost.transform.position = slot.transform.position;
-                success = true;
+                return false;
+            }
+            else if (result.gameObject.TryGetComponent<Slot>(out Slot slot))
+            {
+                slot.SetIconToSlot(_ghost, GetWidthHeight());
+
+                return true;
             }
         }
 
-        if (!success) Destroy(_ghost);
-        _ghost = null;
+        return false;
     }
 
     private KeyValuePair<int, int> GetWidthHeight()
