@@ -1,10 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
-using Unity.AppUI.MVVM;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Icon : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
     private Slot _parentSlot;
 
@@ -13,6 +13,11 @@ public class Icon : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     private float _height;
     private int _widthModifier = 1;
     private int _heightModifier = 1;
+
+    private Vector2 _startPosition;
+    private Coroutine _holdCoroutine;
+    private float holdTime = 0.2f;
+    private bool _isCanceled = false;
 
     private void Awake()
     {
@@ -43,19 +48,65 @@ public class Icon : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
         GetComponent<Image>().raycastTarget = true;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
-        transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-        transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+        _isCanceled = false;
+        _startPosition = eventData.position;
+        _holdCoroutine = StartCoroutine(waitForHold(eventData));
+    }
+
+    private IEnumerator waitForHold(PointerEventData eventData)
+    {
+        yield return new WaitForSeconds(holdTime);
+
+        if (!_isCanceled)
+        {
+            transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+            transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+        }
+
+        _holdCoroutine = null;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        CancelHold();
+
+        if (!eventData.dragging)
+        {
+            SetParentSlot(_parentSlot);
+            //TODO: 크기 설정 관련 코드 추가
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        float distance = Vector2.Distance(_startPosition, eventData.position);
+        if (!_isCanceled && distance > EventSystem.current.pixelDragThreshold)
+        {
+            CancelHold();
+            SetParentSlot(_parentSlot);
+
+            return;
+        }
+
         transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+    }
+
+    private void CancelHold()
+    {
+        _isCanceled = true;
+        if (_holdCoroutine != null)
+        {
+            StopCoroutine(_holdCoroutine);
+            _holdCoroutine = null;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        CancelHold();
+
         if (!ProcessDrop(eventData))
         {
             SetParentSlot(_parentSlot);
@@ -75,7 +126,7 @@ public class Icon : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
             }
             else if (result.gameObject.TryGetComponent<Slot>(out Slot slot))
             {
-                if(slot == _parentSlot)
+                if (slot == _parentSlot)
                 {
                     return false;
                 }

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -30,7 +29,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
     private GameObject _ghost;
     private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
-    [SerializeField] private float holdTime = 0.1f;
+    private float holdTime = 0.2f;
     private bool _isCanceled = false;
 
     public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite)
@@ -60,7 +59,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 
             _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
         }
-        
+
         _holdCoroutine = null;
     }
 
@@ -138,7 +137,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
-        foreach(var result in results)
+        foreach (var result in results)
         {
             if (result.gameObject.GetComponent<UI_Panel>() != null)
             {
