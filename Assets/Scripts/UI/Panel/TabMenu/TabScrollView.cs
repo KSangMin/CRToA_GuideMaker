@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TabScrollView : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class TabScrollView : MonoBehaviour
             GameObject slotObj = Instantiate(tabSlotPrefab, transform);
             slotObj.transform.SetParent(content);
             TabSlot slot = slotObj.GetComponent<TabSlot>();
-            slot.SetSlot(iconType, i, sprites[i]);
+            slot.SetSlot(GetComponent<ScrollRect>(), iconType, i, sprites[i]);
         }
     }
 }

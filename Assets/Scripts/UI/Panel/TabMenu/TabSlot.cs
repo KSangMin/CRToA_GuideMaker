@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -15,46 +16,118 @@ public enum IconType
     Seasonite,
 }
 
-public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
     private IconType _type;
     private int _id = -1;
 
+    private float halfSlotSize = 51.25f;
+
+    private ScrollRect _parentScroll;
+
     [SerializeField] private GameObject iconPrefab;
-
     private GameObject _ghost;
+    private Vector2 _startPosition;
+    private Coroutine _holdCoroutine;
+    [SerializeField] private float holdTime = 0.25f;
+    private bool _isCanceled = false;
 
-    public void SetSlot(IconType type, int id, Sprite sprite)
+    public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite)
     {
+        _parentScroll = scroll;
         _type = type;
         _id = id;
         GetComponent<Image>().sprite = sprite;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
-        _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-        KeyValuePair<int, int> wh = GetWidthHeight();
-        _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
-        Debug.Log("°í½ºÆ® »ý¼ºµÊ");
+        _isCanceled = false;
+        _startPosition = eventData.position;
+        _holdCoroutine = StartCoroutine(CreateGhostAfterDelay(eventData));
+    }
+
+    private IEnumerator CreateGhostAfterDelay(PointerEventData eventData)
+    {
+        yield return new WaitForSeconds(holdTime);
+
+        if (!_isCanceled)
+        {
+            _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+            KeyValuePair<int, int> wh = GetWidthHeight();
+            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
+
+            _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+
+            Debug.Log("²Ú ´­·¯¼­ °í½ºÆ® »ý¼ºµÊ");
+        }
+        
+        _holdCoroutine = null;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        CancelHold();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (_ghost == null) { return; }
+        if (_ghost == null)
+        {
+            float distance = Vector2.Distance(_startPosition, eventData.position);
+            if (!_isCanceled && distance > EventSystem.current.pixelDragThreshold)
+            {
+                CancelHold();
 
-        _ghost.transform.position = eventData.position + new Vector2(-51.25f, 51.25f);
+                if (_parentScroll != null)
+                {
+                    _parentScroll.OnInitializePotentialDrag(eventData);
+                    _parentScroll.OnBeginDrag(eventData);
+                }
+            }
+            if (_isCanceled && _parentScroll != null)
+            {
+                _parentScroll.OnDrag(eventData);
+            }
+            return;
+        }
+
+        _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+    }
+
+    private void CancelHold()
+    {
+        _isCanceled = true;
+        if (_holdCoroutine != null)
+        {
+            StopCoroutine(_holdCoroutine);
+            _holdCoroutine = null;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (_ghost == null) { return; }
+        CancelHold();
 
+        if (_ghost == null)
+        {
+            if (_parentScroll != null)
+            {
+                _parentScroll.OnEndDrag(eventData);
+            }
+            return;
+        }
+
+        ProcessDrop(eventData);
+    }
+
+    private void ProcessDrop(PointerEventData eventData)
+    {
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
         bool success = false;
-        if(results.Count > 0)
+        if (results.Count > 0)
         {
             if (results[0].gameObject.TryGetComponent<Slot>(out Slot slot))
             {
@@ -62,15 +135,10 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
                 _ghost.transform.SetParent(slot.transform);
                 _ghost.transform.position = slot.transform.position;
                 success = true;
-                Debug.Log("slot Å½ÁöµÊ");
             }
         }
 
-        if (!success)
-        {
-            Destroy(_ghost);
-        }
-
+        if (!success) Destroy(_ghost);
         _ghost = null;
     }
 
