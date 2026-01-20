@@ -58,6 +58,7 @@ public class TabSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
         {
             if (results[0].gameObject.TryGetComponent<Slot>(out Slot slot))
             {
+                slot.CheckSlot(GetWidthHeight());
                 _ghost.transform.SetParent(slot.transform);
                 _ghost.transform.position = slot.transform.position;
                 success = true;

@@ -10,8 +10,8 @@ public class UI_Grid : UI
 
     private List<List<Slot>> _slots = new();
     private List<GameObject> _rowGOs = new();
-    private int _startRow = 20;
-    private int _startCol = 20;
+    private int _curRow = 20;
+    private int _curCol = 20;
     private int _spacing = 0;
 
     protected override void Awake()
@@ -26,7 +26,7 @@ public class UI_Grid : UI
     {
         base.Start();
 
-        for(int i = 0; i < _startRow; i++)
+        for(int i = 0; i < _curRow; i++)
         {
             GameObject row = new("Row");
             HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
@@ -40,13 +40,25 @@ public class UI_Grid : UI
             _rowGOs.Add(row);
 
             List<Slot> tempSlots = new();
-            for(int j = 0; j < _startCol; j++)
+            for(int j = 0; j < _curCol; j++)
             {
-                GameObject slot = Instantiate(_slotPrefab, row.transform);
-                tempSlots.Add(slot.GetComponent<Slot>());
+                Slot slot = Instantiate(_slotPrefab, row.transform).GetComponent<Slot>();
+                slot.SetSlot(this, i, j);
+                tempSlots.Add(slot);
             }
 
             _slots.Add(tempSlots);
         }
+    }
+
+    public void CheckOccupiedSlot(Slot source, int r, int c)
+    {
+        if(r < 0 || r >= _curRow || c < 0 || c >= _curCol)
+        {
+            return;
+        }
+
+        _slots[r][c].ClearSlot();
+        _slots[r][c].OccupySlot(source);
     }
 }
