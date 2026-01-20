@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.AppUI.MVVM;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Slot : MonoBehaviour
 {
@@ -23,15 +21,14 @@ public class Slot : MonoBehaviour
     {
         ClearSlot();
 
-        ghost.transform.SetParent(transform);
-        ghost.transform.position = transform.position;
+        ghost.GetComponent<Icon>().SetParentSlot(this);
         _mainSlot = this;
 
         for (int i = 0; i < wh.Value; i++)
         {
-            for(int j = 0; j < wh.Key; j++)
+            for (int j = 0; j < wh.Key; j++)
             {
-                if(i == 0 && j == 0)
+                if (i == 0 && j == 0)
                 {
                     continue;
                 }
@@ -56,21 +53,22 @@ public class Slot : MonoBehaviour
 
     public void ClearSlot()
     {
-        if(_mainSlot != null)
+        if (_mainSlot != null)
         {
             Slot temp = _mainSlot;
             _mainSlot = null;
             temp.ClearSlot();
         }
 
-        foreach(Transform child in transform)
+        foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
         }
 
-        foreach(Slot sub in _subSlots)
+        for (int i = _subSlots.Count - 1; i >= 0; i--)
         {
-            sub.ClearSlot();
+            _subSlots[i].ClearSlot();
         }
+        _subSlots.Clear();
     }
 }
