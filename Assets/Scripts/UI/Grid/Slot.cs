@@ -6,16 +6,14 @@ using UnityEngine.UI;
 public class Slot : MonoBehaviour
 {
     private UI_Grid _grid;
-    private Image _image;
 
     private int _row = -1;
     private int _col = -1;
-    private Slot masterSlot;
+    private Slot _mainSlot;
+    private List<Slot> _subSlots = new();
 
     public void InitSlot(UI_Grid grid, int r, int c)
     {
-        _image = GetComponent<Image>();
-
         _grid = grid;
         _row = r;
         _col = c;
@@ -27,8 +25,7 @@ public class Slot : MonoBehaviour
 
         ghost.transform.SetParent(transform);
         ghost.transform.position = transform.position;
-        masterSlot = this;
-        _image.raycastTarget = true;
+        _mainSlot = this;
 
         for (int i = 0; i < wh.Value; i++)
         {
@@ -46,23 +43,34 @@ public class Slot : MonoBehaviour
         }
     }
 
-    public void OccupySlot(Slot master)
+    public void OccupySlot(Slot main)
     {
-        masterSlot = master;
+        _mainSlot = main;
+        main.SubmitOccupiedSlot(this);
+    }
+
+    public void SubmitOccupiedSlot(Slot sub)
+    {
+        _subSlots.Add(sub);
     }
 
     public void ClearSlot()
     {
-        if(masterSlot != null)
+        if(_mainSlot != null)
         {
-            Slot temp = masterSlot;
-            masterSlot = null;
+            Slot temp = _mainSlot;
+            _mainSlot = null;
             temp.ClearSlot();
         }
 
         foreach(Transform child in transform)
         {
             Destroy(child.gameObject);
+        }
+
+        foreach(Slot sub in _subSlots)
+        {
+            sub.ClearSlot();
         }
     }
 }

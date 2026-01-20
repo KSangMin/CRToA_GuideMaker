@@ -30,7 +30,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
     private GameObject _ghost;
     private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
-    [SerializeField] private float holdTime = 0.15f;
+    [SerializeField] private float holdTime = 0.1f;
     private bool _isCanceled = false;
 
     public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite)
