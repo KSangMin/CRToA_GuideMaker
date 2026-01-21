@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Slot : MonoBehaviour
@@ -21,9 +22,6 @@ public class Slot : MonoBehaviour
     {
         ClearSlot();
 
-        ghost.GetComponent<Icon>().SetParentSlot(this);
-        _mainSlot = this;
-
         for (int i = 0; i < wh.Value; i++)
         {
             for (int j = 0; j < wh.Key; j++)
@@ -38,6 +36,9 @@ public class Slot : MonoBehaviour
                 _grid.CheckOccupiedSlot(this, targetRow, targetCol);
             }
         }
+
+        _mainSlot = this;
+        ghost.GetComponent<Icon>().SetParentSlot(this);
     }
 
     public void OccupySlot(Slot main)
@@ -62,7 +63,8 @@ public class Slot : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            Destroy(child.gameObject);
+            Debug.Log($"{name}의 자식: {child.name} 삭제");
+            DestroyImmediate(child.gameObject);
         }
 
         for (int i = _subSlots.Count - 1; i >= 0; i--)

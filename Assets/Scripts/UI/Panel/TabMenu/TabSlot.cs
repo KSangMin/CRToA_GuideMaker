@@ -139,12 +139,13 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 
         foreach (var result in results)
         {
-            if (result.gameObject.GetComponent<UI_Panel>() != null)
+            if (result.gameObject.CompareTag("UncreatableUI"))
             {
                 return false;
             }
-            else if (result.gameObject.TryGetComponent<Slot>(out Slot slot))
+            else if (result.gameObject.CompareTag("ForegroundSlot"))
             {
+                Slot slot = result.gameObject.GetComponent<Slot>();
                 slot.SetIconToSlot(_ghost, GetWidthHeight());
 
                 return true;

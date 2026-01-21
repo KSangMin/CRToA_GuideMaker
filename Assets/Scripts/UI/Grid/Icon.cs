@@ -18,6 +18,7 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
     private Coroutine _holdCoroutine;
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
+    private bool _isDraggable = false;
 
     private void Awake()
     {
@@ -46,6 +47,8 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
         transform.position = _parentSlot.transform.position;
 
         GetComponent<Image>().raycastTarget = true;
+
+        Debug.Log($"ºÎ¸ð: {parent.name}");
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -61,6 +64,7 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
 
         if (!_isCanceled)
         {
+            _isDraggable = true;
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
             transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
         }
@@ -81,12 +85,13 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
 
     public void OnDrag(PointerEventData eventData)
     {
-        float distance = Vector2.Distance(_startPosition, eventData.position);
-        if (!_isCanceled && distance > EventSystem.current.pixelDragThreshold)
+        if (!_isDraggable)
         {
-            CancelHold();
-            SetParentSlot(_parentSlot);
-
+            float distance = Vector2.Distance(_startPosition, eventData.position);
+            if (distance > EventSystem.current.pixelDragThreshold)
+            {//
+                CancelHold();
+            }
             return;
         }
 
@@ -107,10 +112,12 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
     {
         CancelHold();
 
-        if (!ProcessDrop(eventData))
+        if (!_isDraggable || !ProcessDrop(eventData))
         {
             SetParentSlot(_parentSlot);
         }
+
+        _isDraggable = false;
     }
 
     private bool ProcessDrop(PointerEventData eventData)
@@ -120,12 +127,13 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
 
         foreach (var result in results)
         {
-            if (result.gameObject.GetComponent<UI_Panel>() != null)
+            if (result.gameObject.CompareTag("UncreatableUI"))
             {
                 return false;
             }
-            else if (result.gameObject.TryGetComponent<Slot>(out Slot slot))
+            else if (result.gameObject.CompareTag("ForegroundSlot"))
             {
+                Slot slot = result.gameObject.GetComponent<Slot>();
                 if (slot == _parentSlot)
                 {
                     return false;
