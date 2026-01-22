@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     private Slot _parentSlot;
 
@@ -13,6 +13,7 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
     private float _height;
     private int _widthModifier = 1;
     private int _heightModifier = 1;
+    private bool _isBackground;
 
     private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
@@ -26,10 +27,11 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
         _height = GetComponent<RectTransform>().sizeDelta.y;
     }
 
-    public void SetIcon(int w, int h, Sprite sprite)
+    public void SetIcon(int w, int h, Sprite sprite, bool isBackground)
     {
         _widthModifier = w;
         _heightModifier = h;
+        _isBackground = isBackground;
         GetComponent<Image>().sprite = sprite;
         SetRect(w, h);
     }
@@ -76,11 +78,13 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
     {
         CancelHold();
 
-        if (!eventData.dragging)
+        if (!_isDraggable || !ProcessDrop(eventData))
         {
             SetParentSlot(_parentSlot);
             //TODO: 크기 설정 관련 코드 추가
         }
+
+        _isDraggable = false;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -106,18 +110,6 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
             StopCoroutine(_holdCoroutine);
             _holdCoroutine = null;
         }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        CancelHold();
-
-        if (!_isDraggable || !ProcessDrop(eventData))
-        {
-            SetParentSlot(_parentSlot);
-        }
-
-        _isDraggable = false;
     }
 
     private bool ProcessDrop(PointerEventData eventData)

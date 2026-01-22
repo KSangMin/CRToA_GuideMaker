@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Slot : MonoBehaviour
+public class Slot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
     private UI_Grid _grid;
 
@@ -10,6 +10,7 @@ public class Slot : MonoBehaviour
     private int _col = -1;
     private Slot _mainSlot;
     private List<Slot> _subSlots = new();
+    private Icon _occupyingIcon;
 
     public void InitSlot(UI_Grid grid, int r, int c)
     {
@@ -38,7 +39,8 @@ public class Slot : MonoBehaviour
         }
 
         _mainSlot = this;
-        ghost.GetComponent<Icon>().SetParentSlot(this);
+        _occupyingIcon = ghost.GetComponent<Icon>();
+        _occupyingIcon.SetParentSlot(this);
     }
 
     public void OccupySlot(Slot main)
@@ -61,10 +63,12 @@ public class Slot : MonoBehaviour
             temp.ClearSlot();
         }
 
+        _occupyingIcon = null;
+
         foreach (Transform child in transform)
         {
             Debug.Log($"{name}의 자식: {child.name} 삭제");
-            DestroyImmediate(child.gameObject);
+            Destroy(child.gameObject);
         }
 
         for (int i = _subSlots.Count - 1; i >= 0; i--)
@@ -72,5 +76,35 @@ public class Slot : MonoBehaviour
             _subSlots[i].ClearSlot();
         }
         _subSlots.Clear();
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if(_mainSlot != null && _mainSlot != this)
+        {
+            _mainSlot.OnPointerDown(eventData);
+            return;
+        }
+        _occupyingIcon?.OnPointerDown(eventData);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (_mainSlot != null && _mainSlot != this)
+        {
+            _mainSlot.OnPointerUp(eventData);
+            return;
+        }
+        _occupyingIcon?.OnPointerUp(eventData);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (_mainSlot != null && _mainSlot != this)
+        {
+            _mainSlot.OnDrag(eventData);
+            return;
+        }
+        _occupyingIcon?.OnDrag(eventData);
     }
 }

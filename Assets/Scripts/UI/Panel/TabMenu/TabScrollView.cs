@@ -23,7 +23,8 @@ public class TabScrollView : MonoBehaviour
             GameObject slotObj = Instantiate(tabSlotPrefab, transform);
             slotObj.transform.SetParent(content);
             TabSlot slot = slotObj.GetComponent<TabSlot>();
-            slot.SetSlot(GetComponent<ScrollRect>(), iconType, i, sprites[i]);
+            slot.SetSlot(GetComponent<ScrollRect>(), iconType, i, sprites[i],
+                label == "Background");
         }
     }
 }

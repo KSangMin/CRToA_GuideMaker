@@ -20,6 +20,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 {
     private IconType _type;
     private int _id = -1;
+    private bool _isBackground;
 
     private float halfSlotSize = 51.25f;
 
@@ -32,11 +33,12 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
 
-    public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite)
+    public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite, bool isBackground)
     {
         _parentScroll = scroll;
         _type = type;
         _id = id;
+        _isBackground = isBackground;
         GetComponent<Image>().sprite = sprite;
     }
 
@@ -55,7 +57,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
         {
             _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
             KeyValuePair<int, int> wh = GetWidthHeight();
-            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
+            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite, _isBackground);
 
             _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
         }
