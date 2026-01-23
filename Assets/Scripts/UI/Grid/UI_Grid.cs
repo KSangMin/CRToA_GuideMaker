@@ -1,105 +1,53 @@
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class UI_Grid : UI
+public class UI_Grid : UI, IDragHandler, IScrollHandler
 {
-    private GameObject _backgroundSlotPrefab;
-    private GameObject _foregroundSlotPrefab;
-    [SerializeField] private Transform _backgroundGridParent;
-    [SerializeField] private Transform _foregroundSlotGridParent;
-
-    private List<List<Slot>> _backgroundSlots = new();
-    private List<GameObject> _backgroundSlotsRowGOs = new();
-    private List<List<Slot>> _foregroundSlots = new();
-    private List<GameObject> _foregroundSlotsRowGOs = new();
-    private int _curRow = 20;
-    private int _curCol = 20;
-    private int _spacing = 0;
+    [SerializeField] private RectTransform _content;
+    [SerializeField] private float zoomSpeed = 0.1f;
+    [SerializeField] private float minZoom = 0.2f;
+    [SerializeField] private float maxZoom = 5.0f;
 
     protected override void Awake()
     {
         base.Awake();
-
-        _backgroundSlotPrefab = Resources.Load<GameObject>($"Prefabs/UI/BackgroundSlot");
-        _foregroundSlotPrefab = Resources.Load<GameObject>($"Prefabs/UI/ForegroundSlot");
     }
 
     protected override void Start()
     {
         base.Start();
-
-        CreateBackground();
-        CreateSlot();
     }
 
-    private void CreateBackground()
+    public void OnDrag(PointerEventData eventData)
     {
-        for (int i = 0; i < _curRow; i++)
-        {
-            GameObject row = new($"Row_{i}");
-            HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
-            hlGroup.childControlWidth = false;
-            hlGroup.childControlHeight = false;
-            hlGroup.spacing = _spacing;
-            ContentSizeFitter fitter = row.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            row.transform.SetParent(_backgroundGridParent);
-            _backgroundSlotsRowGOs.Add(row);
-
-            List<Slot> tempSlots = new();
-            for (int j = 0; j < _curCol; j++)
-            {
-                Slot slot = Instantiate(_backgroundSlotPrefab, row.transform).GetComponent<Slot>();
-                slot.gameObject.name = $"BackgroundSlot_{i}_{j}";
-                slot.InitSlot(this, i, j);
-                tempSlots.Add(slot);
-            }
-
-            _backgroundSlots.Add(tempSlots);
-        }
-    }
-
-    private void CreateSlot()
-    {
-        for (int i = 0; i < _curRow; i++)
-        {
-            GameObject row = new($"Row_{i}");
-            HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
-            hlGroup.childControlWidth = false;
-            hlGroup.childControlHeight = false;
-            hlGroup.spacing = _spacing;
-            ContentSizeFitter fitter = row.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            row.transform.SetParent(_foregroundSlotGridParent);
-            _foregroundSlotsRowGOs.Add(row);
-
-            List<Slot> tempSlots = new();
-            for (int j = 0; j < _curCol; j++)
-            {
-                Slot slot = Instantiate(_foregroundSlotPrefab, row.transform).GetComponent<Slot>();
-                slot.gameObject.name = $"ForegroundSlot_{i}_{j}";
-                slot.InitSlot(this, i, j);
-                tempSlots.Add(slot);
-            }
-
-            _foregroundSlots.Add(tempSlots);
-        }
-    }
-
-    public void CheckOccupiedSlot(Slot source, int r, int c)
-    {
-        if(r < 0 || r >= _curRow || c < 0 || c >= _curCol)
+        if(_content == null)
         {
             return;
         }
 
-        Slot cur = _foregroundSlots[r][c];
+        _content.anchoredPosition += eventData.delta / GetCanvasScale();
+    }
 
-        cur.ClearSlot();
-        cur.OccupySlot(source);
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (_content == null) return;
+
+        float scroll = eventData.scrollDelta.y;
+        float zoomStep = 1 + (scroll * zoomSpeed);
+
+        Vector3 newScale = _content.localScale * zoomStep;
+
+        newScale.x = Mathf.Clamp(newScale.x, minZoom, maxZoom);
+        newScale.y = Mathf.Clamp(newScale.y, minZoom, maxZoom);
+        newScale.z = 1;
+
+        _content.localScale = newScale;
+    }
+
+    private float GetCanvasScale()
+    {
+        // 캔버스의 Scale Factor를 가져와 드래그 속도를 일정하게 유지
+        Canvas canvas = GetComponentInParent<Canvas>();
+        return canvas != null ? canvas.scaleFactor : 1.0f;
     }
 }

@@ -34,7 +34,7 @@ public class Slot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
 
                 int targetRow = _row + i;
                 int targetCol = _col + j;
-                _grid.CheckOccupiedSlot(this, targetRow, targetCol);
+                //_grid.CheckOccupiedSlot(this, targetRow, targetCol);
             }
         }
 
