@@ -1,12 +1,15 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class UI_Grid : UI, IDragHandler, IScrollHandler
 {
-    [SerializeField] private RectTransform _content;
+    public RectTransform content;
     [SerializeField] private float zoomSpeed = 0.1f;
     [SerializeField] private float minZoom = 0.2f;
     [SerializeField] private float maxZoom = 5.0f;
+
+    public Transform _forDragParent;
 
     protected override void Awake()
     {
@@ -20,28 +23,28 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        if(_content == null)
+        if(content == null)
         {
             return;
         }
 
-        _content.anchoredPosition += eventData.delta / GetCanvasScale();
+        content.anchoredPosition += eventData.delta / GetCanvasScale();
     }
 
     public void OnScroll(PointerEventData eventData)
     {
-        if (_content == null) return;
+        if (content == null) return;
 
         float scroll = eventData.scrollDelta.y;
         float zoomStep = 1 + (scroll * zoomSpeed);
 
-        Vector3 newScale = _content.localScale * zoomStep;
+        Vector3 newScale = content.localScale * zoomStep;
 
         newScale.x = Mathf.Clamp(newScale.x, minZoom, maxZoom);
         newScale.y = Mathf.Clamp(newScale.y, minZoom, maxZoom);
         newScale.z = 1;
 
-        _content.localScale = newScale;
+        content.localScale = newScale;
     }
 
     private float GetCanvasScale()

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7087488586502841670}
   - component: {fileID: 9217264695903530001}
   - component: {fileID: 6699588349907550167}
+  - component: {fileID: -240215165030559846}
   - component: {fileID: 1163570046602876382}
   m_Layer: 5
   m_Name: Icon
@@ -36,8 +37,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 102.5, y: 102.5}
-  m_Pivot: {x: 0, y: 1}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9217264695903530001
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -76,6 +77,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-240215165030559846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3469580997410504468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4974ea12cd45d6845a3124e82c1655bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PressHandler
+  _holdTime: 0.25
+  _isLongPress: 0
 --- !u!114 &1163570046602876382
 MonoBehaviour:
   m_ObjectHideFlags: 0

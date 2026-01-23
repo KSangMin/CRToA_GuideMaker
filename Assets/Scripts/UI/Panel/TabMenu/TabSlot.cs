@@ -57,7 +57,7 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
         {
             _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
             KeyValuePair<int, int> wh = GetWidthHeight();
-            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite, _isBackground);
+            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
 
             _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
         }
@@ -147,8 +147,8 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
             }
             else if (result.gameObject.CompareTag("ForegroundSlot"))
             {
-                Slot slot = result.gameObject.GetComponent<Slot>();
-                slot.SetIconToSlot(_ghost, GetWidthHeight());
+                //Slot slot = result.gameObject.GetComponent<Slot>();
+                //slot.SetIconToSlot(_ghost, GetWidthHeight());
 
                 return true;
             }

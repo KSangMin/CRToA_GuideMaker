@@ -4,22 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+public class Icon : MonoBehaviour, IEndDragHandler
 {
-    private Slot _parentSlot;
-
-    private float halfSlotSize = 51.25f;
     private float _width;
     private float _height;
     private int _widthModifier = 1;
     private int _heightModifier = 1;
-    private bool _isBackground;
-
-    private Vector2 _startPosition;
-    private Coroutine _holdCoroutine;
-    private float holdTime = 0.2f;
-    private bool _isCanceled = false;
-    private bool _isDraggable = false;
 
     private void Awake()
     {
@@ -27,11 +17,10 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
         _height = GetComponent<RectTransform>().sizeDelta.y;
     }
 
-    public void SetIcon(int w, int h, Sprite sprite, bool isBackground)
+    public void SetIcon(int w, int h, Sprite sprite)
     {
         _widthModifier = w;
         _heightModifier = h;
-        _isBackground = isBackground;
         GetComponent<Image>().sprite = sprite;
         SetRect(w, h);
     }
@@ -41,103 +30,22 @@ public class Icon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDrag
         GetComponent<RectTransform>().sizeDelta = new(_width * _widthModifier, _height * _heightModifier);
     }
 
-    public void SetParentSlot(Slot parent)
-    {
-        _parentSlot = parent;
-
-        transform.SetParent(_parentSlot.transform);
-        transform.position = _parentSlot.transform.position;
-
-        GetComponent<Image>().raycastTarget = true;
-
-        Debug.Log($"부모: {parent.name}");
-    }
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        _isCanceled = false;
-        _startPosition = eventData.position;
-        _holdCoroutine = StartCoroutine(waitForHold(eventData));
-    }
-
-    private IEnumerator waitForHold(PointerEventData eventData)
-    {
-        yield return new WaitForSeconds(holdTime);
-
-        if (!_isCanceled)
-        {
-            _isDraggable = true;
-            transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-            transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
-        }
-
-        _holdCoroutine = null;
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        CancelHold();
-
-        if (!_isDraggable || !ProcessDrop(eventData))
-        {
-            SetParentSlot(_parentSlot);
-            //TODO: 크기 설정 관련 코드 추가
-        }
-
-        _isDraggable = false;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!_isDraggable)
-        {
-            float distance = Vector2.Distance(_startPosition, eventData.position);
-            if (distance > EventSystem.current.pixelDragThreshold)
-            {//
-                CancelHold();
-            }
-            return;
-        }
-
-        transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
-    }
-
-    private void CancelHold()
-    {
-        _isCanceled = true;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
-    private bool ProcessDrop(PointerEventData eventData)
+    public void OnEndDrag(PointerEventData eventData)
     {
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
         foreach (var result in results)
         {
-            if (result.gameObject.CompareTag("UncreatableUI"))
+            if (result.gameObject.TryGetComponent(out BackgroundSlot targetSlot))
             {
-                return false;
-            }
-            else if (result.gameObject.CompareTag("ForegroundSlot"))
-            {
-                Slot slot = result.gameObject.GetComponent<Slot>();
-                if (slot == _parentSlot)
-                {
-                    return false;
-                }
-
-                _parentSlot.ClearSlot();
-                slot.SetIconToSlot(gameObject, new(_widthModifier, _heightModifier));
-
-                return true;
+                targetSlot.AddIcon(GetComponent<RectTransform>());
+                return;
             }
         }
 
-        return false;
+        // 배경 슬롯 밖으로 드롭했다면? 
+        // 기존 부모(Content)로 돌아가거나, 새로운 배경 슬롯을 생성하는 로직을 여기에 넣습니다.
+        transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
     }
 }
