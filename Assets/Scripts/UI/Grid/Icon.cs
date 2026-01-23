@@ -47,5 +47,6 @@ public class Icon : MonoBehaviour, IEndDragHandler
         // 배경 슬롯 밖으로 드롭했다면? 
         // 기존 부모(Content)로 돌아가거나, 새로운 배경 슬롯을 생성하는 로직을 여기에 넣습니다.
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
+        transform.localScale = Vector3.one;
     }
 }

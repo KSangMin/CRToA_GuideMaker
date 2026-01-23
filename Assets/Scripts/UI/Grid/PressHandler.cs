@@ -32,18 +32,23 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         // 시각적 피드백
         transform.localScale = Vector3.one * 0.9f;
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>()._forDragParent);
+        MoveToMousePosition(eventData);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         if (timerCoroutine != null) StopCoroutine(timerCoroutine);
-        transform.localScale = Vector3.one;
 
-        if (!_isLongPress && !eventData.dragging)
+        if (!eventData.dragging)
         {
-            // 드래그가 되지 않았고 롱 프레스도 아니면 '클릭'으로 판정
-            Debug.Log("단순 클릭: 크기 조절 UI 오픈");
-            // 크기 조절 UI 호출해주면 됨
+            transform.localScale = Vector3.one;
+            transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
+            if (!_isLongPress)
+            {
+                // 드래그가 되지 않았고 롱 프레스도 아니면 '클릭'으로 판정
+                Debug.Log("단순 클릭: 크기 조절 UI 오픈");
+                // 크기 조절 UI 호출해주면 됨
+            }
         }
     }
 
@@ -65,14 +70,21 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         if (!_isLongPress) return;
 
         // 드래그 로직 (마우스 따라 이동)
-        transform.position = eventData.position + new Vector2(-_rect.sizeDelta.x / 2f, _rect.sizeDelta.y / 2f);
+        MoveToMousePosition(eventData);
+    }
+
+    private void MoveToMousePosition(PointerEventData eventData)
+    {
+        Vector2 offset = new Vector2(-_rect.sizeDelta.x * 0.5f, _rect.sizeDelta.y * 0.5f);
+        offset *= UIManager.Instance.GetUI<UI_Grid>().content.localScale.x;
+        transform.position = eventData.position + offset;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         _isLongPress = false;
-        transform.localScale = Vector3.one;
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
+        transform.localScale = Vector3.one;
         // 여기서 자석 스냅(3~4단계) 로직 호출
     }
 }

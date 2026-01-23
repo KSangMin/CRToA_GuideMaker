@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 public class UI_Grid : UI, IDragHandler, IScrollHandler
 {
     public RectTransform content;
-    [SerializeField] private float zoomSpeed = 0.1f;
+    [SerializeField] private float zoomSpeed = 0.2f;
     [SerializeField] private float minZoom = 0.2f;
     [SerializeField] private float maxZoom = 5.0f;
 
@@ -35,13 +35,13 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
     {
         if (content == null) return;
 
+        Vector3 newScale = content.localScale;
+
         float scroll = eventData.scrollDelta.y;
-        float zoomStep = 1 + (scroll * zoomSpeed);
+        float zoomStep = scroll > 0 ? +zoomSpeed : -zoomSpeed;
 
-        Vector3 newScale = content.localScale * zoomStep;
-
-        newScale.x = Mathf.Clamp(newScale.x, minZoom, maxZoom);
-        newScale.y = Mathf.Clamp(newScale.y, minZoom, maxZoom);
+        newScale.x = Mathf.Clamp(newScale.x + zoomStep, minZoom, maxZoom);
+        newScale.y = Mathf.Clamp(newScale.y + zoomStep, minZoom, maxZoom);
         newScale.z = 1;
 
         content.localScale = newScale;
