@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public enum HandlePosition
 {
@@ -41,75 +42,78 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 1. 마우스 위치를 부모(Content)의 로컬 좌표로 변환
         RectTransform parentRect = _targetRect.parent as RectTransform;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, eventData.position, eventData.pressEventCamera, out Vector2 mouseLocalPos);
 
-        // 2. 현재 슬롯의 고정된 모서리(Pivot 0,1 기준으로는 좌측 상단)의 좌표를 가져옴
-        // 하지만 핸들에 따라 '고정점'이 달라져야 하므로 상대적 계산이 필요합니다.
-
-        Vector2 currentPos = _targetRect.anchoredPosition; // 좌측 상단 좌표
-        Vector2 size = _targetRect.sizeDelta;
+        // 1. 고정점(Anchor Point) 설정 (Pivot 0,1 기준)
+        Vector2 fixedPoint = Vector2.zero;
+        Vector2 currentPos = _targetRect.anchoredPosition;
+        Vector2 currentSize = _targetRect.sizeDelta;
+        float _startAspectRatio = currentSize.x / currentSize.y;
 
         switch (handlePosition)
         {
-            case HandlePosition.BottomRight:
-                // 고정점: 좌측 상단 (currentPos)
-                // 새로운 크기 = 마우스 좌표 - 고정점 좌표
-                size.x = mouseLocalPos.x - currentPos.x;
-                size.y = currentPos.y - mouseLocalPos.y;
-                break;
-
-            case HandlePosition.TopRight:
-                // 고정점: 좌측 하단 (currentPos.x, currentPos.y - size.y)
-                size.x = mouseLocalPos.x - currentPos.x;
-                float bottomY = currentPos.y - size.y;
-                size.y = mouseLocalPos.y - bottomY;
-                // 상단이 늘어난 만큼 좌표(y) 이동
-                currentPos.y = mouseLocalPos.y;
-                break;
-
-            case HandlePosition.BottomLeft:
-                // 고정점: 우측 상단 (currentPos.x + size.x, currentPos.y)
-                float rightX = currentPos.x + size.x;
-                size.x = rightX - mouseLocalPos.x;
-                size.y = currentPos.y - mouseLocalPos.y;
-                // 왼쪽이 늘어난 만큼 좌표(x) 이동
-                currentPos.x = mouseLocalPos.x;
-                break;
-
-            case HandlePosition.TopLeft:
-                // 고정점: 우측 하단 (currentPos.x + size.x, currentPos.y - size.y)
-                float rX = currentPos.x + size.x;
-                float bY = currentPos.y - size.y;
-                size.x = rX - mouseLocalPos.x;
-                size.y = mouseLocalPos.y - bY;
-                // 왼쪽/위가 늘어난 만큼 좌표 이동
-                currentPos.x = mouseLocalPos.x;
-                currentPos.y = mouseLocalPos.y;
-                break;
+            case HandlePosition.BottomRight: fixedPoint = new Vector2(currentPos.x, currentPos.y); break;
+            case HandlePosition.TopRight: fixedPoint = new Vector2(currentPos.x, currentPos.y - currentSize.y); break;
+            case HandlePosition.BottomLeft: fixedPoint = new Vector2(currentPos.x + currentSize.x, currentPos.y); break;
+            case HandlePosition.TopLeft: fixedPoint = new Vector2(currentPos.x + currentSize.x, currentPos.y - currentSize.y); break;
         }
 
-        // 3. 최소 크기 제한
-        float finalX = Mathf.Max(size.x, _minSize);
-        float finalY = Mathf.Max(size.y, _minSize);
+        // 2. 방향성을 가진 거리 계산 (Abs 제거)
+        float rawDiffX = mouseLocalPos.x - fixedPoint.x;
+        float rawDiffY = mouseLocalPos.y - fixedPoint.y;
 
-        // 4. 크기가 제한(minSize)에 걸렸을 때 좌표가 마우스를 따라가지 않도록 보정
-        // (이 부분이 질문하신 '멀어짐 현상'을 해결하는 핵심입니다)
-        if (handlePosition == HandlePosition.TopLeft || handlePosition == HandlePosition.BottomLeft)
+        // 3. 핸들 위치에 따라 '의도된' 확장 크기(Distance) 계산
+        float distX = 0, distY = 0;
+        switch (handlePosition)
         {
-            // 왼쪽 변을 조정할 때: 우측 고정점으로부터 minSize만큼 떨어진 곳에 x좌표 고정
-            float rightEdge = _targetRect.anchoredPosition.x + _targetRect.sizeDelta.x;
-            if (size.x < _minSize) currentPos.x = rightEdge - _minSize;
-        }
-        if (handlePosition == HandlePosition.TopLeft || handlePosition == HandlePosition.TopRight)
-        {
-            // 위쪽 변을 조정할 때: 아래쪽 고정점으로부터 minSize만큼 떨어진 곳에 y좌표 고정
-            float bottomEdge = _targetRect.anchoredPosition.y - _targetRect.sizeDelta.y;
-            if (size.y < _minSize) currentPos.y = bottomEdge + _minSize;
+            case HandlePosition.BottomRight: distX = rawDiffX; distY = -rawDiffY; break;
+            case HandlePosition.TopRight: distX = rawDiffX; distY = rawDiffY; break;
+            case HandlePosition.BottomLeft: distX = -rawDiffX; distY = -rawDiffY; break;
+            case HandlePosition.TopLeft: distX = -rawDiffX; distY = rawDiffY; break;
         }
 
-        _targetRect.sizeDelta = new Vector2(finalX, finalY);
-        _targetRect.anchoredPosition = currentPos;
+        // 4. 비율 유지 로직 (더 많이 끌어당긴 축을 기준으로 나머지 축 결정)
+        float newWidth, newHeight;
+        if (distX > distY * _startAspectRatio)
+        {
+            newWidth = distX;
+            newHeight = newWidth / _startAspectRatio;
+        }
+        else
+        {
+            newHeight = distY;
+            newWidth = newHeight * _startAspectRatio;
+        }
+
+        // 5. 격자 스냅 및 최소 크기 제한
+        newWidth = Mathf.Max(_minSize, Mathf.Round(newWidth / _minSize) * _minSize);
+        newHeight = newWidth / _startAspectRatio; // 스냅 후에도 비율 엄격 유지
+
+        // 6. 결과 적용 및 위치 보정 (Pivot 0,1 기준)
+        _targetRect.sizeDelta = new Vector2(newWidth, newHeight);
+
+        Vector2 newPos = currentPos;
+
+        // 좌측 핸들(Left)일 때는 늘어난 만큼 왼쪽으로 밀어줘야 함
+        newPos.x = (handlePosition == HandlePosition.TopLeft
+            || handlePosition == HandlePosition.BottomLeft)
+            ? fixedPoint.x - newWidth
+            : fixedPoint.x;
+
+        // 상단 핸들(Top)일 때는 늘어난 만큼 위쪽으로 밀어줘야 함
+        newPos.y = (handlePosition == HandlePosition.TopLeft
+            || handlePosition == HandlePosition.TopRight)
+            ? fixedPoint.y + 0// Pivot(0,1)이 이미 상단이므로 fixedPoint.y가 곧 Top 위치
+            : fixedPoint.y;// Bottom 핸들이면 고정점(Top) 위치 유지
+
+        // Y축 보정: 상단 핸들을 잡고 늘리면 위쪽(y+)으로 이동해야 함
+        // Pivot이 (0,1)이므로 y좌표는 항상 사각형의 'Top' 라인입니다.
+        newPos.y = (handlePosition == HandlePosition.TopLeft
+            || handlePosition == HandlePosition.TopRight)
+            ? fixedPoint.y + newHeight// 고정점이 아래이므로 위로 밀어줌
+            : fixedPoint.y;// 고정점이 위이므로 그대로 유지
+
+        _targetRect.anchoredPosition = newPos;
     }
 }

@@ -4,7 +4,7 @@ using Unity.AppUI.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UI_Grid : UI, IDragHandler, IScrollHandler
+public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 {
     public RectTransform content;
     [SerializeField] private float zoomSpeed = 0.2f;
@@ -31,6 +31,11 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
     protected override void Start()
     {
         base.Start();
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        HideHandles();
     }
 
     public void OnDrag(PointerEventData eventData)
