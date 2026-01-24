@@ -6,7 +6,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 {
     private RectTransform _rect;
     [SerializeField] private float _holdTime = 0.25f; // n초 설정
-    [SerializeField] private bool _isLongPress = false;
+    [HideInInspector] public bool isLongPress = false;
     private Coroutine timerCoroutine;
 
     private void Awake()
@@ -17,7 +17,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     // [클릭 판정용]
     public void OnPointerDown(PointerEventData eventData)
     {
-        _isLongPress = false;
+        isLongPress = false;
         timerCoroutine = StartCoroutine(CheckLongPress(eventData));
     }
 
@@ -26,7 +26,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         yield return new WaitForSeconds(_holdTime);
 
         // n초가 지났다면 드래그 모드 활성화
-        _isLongPress = true;
+        isLongPress = true;
         Debug.Log("드래그 준비 완료!");
 
         // 시각적 피드백
@@ -43,7 +43,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         {
             transform.localScale = Vector3.one;
             transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
-            if (!_isLongPress)
+            if (!isLongPress)
             {
                 // 드래그가 되지 않았고 롱 프레스도 아니면 '클릭'으로 판정
                 Debug.Log("단순 클릭: 크기 조절 UI 오픈");
@@ -55,7 +55,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     public void OnBeginDrag(PointerEventData eventData)
     {
         // 롱 프레스 상태가 아닐 때 드래그가 시작되려 하면 이벤트를 취소시킴
-        if (!_isLongPress)
+        if (!isLongPress)
         {
             eventData.pointerDrag = null; // 이 줄이 핵심입니다. 드래그 권한을 뺏음
             return;
@@ -67,7 +67,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!_isLongPress) return;
+        if (!isLongPress) return;
 
         // 드래그 로직 (마우스 따라 이동)
         MoveToMousePosition(eventData);
@@ -82,7 +82,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        _isLongPress = false;
+        isLongPress = false;
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
         // 여기서 자석 스냅(3~4단계) 로직 호출

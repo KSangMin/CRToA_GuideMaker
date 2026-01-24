@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2069633576200738405}
   - component: {fileID: 9098994085668349861}
   - component: {fileID: 5458560300546592015}
-  - component: {fileID: -6593769131497598502}
   - component: {fileID: -8744564617019927598}
+  - component: {fileID: -6593769131497598502}
   m_Layer: 5
   m_Name: BackgroundSlot
   m_TagString: Untagged
@@ -77,20 +77,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 12.5
---- !u!114 &-6593769131497598502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5306212030738498559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4974ea12cd45d6845a3124e82c1655bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PressHandler
-  _holdTime: 0.25
-  _isLongPress: 0
 --- !u!114 &-8744564617019927598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,3 +91,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundSlot
   gridSize: 100
   padding: {x: 10, y: 10}
+--- !u!114 &-6593769131497598502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5306212030738498559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4974ea12cd45d6845a3124e82c1655bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PressHandler
+  _holdTime: 0.25
+  isLongPress: 0
