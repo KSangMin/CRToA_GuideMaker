@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.AppUI.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,11 +11,21 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
     [SerializeField] private float minZoom = 0.2f;
     [SerializeField] private float maxZoom = 5.0f;
 
+    [SerializeField] private List<ResizeHandle> _handles = new();
     public Transform _forDragParent;
+
+    public bool isHandleVisible;
 
     protected override void Awake()
     {
         base.Awake();
+
+        _handles[0].InitHandle(HandlePosition.TopLeft, 0, 1);
+        _handles[1].InitHandle(HandlePosition.TopRight, 1, 1);
+        _handles[2].InitHandle(HandlePosition.BottomLeft, 0, 0);
+        _handles[3].InitHandle(HandlePosition.BottomRight, 1, 0);
+
+        HideHandles();
     }
 
     protected override void Start()
@@ -52,5 +64,36 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
         // 캔버스의 Scale Factor를 가져와 드래그 속도를 일정하게 유지
         Canvas canvas = GetComponentInParent<Canvas>();
         return canvas != null ? canvas.scaleFactor : 1.0f;
+    }
+
+    public void OpenResizeUI(RectTransform target)
+    {
+        ShowHandle();
+
+        // 네 모서리에 핸들 생성
+        foreach(ResizeHandle h in _handles)
+        {
+            h.SetHandle(target);
+        }
+    }
+
+    private void ShowHandle()
+    {
+        isHandleVisible = true;
+
+        foreach (ResizeHandle h in _handles)
+        {
+            h.gameObject.SetActive(true);
+        }
+    }
+
+    public void HideHandles()
+    {
+        isHandleVisible = false;
+
+        foreach (ResizeHandle h in _handles)
+        {
+            h.gameObject.SetActive(false);
+        }
     }
 }

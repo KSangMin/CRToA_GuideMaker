@@ -48,6 +48,14 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                 // 드래그가 되지 않았고 롱 프레스도 아니면 '클릭'으로 판정
                 Debug.Log("단순 클릭: 크기 조절 UI 오픈");
                 // 크기 조절 UI 호출해주면 됨
+                if (UIManager.Instance.GetUI<UI_Grid>().isHandleVisible)
+                {
+                    UIManager.Instance.GetUI<UI_Grid>().HideHandles();
+                }
+                else
+                {
+                    UIManager.Instance.GetUI<UI_Grid>().OpenResizeUI(GetComponent<RectTransform>());
+                }
             }
         }
     }
@@ -85,6 +93,7 @@ public class PressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         isLongPress = false;
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
+        UIManager.Instance.GetUI<UI_Grid>().HideHandles();
         // 여기서 자석 스냅(3~4단계) 로직 호출
     }
 }
