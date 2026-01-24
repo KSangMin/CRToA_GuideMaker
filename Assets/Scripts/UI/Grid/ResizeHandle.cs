@@ -41,58 +41,75 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 마우스 이동량을 캔버스 스케일에 맞춰 보정
-        Vector2 delta = eventData.delta / GetComponentInParent<Canvas>().scaleFactor;
+        // 1. 마우스 위치를 부모(Content)의 로컬 좌표로 변환
+        RectTransform parentRect = _targetRect.parent as RectTransform;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, eventData.position, eventData.pressEventCamera, out Vector2 mouseLocalPos);
 
-        // 부모인 Content의 줌 배율로 한 번 더 나누어 정확한 크기 계산
-        delta /= _targetRect.parent.localScale.x;
+        // 2. 현재 슬롯의 고정된 모서리(Pivot 0,1 기준으로는 좌측 상단)의 좌표를 가져옴
+        // 하지만 핸들에 따라 '고정점'이 달라져야 하므로 상대적 계산이 필요합니다.
 
+        Vector2 currentPos = _targetRect.anchoredPosition; // 좌측 상단 좌표
         Vector2 size = _targetRect.sizeDelta;
-        Vector2 pos = _targetRect.anchoredPosition;
 
         switch (handlePosition)
         {
-            case HandlePosition.TopRight:
-                // 우측 확장: 크기만 증가
-                // 상단 확장: 크기 증가 + 좌표 위로 이동
-                size += new Vector2(delta.x, delta.y);
-                pos += new Vector2(0, delta.y);
+            case HandlePosition.BottomRight:
+                // 고정점: 좌측 상단 (currentPos)
+                // 새로운 크기 = 마우스 좌표 - 고정점 좌표
+                size.x = mouseLocalPos.x - currentPos.x;
+                size.y = currentPos.y - mouseLocalPos.y;
                 break;
 
-            case HandlePosition.BottomRight:
-                // 우측 확장: 크기 증가
-                // 하단 확장: 크기 증가 (좌표는 고정)
-                size += new Vector2(delta.x, -delta.y);
+            case HandlePosition.TopRight:
+                // 고정점: 좌측 하단 (currentPos.x, currentPos.y - size.y)
+                size.x = mouseLocalPos.x - currentPos.x;
+                float bottomY = currentPos.y - size.y;
+                size.y = mouseLocalPos.y - bottomY;
+                // 상단이 늘어난 만큼 좌표(y) 이동
+                currentPos.y = mouseLocalPos.y;
                 break;
 
             case HandlePosition.BottomLeft:
-                // 좌측 확장: 크기 증가 + 좌표 왼쪽 이동
-                // 하단 확장: 크기 증가 (좌표 고정)
-                size += new Vector2(-delta.x, -delta.y);
-                pos += new Vector2(delta.x, 0);
+                // 고정점: 우측 상단 (currentPos.x + size.x, currentPos.y)
+                float rightX = currentPos.x + size.x;
+                size.x = rightX - mouseLocalPos.x;
+                size.y = currentPos.y - mouseLocalPos.y;
+                // 왼쪽이 늘어난 만큼 좌표(x) 이동
+                currentPos.x = mouseLocalPos.x;
                 break;
 
             case HandlePosition.TopLeft:
-                // 좌측 확장: 크기 증가 + 좌표 왼쪽 이동
-                // 상단 확장: 크기 증가 + 좌표 위로 이동
-                size += new Vector2(-delta.x, delta.y);
-                pos += new Vector2(delta.x, delta.y);
+                // 고정점: 우측 하단 (currentPos.x + size.x, currentPos.y - size.y)
+                float rX = currentPos.x + size.x;
+                float bY = currentPos.y - size.y;
+                size.x = rX - mouseLocalPos.x;
+                size.y = mouseLocalPos.y - bY;
+                // 왼쪽/위가 늘어난 만큼 좌표 이동
+                currentPos.x = mouseLocalPos.x;
+                currentPos.y = mouseLocalPos.y;
                 break;
         }
 
-        // 최소 크기 제한 (아이콘들이 잘리지 않게)
-        size.x = Mathf.Max(size.x, _minSize);
-        size.y = Mathf.Max(size.y, _minSize);
-        _targetRect.sizeDelta = size;
-        if(size.x > _minSize)
+        // 3. 최소 크기 제한
+        float finalX = Mathf.Max(size.x, _minSize);
+        float finalY = Mathf.Max(size.y, _minSize);
+
+        // 4. 크기가 제한(minSize)에 걸렸을 때 좌표가 마우스를 따라가지 않도록 보정
+        // (이 부분이 질문하신 '멀어짐 현상'을 해결하는 핵심입니다)
+        if (handlePosition == HandlePosition.TopLeft || handlePosition == HandlePosition.BottomLeft)
         {
-            _targetRect.anchoredPosition = new(pos.x, _targetRect.anchoredPosition.y);
+            // 왼쪽 변을 조정할 때: 우측 고정점으로부터 minSize만큼 떨어진 곳에 x좌표 고정
+            float rightEdge = _targetRect.anchoredPosition.x + _targetRect.sizeDelta.x;
+            if (size.x < _minSize) currentPos.x = rightEdge - _minSize;
         }
-        if (size.y > _minSize)
+        if (handlePosition == HandlePosition.TopLeft || handlePosition == HandlePosition.TopRight)
         {
-            _targetRect.anchoredPosition = new(_targetRect.anchoredPosition.x, pos.y);
+            // 위쪽 변을 조정할 때: 아래쪽 고정점으로부터 minSize만큼 떨어진 곳에 y좌표 고정
+            float bottomEdge = _targetRect.anchoredPosition.y - _targetRect.sizeDelta.y;
+            if (size.y < _minSize) currentPos.y = bottomEdge + _minSize;
         }
 
-        // 배경 크기가 변했으므로 바깥쪽 자석 스냅 등이 필요하면 여기서 호출
+        _targetRect.sizeDelta = new Vector2(finalX, finalY);
+        _targetRect.anchoredPosition = currentPos;
     }
 }

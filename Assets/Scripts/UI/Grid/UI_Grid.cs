@@ -57,6 +57,8 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
         newScale.z = 1;
 
         content.localScale = newScale;
+
+        RefreshHandleScale();
     }
 
     private float GetCanvasScale()
@@ -94,6 +96,19 @@ public class UI_Grid : UI, IDragHandler, IScrollHandler
         foreach (ResizeHandle h in _handles)
         {
             h.gameObject.SetActive(false);
+        }
+    }
+
+    public void RefreshHandleScale()
+    {
+        // Content의 현재 scale 값을 가져옵니다. (줌 배율)
+        float currentZoom = content.localScale.x;
+
+        foreach (var handle in _handles)
+        {
+            // 줌 배율의 역수를 scale로 지정 (예: 줌이 2배면 스케일은 0.5)
+            // 이렇게 하면 화면상에서의 물리적 크기는 항상 일정하게 유지됩니다.
+            handle.transform.localScale = new Vector3(1f / currentZoom, 1f / currentZoom, 1f);
         }
     }
 }
