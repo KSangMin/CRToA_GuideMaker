@@ -87,8 +87,17 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
         }
 
         // 5. 격자 스냅 및 최소 크기 제한
-        newWidth = Mathf.Max(_minSize, Mathf.Round(newWidth / _minSize) * _minSize);
-        newHeight = newWidth / _startAspectRatio; // 스냅 후에도 비율 엄격 유지
+        if(_startAspectRatio >= 1)//가로
+        {
+            newHeight = Mathf.Max(_minSize, Mathf.Round(newHeight / _minSize) * _minSize);
+            newWidth = newHeight * _startAspectRatio;
+        }
+        else//세로
+        {
+            newWidth = Mathf.Max(_minSize, Mathf.Round(newWidth / _minSize) * _minSize);
+            newHeight = newWidth / _startAspectRatio;
+        }
+            
 
         // 6. 결과 적용 및 위치 보정 (Pivot 0,1 기준)
         _targetRect.sizeDelta = new Vector2(newWidth, newHeight);
