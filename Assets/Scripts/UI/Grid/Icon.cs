@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Icon : MonoBehaviour, IEndDragHandler
+public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
 {
     private float _width;
     private float _height;
@@ -30,6 +30,35 @@ public class Icon : MonoBehaviour, IEndDragHandler
         GetComponent<RectTransform>().sizeDelta = new(_width * _widthModifier, _height * _heightModifier);
     }
 
+    public void OnDrag(PointerEventData eventData)
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        BackgroundSlot targetSlot = null;
+        foreach (var result in results)
+        {
+            // 마우스 아래에 있는 오브젝트 중 BackgroundSlot 컴포넌트 찾기
+            targetSlot = result.gameObject.GetComponentInParent<BackgroundSlot>();
+            if (targetSlot != null)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                targetSlot.GetComponent<RectTransform>(),
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 slotLocalMousePos);
+
+                UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
+                    targetSlot.GetComponent<RectTransform>()
+                    , targetSlot.GetSnapPosition(slotLocalMousePos)
+                    , GetComponent<RectTransform>());
+                return;
+            }
+        }
+
+        UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
+    }
+
     public void OnEndDrag(PointerEventData eventData)
     {
         List<RaycastResult> results = new();
@@ -48,5 +77,7 @@ public class Icon : MonoBehaviour, IEndDragHandler
         // 기존 부모(Content)로 돌아가거나, 새로운 배경 슬롯을 생성하는 로직을 여기에 넣습니다.
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
+
+        UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
     }
 }

@@ -16,19 +16,18 @@ public class BackgroundSlot : MonoBehaviour, IEndDragHandler
         _pressHandler = GetComponent<PressHandler>();
     }
 
+    public Vector2 GetSnapPosition(Vector2 localPos)
+    {
+        float snapX = Mathf.Round(localPos.x / gridSize) * gridSize;
+        float snapY = Mathf.Round(localPos.y / gridSize) * gridSize;
+        return new Vector2(snapX + padding.x, snapY - padding.y);
+    }
+
     // 아이콘이 이 배경에 드롭되었을 때 호출할 함수
     public void AddIcon(RectTransform iconRect)
     {
-        // 1. 부모를 이 배경 슬롯으로 설정
         iconRect.SetParent(transform);
-
-        // 2. 현재 좌표를 격자에 맞춰 스냅 (Local 좌표 기준)
-        Vector2 localPos = iconRect.localPosition;
-        float snapX = Mathf.Round(localPos.x / gridSize) * gridSize;
-        float snapY = Mathf.Round(localPos.y / gridSize) * gridSize;
-        iconRect.localPosition = new Vector3(snapX + padding.x, snapY - padding.y, 0);
-
-        // 3. 자식 아이콘들의 위치에 맞춰 배경 크기 재계산
+        iconRect.localPosition = GetSnapPosition(iconRect.localPosition);
         UpdateSize();
     }
 

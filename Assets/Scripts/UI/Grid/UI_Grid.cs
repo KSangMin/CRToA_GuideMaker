@@ -13,8 +13,9 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 
     [SerializeField] private List<ResizeHandle> _handles = new();
     public Transform _forDragParent;
+    [HideInInspector] public bool isHandleVisible;
 
-    public bool isHandleVisible;
+    [SerializeField] private RectTransform _snapGuide;
 
     protected override void Awake()
     {
@@ -73,6 +74,7 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
         return canvas != null ? canvas.scaleFactor : 1.0f;
     }
 
+    #region 핸들
     public void OpenResizeUI(RectTransform target)
     {
         ShowHandle();
@@ -116,4 +118,27 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
             handle.transform.localScale = new Vector3(1f / currentZoom, 1f / currentZoom, 1f);
         }
     }
+    #endregion 핸들
+
+    #region 가이드
+    public void SetSnapGuide(RectTransform parentRect, Vector2 pos, RectTransform targetRect)
+    {
+        ShowSnapGuide();
+        _snapGuide.SetParent(parentRect);
+
+        _snapGuide.localPosition = pos;
+        _snapGuide.sizeDelta = targetRect.sizeDelta;
+    }
+
+    private void ShowSnapGuide()
+    {
+        _snapGuide.gameObject.SetActive(true);
+    }
+
+    public void HideSnapGuide()
+    {
+        _snapGuide.gameObject.SetActive(false);
+        _snapGuide.SetParent(_forDragParent);
+    }
+    #endregion 가이드
 }

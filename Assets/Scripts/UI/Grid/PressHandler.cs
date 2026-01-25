@@ -9,6 +9,8 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
     [HideInInspector] public bool isLongPress = false;
     private Coroutine timerCoroutine;
 
+    private int _minSize = 100;
+
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
