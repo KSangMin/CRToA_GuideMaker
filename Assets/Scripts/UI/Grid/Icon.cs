@@ -35,23 +35,12 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
-        BackgroundSlot targetSlot = null;
         foreach (var result in results)
         {
             // 마우스 아래에 있는 오브젝트 중 BackgroundSlot 컴포넌트 찾기
-            targetSlot = result.gameObject.GetComponentInParent<BackgroundSlot>();
-            if (targetSlot != null)
+            if (result.gameObject.TryGetComponent(out BackgroundSlot targetSlot))
             {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                targetSlot.GetComponent<RectTransform>(),
-                eventData.position,
-                eventData.pressEventCamera,
-                out Vector2 slotLocalMousePos);
-
-                UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
-                    targetSlot.GetComponent<RectTransform>()
-                    , targetSlot.GetSnapPosition(slotLocalMousePos)
-                    , GetComponent<RectTransform>());
+                ShowSnapGuide(eventData, targetSlot);
                 return;
             }
         }
@@ -59,8 +48,24 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
     }
 
+    private void ShowSnapGuide(PointerEventData eventData, BackgroundSlot targetSlot)
+    {
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                targetSlot.GetComponent<RectTransform>(),
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 slotLocalMousePos);
+
+        UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
+            targetSlot.GetComponent<RectTransform>()
+            , targetSlot.GetSnapPosition(slotLocalMousePos)
+            , GetComponent<RectTransform>());
+    }
+
     public void OnEndDrag(PointerEventData eventData)
     {
+        UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
+
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
@@ -69,6 +74,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             if (result.gameObject.TryGetComponent(out BackgroundSlot targetSlot))
             {
                 targetSlot.AddIcon(GetComponent<RectTransform>());
+                
                 return;
             }
         }
@@ -77,7 +83,5 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         // 기존 부모(Content)로 돌아가거나, 새로운 배경 슬롯을 생성하는 로직을 여기에 넣습니다.
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
-
-        UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
     }
 }
