@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.AppUI.Core;
 using UnityEngine;
@@ -69,17 +69,17 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 
     private float GetCanvasScale()
     {
-        // Äµ¹ö½ºÀÇ Scale Factor¸¦ °¡Á®¿Í µå·¡±× ¼Óµµ¸¦ ÀÏÁ¤ÇÏ°Ô À¯Áö
+        // ìº”ë²„ìŠ¤ì˜ Scale Factorë¥¼ ê°€ì ¸ì™€ ë“œë˜ê·¸ ì†ë„ë¥¼ ì¼ì •í•˜ê²Œ ìœ ì§€
         Canvas canvas = GetComponentInParent<Canvas>();
         return canvas != null ? canvas.scaleFactor : 1.0f;
     }
 
-    #region ÇÚµé
+    #region í•¸ë“¤
     public void OpenResizeUI(RectTransform target)
     {
         ShowHandle();
 
-        // ³× ¸ğ¼­¸®¿¡ ÇÚµé »ı¼º
+        // ë„¤ ëª¨ì„œë¦¬ì— í•¸ë“¤ ìƒì„±
         foreach(ResizeHandle h in _handles)
         {
             h.SetHandle(target);
@@ -108,19 +108,19 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 
     public void RefreshHandleScale()
     {
-        // ContentÀÇ ÇöÀç scale °ªÀ» °¡Á®¿É´Ï´Ù. (ÁÜ ¹èÀ²)
+        // Contentì˜ í˜„ì¬ scale ê°’ì„ ê°€ì ¸ì˜µë‹ˆë‹¤. (ì¤Œ ë°°ìœ¨)
         float currentZoom = content.localScale.x;
 
         foreach (var handle in _handles)
         {
-            // ÁÜ ¹èÀ²ÀÇ ¿ª¼ö¸¦ scale·Î ÁöÁ¤ (¿¹: ÁÜÀÌ 2¹è¸é ½ºÄÉÀÏÀº 0.5)
-            // ÀÌ·¸°Ô ÇÏ¸é È­¸é»ó¿¡¼­ÀÇ ¹°¸®Àû Å©±â´Â Ç×»ó ÀÏÁ¤ÇÏ°Ô À¯ÁöµË´Ï´Ù.
+            // ì¤Œ ë°°ìœ¨ì˜ ì—­ìˆ˜ë¥¼ scaleë¡œ ì§€ì • (ì˜ˆ: ì¤Œì´ 2ë°°ë©´ ìŠ¤ì¼€ì¼ì€ 0.5)
+            // ì´ë ‡ê²Œ í•˜ë©´ í™”ë©´ìƒì—ì„œì˜ ë¬¼ë¦¬ì  í¬ê¸°ëŠ” í•­ìƒ ì¼ì •í•˜ê²Œ ìœ ì§€ë©ë‹ˆë‹¤.
             handle.transform.localScale = new Vector3(1f / currentZoom, 1f / currentZoom, 1f);
         }
     }
-    #endregion ÇÚµé
+    #endregion í•¸ë“¤
 
-    #region °¡ÀÌµå
+    #region ê°€ì´ë“œ
     public void SetSnapGuide(RectTransform parentRect, Vector2 pos, RectTransform targetRect)
     {
         ShowSnapGuide();
@@ -140,5 +140,5 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
         _snapGuide.gameObject.SetActive(false);
         _snapGuide.SetParent(_forDragParent);
     }
-    #endregion °¡ÀÌµå
+    #endregion ê°€ì´ë“œ
 }

@@ -37,7 +37,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
 
         foreach (var result in results)
         {
-            // ¸¶¿ì½º ¾Æ·¡¿¡ ÀÖ´Â ¿ÀºêÁ§Æ® Áß BackgroundSlot ÄÄÆ÷³ÍÆ® Ã£±â
+            // ë§ˆìš°ìŠ¤ ì•„ë˜ì— ìˆëŠ” ì˜¤ë¸Œì íŠ¸ ì¤‘ BackgroundSlot ì»´í¬ë„ŒíŠ¸ ì°¾ê¸°
             if (result.gameObject.TryGetComponent(out BackgroundSlot targetSlot))
             {
                 ShowSnapGuide(eventData, targetSlot);
@@ -79,8 +79,8 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             }
         }
 
-        // ¹è°æ ½½·Ô ¹ÛÀ¸·Î µå·ÓÇß´Ù¸é? 
-        // ±âÁ¸ ºÎ¸ğ(Content)·Î µ¹¾Æ°¡°Å³ª, »õ·Î¿î ¹è°æ ½½·ÔÀ» »ı¼ºÇÏ´Â ·ÎÁ÷À» ¿©±â¿¡ ³Ö½À´Ï´Ù.
+        // ë°°ê²½ ìŠ¬ë¡¯ ë°–ìœ¼ë¡œ ë“œë¡­í–ˆë‹¤ë©´? 
+        // ê¸°ì¡´ ë¶€ëª¨(Content)ë¡œ ëŒì•„ê°€ê±°ë‚˜, ìƒˆë¡œìš´ ë°°ê²½ ìŠ¬ë¡¯ì„ ìƒì„±í•˜ëŠ” ë¡œì§ì„ ì—¬ê¸°ì— ë„£ìŠµë‹ˆë‹¤.
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
     }

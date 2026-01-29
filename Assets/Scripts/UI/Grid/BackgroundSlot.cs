@@ -1,12 +1,12 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 {
-    private float gridSize = 100f;   // ³»ºÎ °İÀÚ ´ÜÀ§
-    private float padding = 10f; // ¾ÈÂÊ ¿©¹é
-    private float _snapThreshold = 120f; // ÀÚ¼® ½º³À Çã¿ë ¿ÀÂ÷
+    private float gridSize = 100f;   // ë‚´ë¶€ ê²©ì ë‹¨ìœ„
+    private float padding = 10f; // ì•ˆìª½ ì—¬ë°±
+    private float _snapThreshold = 120f; // ìì„ ìŠ¤ëƒ… í—ˆìš© ì˜¤ì°¨
 
     private RectTransform _rectTransform;
     private PressHandler _pressHandler;
@@ -28,7 +28,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         return new Vector2(snapX + padding, snapY - padding);
     }
 
-    // ¾ÆÀÌÄÜÀÌ ÀÌ ¹è°æ¿¡ µå·ÓµÇ¾úÀ» ¶§ È£ÃâÇÒ ÇÔ¼ö
+    // ì•„ì´ì½˜ì´ ì´ ë°°ê²½ì— ë“œë¡­ë˜ì—ˆì„ ë•Œ í˜¸ì¶œí•  í•¨ìˆ˜
     public void AddIcon(RectTransform iconRect)
     {
         iconRect.SetParent(transform);
@@ -40,18 +40,18 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         RectTransform[] children = GetComponentsInChildren<RectTransform>();
 
-        // ÀÚ½ÄÀÌ ÀÚ±â ÀÚ½Å¹Û¿¡ ¾øÀ¸¸é ÃÖ¼Ò Å©±â·Î ¼³Á¤
+        // ìì‹ì´ ìê¸° ìì‹ ë°–ì— ì—†ìœ¼ë©´ ìµœì†Œ í¬ê¸°ë¡œ ì„¤ì •
         if (children.Length <= 1) return;
 
         float minX = float.MaxValue, maxX = float.MinValue;
         float minY = float.MaxValue, maxY = float.MinValue;
 
-        // ¸ğµç ÀÚ½Ä ¾ÆÀÌÄÜÀÇ ¿Ü°û °æ°è °è»ê
+        // ëª¨ë“  ìì‹ ì•„ì´ì½˜ì˜ ì™¸ê³½ ê²½ê³„ ê³„ì‚°
         foreach (var child in children)
         {
-            if (child == _rectTransform) continue; // ÀÚ±â ÀÚ½Å Á¦¿Ü
+            if (child == _rectTransform) continue; // ìê¸° ìì‹  ì œì™¸
 
-            // ¾ÆÀÌÄÜÀÇ Áß½ÉÁ¡ÀÌ ¾Æ´Ñ '¿µ¿ª'À» °è»êÇÏ±â À§ÇØ sizeDelta È°¿ë
+            // ì•„ì´ì½˜ì˜ ì¤‘ì‹¬ì ì´ ì•„ë‹Œ 'ì˜ì—­'ì„ ê³„ì‚°í•˜ê¸° ìœ„í•´ sizeDelta í™œìš©
             float halfW = (child.rect.width * child.localScale.x) / 2f;
             float halfH = (child.rect.height * child.localScale.y) / 2f;
 
@@ -61,28 +61,28 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
             maxY = Mathf.Max(maxY, child.localPosition.y + halfH);
         }
 
-        // 4. ¹è°æ Å©±â ¼³Á¤ (°¡Àå ¸Õ ¾ÆÀÌÄÜµé + ÆĞµù)
+        // 4. ë°°ê²½ í¬ê¸° ì„¤ì • (ê°€ì¥ ë¨¼ ì•„ì´ì½˜ë“¤ + íŒ¨ë”©)
         float newWidth = (maxX - minX) + (padding * 2);
         float newHeight = (maxY - minY) + (padding * 2);
         _rectTransform.sizeDelta = new Vector2(newWidth, newHeight);
 
-        // 5. ¾ÆÀÌÄÜµéÀÌ Áß¾Ó¿¡ ¿Àµµ·Ï À§Ä¡ º¸Á¤ (¼±ÅÃ »çÇ×)
-        // ÀÌ ´Ü°è´Â Pivot ¼³Á¤¿¡ µû¶ó ´Ş¶óÁú ¼ö ÀÖ½À´Ï´Ù.
+        // 5. ì•„ì´ì½˜ë“¤ì´ ì¤‘ì•™ì— ì˜¤ë„ë¡ ìœ„ì¹˜ ë³´ì • (ì„ íƒ ì‚¬í•­)
+        // ì´ ë‹¨ê³„ëŠ” Pivot ì„¤ì •ì— ë”°ë¼ ë‹¬ë¼ì§ˆ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (!_pressHandler.isLongPress) return;
 
-        // 2. °¡ÀÌµå UI ¼³Á¤
+        // 2. ê°€ì´ë“œ UI ì„¤ì •
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             UIManager.Instance.GetUI<UI_Grid>().content
             , eventData.position
             , eventData.pressEventCamera
             , out Vector2 localMousePos);
 
-        // 3. ÀÚ¼® ½º³À À§Ä¡ °è»ê (±âÁ¸ OnEndDrag ·ÎÁ÷ È°¿ë)
-        Vector2 snapPos = localMousePos; // ±âº»Àº ¸¶¿ì½º À§Ä¡
+        // 3. ìì„ ìŠ¤ëƒ… ìœ„ì¹˜ ê³„ì‚° (ê¸°ì¡´ OnEndDrag ë¡œì§ í™œìš©)
+        Vector2 snapPos = localMousePos; // ê¸°ë³¸ì€ ë§ˆìš°ìŠ¤ ìœ„ì¹˜
 
         Collider2D[] overlaps = Physics2D.OverlapCircleAll(transform.position, _snapThreshold * 5);
         RectTransform myRect = GetComponent<RectTransform>();
@@ -105,12 +105,12 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         {
             RectTransform otherRect = slot.GetComponent<RectTransform>();
 
-            // ¿©±â¼­ºÎÅÍ´Â ±âÁ¸ÀÇ ÀÚ¼® ½º³À ·ÎÁ÷ µ¿ÀÏ
+            // ì—¬ê¸°ì„œë¶€í„°ëŠ” ê¸°ì¡´ì˜ ìì„ ìŠ¤ëƒ… ë¡œì§ ë™ì¼
             Vector2 offset = localMousePos - (Vector2)otherRect.localPosition;
             float targetDistX = (otherRect.rect.width + myRect.rect.width) / 2f + padding;
             float targetDistY = (otherRect.rect.height + myRect.rect.height) / 2f + padding;
 
-            // XÃà ÀÚ¼® Ã¼Å©
+            // Xì¶• ìì„ ì²´í¬
             if (Mathf.Abs(Mathf.Abs(offset.x) - targetDistX) < _snapThreshold
                 && Mathf.Abs(offset.y) < _snapThreshold)
             {
@@ -121,7 +121,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
                 break;
             }
 
-            // YÃà ÀÚ¼® Ã¼Å©
+            // Yì¶• ìì„ ì²´í¬
             if (Mathf.Abs(Mathf.Abs(offset.y) - targetDistY) < _snapThreshold
                 && Mathf.Abs(offset.x) < _snapThreshold)
             {
@@ -133,7 +133,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
             }
         }
 
-        //°¡ÀÌµå À§Ä¡
+        //ê°€ì´ë“œ ìœ„ì¹˜
         if (isSnapped)
         {
             UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(

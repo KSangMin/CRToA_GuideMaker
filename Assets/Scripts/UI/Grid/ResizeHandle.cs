@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 
@@ -45,7 +45,7 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
         RectTransform parentRect = _targetRect.parent as RectTransform;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, eventData.position, eventData.pressEventCamera, out Vector2 mouseLocalPos);
 
-        // 1. °íÁ¤Á¡(Anchor Point) ¼³Á¤ (Pivot 0,1 ±âÁØ)
+        // 1. ê³ ì •ì (Anchor Point) ì„¤ì • (Pivot 0,1 ê¸°ì¤€)
         Vector2 fixedPoint = Vector2.zero;
         Vector2 currentPos = _targetRect.anchoredPosition;
         Vector2 currentSize = _targetRect.sizeDelta;
@@ -59,11 +59,11 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
             case HandlePosition.TopLeft: fixedPoint = new Vector2(currentPos.x + currentSize.x, currentPos.y - currentSize.y); break;
         }
 
-        // 2. ¹æÇâ¼ºÀ» °¡Áø °Å¸® °è»ê (Abs Á¦°Å)
+        // 2. ë°©í–¥ì„±ì„ ê°€ì§„ ê±°ë¦¬ ê³„ì‚° (Abs ì œê±°)
         float rawDiffX = mouseLocalPos.x - fixedPoint.x;
         float rawDiffY = mouseLocalPos.y - fixedPoint.y;
 
-        // 3. ÇÚµé À§Ä¡¿¡ µû¶ó 'ÀÇµµµÈ' È®Àå Å©±â(Distance) °è»ê
+        // 3. í•¸ë“¤ ìœ„ì¹˜ì— ë”°ë¼ 'ì˜ë„ëœ' í™•ì¥ í¬ê¸°(Distance) ê³„ì‚°
         float distX = 0, distY = 0;
         switch (handlePosition)
         {
@@ -73,7 +73,7 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
             case HandlePosition.TopLeft: distX = -rawDiffX; distY = rawDiffY; break;
         }
 
-        // 4. ºñÀ² À¯Áö ·ÎÁ÷ (´õ ¸¹ÀÌ ²ø¾î´ç±ä ÃàÀ» ±âÁØÀ¸·Î ³ª¸ÓÁö Ãà °áÁ¤)
+        // 4. ë¹„ìœ¨ ìœ ì§€ ë¡œì§ (ë” ë§ì´ ëŒì–´ë‹¹ê¸´ ì¶•ì„ ê¸°ì¤€ìœ¼ë¡œ ë‚˜ë¨¸ì§€ ì¶• ê²°ì •)
         float newWidth, newHeight;
         if (distX > distY * _startAspectRatio)
         {
@@ -86,42 +86,42 @@ public class ResizeHandle : MonoBehaviour, IDragHandler
             newWidth = newHeight * _startAspectRatio;
         }
 
-        // 5. °İÀÚ ½º³À ¹× ÃÖ¼Ò Å©±â Á¦ÇÑ
-        if(_startAspectRatio >= 1)//°¡·Î
+        // 5. ê²©ì ìŠ¤ëƒ… ë° ìµœì†Œ í¬ê¸° ì œí•œ
+        if(_startAspectRatio >= 1)//ê°€ë¡œ
         {
             newHeight = Mathf.Max(_minSize, Mathf.Round(newHeight / _minSize) * _minSize);
             newWidth = newHeight * _startAspectRatio;
         }
-        else//¼¼·Î
+        else//ì„¸ë¡œ
         {
             newWidth = Mathf.Max(_minSize, Mathf.Round(newWidth / _minSize) * _minSize);
             newHeight = newWidth / _startAspectRatio;
         }
             
 
-        // 6. °á°ú Àû¿ë ¹× À§Ä¡ º¸Á¤ (Pivot 0,1 ±âÁØ)
+        // 6. ê²°ê³¼ ì ìš© ë° ìœ„ì¹˜ ë³´ì • (Pivot 0,1 ê¸°ì¤€)
         _targetRect.sizeDelta = new Vector2(newWidth, newHeight);
 
         Vector2 newPos = currentPos;
 
-        // ÁÂÃø ÇÚµé(Left)ÀÏ ¶§´Â ´Ã¾î³­ ¸¸Å­ ¿ŞÂÊÀ¸·Î ¹Ğ¾îÁà¾ß ÇÔ
+        // ì¢Œì¸¡ í•¸ë“¤(Left)ì¼ ë•ŒëŠ” ëŠ˜ì–´ë‚œ ë§Œí¼ ì™¼ìª½ìœ¼ë¡œ ë°€ì–´ì¤˜ì•¼ í•¨
         newPos.x = (handlePosition == HandlePosition.TopLeft
             || handlePosition == HandlePosition.BottomLeft)
             ? fixedPoint.x - newWidth
             : fixedPoint.x;
 
-        // »ó´Ü ÇÚµé(Top)ÀÏ ¶§´Â ´Ã¾î³­ ¸¸Å­ À§ÂÊÀ¸·Î ¹Ğ¾îÁà¾ß ÇÔ
+        // ìƒë‹¨ í•¸ë“¤(Top)ì¼ ë•ŒëŠ” ëŠ˜ì–´ë‚œ ë§Œí¼ ìœ„ìª½ìœ¼ë¡œ ë°€ì–´ì¤˜ì•¼ í•¨
         newPos.y = (handlePosition == HandlePosition.TopLeft
             || handlePosition == HandlePosition.TopRight)
-            ? fixedPoint.y + 0// Pivot(0,1)ÀÌ ÀÌ¹Ì »ó´ÜÀÌ¹Ç·Î fixedPoint.y°¡ °ğ Top À§Ä¡
-            : fixedPoint.y;// Bottom ÇÚµéÀÌ¸é °íÁ¤Á¡(Top) À§Ä¡ À¯Áö
+            ? fixedPoint.y + 0// Pivot(0,1)ì´ ì´ë¯¸ ìƒë‹¨ì´ë¯€ë¡œ fixedPoint.yê°€ ê³§ Top ìœ„ì¹˜
+            : fixedPoint.y;// Bottom í•¸ë“¤ì´ë©´ ê³ ì •ì (Top) ìœ„ì¹˜ ìœ ì§€
 
-        // YÃà º¸Á¤: »ó´Ü ÇÚµéÀ» Àâ°í ´Ã¸®¸é À§ÂÊ(y+)À¸·Î ÀÌµ¿ÇØ¾ß ÇÔ
-        // PivotÀÌ (0,1)ÀÌ¹Ç·Î yÁÂÇ¥´Â Ç×»ó »ç°¢ÇüÀÇ 'Top' ¶óÀÎÀÔ´Ï´Ù.
+        // Yì¶• ë³´ì •: ìƒë‹¨ í•¸ë“¤ì„ ì¡ê³  ëŠ˜ë¦¬ë©´ ìœ„ìª½(y+)ìœ¼ë¡œ ì´ë™í•´ì•¼ í•¨
+        // Pivotì´ (0,1)ì´ë¯€ë¡œ yì¢Œí‘œëŠ” í•­ìƒ ì‚¬ê°í˜•ì˜ 'Top' ë¼ì¸ì…ë‹ˆë‹¤.
         newPos.y = (handlePosition == HandlePosition.TopLeft
             || handlePosition == HandlePosition.TopRight)
-            ? fixedPoint.y + newHeight// °íÁ¤Á¡ÀÌ ¾Æ·¡ÀÌ¹Ç·Î À§·Î ¹Ğ¾îÁÜ
-            : fixedPoint.y;// °íÁ¤Á¡ÀÌ À§ÀÌ¹Ç·Î ±×´ë·Î À¯Áö
+            ? fixedPoint.y + newHeight// ê³ ì •ì ì´ ì•„ë˜ì´ë¯€ë¡œ ìœ„ë¡œ ë°€ì–´ì¤Œ
+            : fixedPoint.y;// ê³ ì •ì ì´ ìœ„ì´ë¯€ë¡œ ê·¸ëŒ€ë¡œ ìœ ì§€
 
         _targetRect.anchoredPosition = newPos;
     }

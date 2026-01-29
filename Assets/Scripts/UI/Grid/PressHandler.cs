@@ -1,11 +1,11 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private RectTransform _rect;
-    [SerializeField] private float _holdTime = 0.25f; // nÃÊ ¼³Á¤
+    [SerializeField] private float _holdTime = 0.25f; // nì´ˆ ì„¤ì •
     [HideInInspector] public bool isLongPress = false;
     private Coroutine timerCoroutine;
 
@@ -14,7 +14,7 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
         _rect = GetComponent<RectTransform>();
     }
 
-    // [Å¬¸¯ ÆÇÁ¤¿ë]
+    // [í´ë¦­ íŒì •ìš©]
     public void OnPointerDown(PointerEventData eventData)
     {
         isLongPress = false;
@@ -25,11 +25,11 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
     {
         yield return new WaitForSeconds(_holdTime);
 
-        // nÃÊ°¡ Áö³µ´Ù¸é µå·¡±× ¸ğµå È°¼ºÈ­
+        // nì´ˆê°€ ì§€ë‚¬ë‹¤ë©´ ë“œë˜ê·¸ ëª¨ë“œ í™œì„±í™”
         isLongPress = true;
-        Debug.Log("µå·¡±× ÁØºñ ¿Ï·á!");
+        Debug.Log("ë“œë˜ê·¸ ì¤€ë¹„ ì™„ë£Œ!");
 
-        // ½Ã°¢Àû ÇÇµå¹é
+        // ì‹œê°ì  í”¼ë“œë°±
         transform.localScale = Vector3.one * 0.9f;
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>()._forDragParent);
         MoveToMousePosition(eventData);
@@ -45,9 +45,9 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
             transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
             if (!isLongPress)
             {
-                // µå·¡±×°¡ µÇÁö ¾Ê¾Ò°í ·Õ ÇÁ·¹½ºµµ ¾Æ´Ï¸é 'Å¬¸¯'À¸·Î ÆÇÁ¤
-                Debug.Log("´Ü¼ø Å¬¸¯: Å©±â Á¶Àı UI ¿ÀÇÂ");
-                // Å©±â Á¶Àı UI È£ÃâÇØÁÖ¸é µÊ
+                // ë“œë˜ê·¸ê°€ ë˜ì§€ ì•Šì•˜ê³  ë¡± í”„ë ˆìŠ¤ë„ ì•„ë‹ˆë©´ 'í´ë¦­'ìœ¼ë¡œ íŒì •
+                Debug.Log("ë‹¨ìˆœ í´ë¦­: í¬ê¸° ì¡°ì ˆ UI ì˜¤í”ˆ");
+                // í¬ê¸° ì¡°ì ˆ UI í˜¸ì¶œí•´ì£¼ë©´ ë¨
                 if (UIManager.Instance.GetUI<UI_Grid>().isHandleVisible)
                 {
                     UIManager.Instance.GetUI<UI_Grid>().HideHandles();
@@ -62,22 +62,22 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        // ·Õ ÇÁ·¹½º »óÅÂ°¡ ¾Æ´Ò ¶§ µå·¡±×°¡ ½ÃÀÛµÇ·Á ÇÏ¸é ÀÌº¥Æ®¸¦ Ãë¼Ò½ÃÅ´
+        // ë¡± í”„ë ˆìŠ¤ ìƒíƒœê°€ ì•„ë‹ ë•Œ ë“œë˜ê·¸ê°€ ì‹œì‘ë˜ë ¤ í•˜ë©´ ì´ë²¤íŠ¸ë¥¼ ì·¨ì†Œì‹œí‚´
         if (!isLongPress)
         {
-            eventData.pointerDrag = null; // ÀÌ ÁÙÀÌ ÇÙ½ÉÀÔ´Ï´Ù. µå·¡±× ±ÇÇÑÀ» »¯À½
+            eventData.pointerDrag = null; // ì´ ì¤„ì´ í•µì‹¬ì…ë‹ˆë‹¤. ë“œë˜ê·¸ ê¶Œí•œì„ ëºìŒ
             return;
         }
 
-        // ¿©±â¼­ºÎÅÍ´Â ±âÁ¸ µå·¡±× ·ÎÁ÷ (ºÎ¸ğ º¯°æ µî)
-        Debug.Log("½½·Ô µå·¡±× ½ÃÀÛ");
+        // ì—¬ê¸°ì„œë¶€í„°ëŠ” ê¸°ì¡´ ë“œë˜ê·¸ ë¡œì§ (ë¶€ëª¨ ë³€ê²½ ë“±)
+        Debug.Log("ìŠ¬ë¡¯ ë“œë˜ê·¸ ì‹œì‘");
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (!isLongPress) return;
 
-        // µå·¡±× ·ÎÁ÷ (¸¶¿ì½º µû¶ó ÀÌµ¿)
+        // ë“œë˜ê·¸ ë¡œì§ (ë§ˆìš°ìŠ¤ ë”°ë¼ ì´ë™)
         MoveToMousePosition(eventData);
     }
 
@@ -94,6 +94,6 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
         transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
         transform.localScale = Vector3.one;
         UIManager.Instance.GetUI<UI_Grid>().HideHandles();
-        // ¿©±â¼­ ÀÚ¼® ½º³À(3~4´Ü°è) ·ÎÁ÷ È£Ãâ
+        // ì—¬ê¸°ì„œ ìì„ ìŠ¤ëƒ…(3~4ë‹¨ê³„) ë¡œì§ í˜¸ì¶œ
     }
 }
