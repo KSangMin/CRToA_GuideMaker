@@ -41,13 +41,6 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
         HideHandles();
     }
 
-    protected override void Start()
-    {
-        base.Start();
-
-
-    }
-
     public Vector2 GetPosFromIndex(Vector2Int index)
     {
         float x = index.x * (_gridUnit + _spacing);
