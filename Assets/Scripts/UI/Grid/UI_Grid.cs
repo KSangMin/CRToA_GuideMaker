@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.AppUI.Core;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,14 +7,27 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 {
     public RectTransform content;
     [SerializeField] private float zoomSpeed = 0.2f;
-    [SerializeField] private float minZoom = 0.2f;
+    [SerializeField] private float minZoom = 0.4f;
     [SerializeField] private float maxZoom = 5.0f;
+
+    private float _gridUnit = 100f;
+    private float _padding = 20f;
+    private float _spacing = 50f;
+    public float GridUnit => _gridUnit;
+    public float Padding => _padding;
+    public float Spacing => _spacing;
+
+    private Dictionary<Vector2Int, BackgroundSlot> _occupancy = new();
+    private List<BackgroundSlot> _slots = new();
 
     [SerializeField] private List<ResizeHandle> _handles = new();
     public Transform _forDragParent;
     [HideInInspector] public bool isHandleVisible;
 
     [SerializeField] private RectTransform _snapGuide;
+
+    private bool _isExpanding = false;
+    private float _expandDelay = 0.2f;
 
     protected override void Awake()
     {
@@ -32,6 +44,76 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
     protected override void Start()
     {
         base.Start();
+
+
+    }
+
+    public Vector2 GetPosFromIndex(Vector2Int index)
+    {
+        float x = index.x * (_gridUnit + _spacing);
+        float y = index.y * -(_gridUnit + _spacing);
+        return new Vector2(x, y);
+    }
+
+    // 마이너스 인덱스 발생 시 판 확장 및 모든 슬롯 밀기
+    public void CheckAndExpand(Vector2Int targetIndex)
+    {
+        // 이미 확장 중이면 무시
+        if (_isExpanding) return;
+
+        int shiftX = targetIndex.x < 0 ? 1 : 0;
+        int shiftY = targetIndex.y < 0 ? 1 : 0;
+
+        if (shiftX > 0 || shiftY > 0)
+        {
+            StartCoroutine(ExpandCoroutine(new Vector2Int(shiftX, shiftY)));
+        }
+    }
+
+    private IEnumerator ExpandCoroutine(Vector2Int shift)
+    {
+        _isExpanding = true;
+
+        // 1. 데이터 및 물리 위치 보정 (기존 로직)
+        foreach (var slot in _slots)
+        {
+            slot.gridIndex += shift;
+            slot.UpdateVisualPosition();
+        }
+
+        float unit = UIManager.Instance.GetUI<UI_Grid>().GridUnit
+            + UIManager.Instance.GetUI<UI_Grid>().Spacing;
+        Vector2 expandAmount = new Vector2(shift.x * unit, shift.y * unit);
+
+        content.sizeDelta += expandAmount;
+        content.localPosition -= (Vector3)expandAmount;
+
+        RebuildOccupancy();
+
+        // 2. 지정된 시간만큼 대기 (이게 0.n초의 핵심!)
+        yield return new WaitForSeconds(_expandDelay);
+
+        _isExpanding = false;
+    }
+
+    private void RebuildOccupancy()
+    {
+        _occupancy.Clear();
+        foreach (var slot in _slots)
+        {
+            for (int x = 0; x < slot.GridWH.x; x++)
+            {
+                for (int y = 0; y < slot.GridWH.y; y++)
+                {
+                    _occupancy[slot.gridIndex + new Vector2Int(x, y)] = slot;
+                }
+            }
+        }
+    }
+
+    public void RegisterSlot(BackgroundSlot slot)
+    {
+        _slots.Add(slot);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -41,7 +123,7 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        if(content == null)
+        if (content == null)
         {
             return;
         }
@@ -80,7 +162,7 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
         ShowHandle();
 
         // 네 모서리에 핸들 생성
-        foreach(ResizeHandle h in _handles)
+        foreach (ResizeHandle h in _handles)
         {
             h.SetHandle(target);
         }

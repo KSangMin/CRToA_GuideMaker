@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 {
+    public Vector2Int gridIndex; // 왼쪽 상단 기준 인덱스
+    private Vector2Int _gridWH = new Vector2Int(1, 1); // 차지하는 칸 수
+    public Vector2Int GridWH => _gridWH;
+
     private float gridSize = 100f;   // 내부 격자 단위
     private float padding = 10f; // 안쪽 여백
     private float _snapThreshold = 120f; // 자석 스냅 허용 오차
@@ -40,18 +44,22 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         RectTransform[] children = GetComponentsInChildren<RectTransform>();
 
-        // 자식이 자기 자신밖에 없으면 최소 크기로 설정
-        if (children.Length <= 1) return;
+        // 1. 자식이 없으면 기본 1x1 크기로 설정
+        if (children.Length <= 1)
+        {
+            _gridWH = new Vector2Int(1, 1);
+            UpdatePhysicalSize();
+            return;
+        }
 
         float minX = float.MaxValue, maxX = float.MinValue;
         float minY = float.MaxValue, maxY = float.MinValue;
 
-        // 모든 자식 아이콘의 외곽 경계 계산
         foreach (var child in children)
         {
-            if (child == _rectTransform) continue; // 자기 자신 제외
+            // 자기 자신 및 가이드 UI 등 제외
+            if (child == _rectTransform || child.name.Contains("Guide")) continue;
 
-            // 아이콘의 중심점이 아닌 '영역'을 계산하기 위해 sizeDelta 활용
             float halfW = (child.rect.width * child.localScale.x) / 2f;
             float halfH = (child.rect.height * child.localScale.y) / 2f;
 
@@ -61,13 +69,36 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
             maxY = Mathf.Max(maxY, child.localPosition.y + halfH);
         }
 
-        // 4. 배경 크기 설정 (가장 먼 아이콘들 + 패딩)
-        float newWidth = (maxX - minX) + (padding * 2);
-        float newHeight = (maxY - minY) + (padding * 2);
-        _rectTransform.sizeDelta = new Vector2(newWidth, newHeight);
+        // 2. 순수 콘텐츠 영역 계산
+        float contentWidth = maxX - minX;
+        float contentHeight = maxY - minY;
 
-        // 5. 아이콘들이 중앙에 오도록 위치 보정 (선택 사항)
-        // 이 단계는 Pivot 설정에 따라 달라질 수 있습니다.
+        // 3. [핵심] 픽셀 크기를 기반으로 논리적 gridSize(칸 수) 계산
+        // gridUnit(100)으로 나누고 올림(Ceil)하여 최소 몇 칸이 필요한지 구합니다.
+        int cols = Mathf.CeilToInt(contentWidth / UIManager.Instance.GetUI<UI_Grid>().GridUnit);
+        int rows = Mathf.CeilToInt(contentHeight / UIManager.Instance.GetUI<UI_Grid>().GridUnit);
+
+        // 최소 1x1은 유지
+        _gridWH = new Vector2Int(Mathf.Max(1, cols), Mathf.Max(1, rows));
+
+        // 4. 최종 물리적 크기 적용
+        UpdatePhysicalSize();
+    }
+
+    private void UpdatePhysicalSize()
+    {
+        // 그리드 칸 수 기반 크기 + 양쪽 패딩
+        float finalW = (_gridWH.x * UIManager.Instance.GetUI<UI_Grid>().GridUnit)
+            + (UIManager.Instance.GetUI<UI_Grid>().Padding * 2);
+        float finalH = (_gridWH.y * UIManager.Instance.GetUI<UI_Grid>().GridUnit)
+            + (UIManager.Instance.GetUI<UI_Grid>().Padding * 2);
+
+        _rectTransform.sizeDelta = new Vector2(finalW, finalH);
+    }
+
+    public void UpdateVisualPosition()
+    {
+        _rectTransform.localPosition = UIManager.Instance.GetUI<UI_Grid>().GetPosFromIndex(gridIndex);
     }
 
     public void OnDrag(PointerEventData eventData)
