@@ -145,7 +145,8 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             .InstantiatePrefabAndGetComponent<BackgroundSlot>(
             path: "UI/BackgroundSlot"
             , parent: UIManager.Instance.GetUI<UI_Grid>().content);
-        slot.gridIndex = new(tx, ty);
+        slot.SetSlot(tx, ty, _widthModifier, _heightModifier);
+        slot.UpdateVisualPosition();
         slot.AddIcon(_rect);
         UIManager.Instance.GetUI<UI_Grid>().RegisterSlot(slot);
     }

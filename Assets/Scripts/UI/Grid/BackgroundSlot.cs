@@ -32,6 +32,12 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         return new Vector2(snapX + padding, snapY - padding);
     }
 
+    public void SetSlot(int x, int y, int w, int h)
+    {
+        gridIndex = new(x, y);
+        _gridWH = new(w, h);
+    }
+
     // 아이콘이 이 배경에 드롭되었을 때 호출할 함수
     public void AddIcon(RectTransform iconRect)
     {
