@@ -134,12 +134,14 @@ public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
     private void ShowSnapGuide()
     {
         _snapGuide.gameObject.SetActive(true);
+        _snapGuide.localScale = GetCanvasScale() * Vector2.one;
     }
 
     public void HideSnapGuide()
     {
-        _snapGuide.gameObject.SetActive(false);
         _snapGuide.SetParent(_forDragParent);
+        _snapGuide.localScale = Vector2.one;
+        _snapGuide.gameObject.SetActive(false);
     }
     #endregion 가이드
 }

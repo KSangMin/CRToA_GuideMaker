@@ -174,9 +174,9 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         if (isSnapped)
         {
             UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
-            UIManager.Instance.GetUI<UI_Grid>().contentRect.GetComponent<RectTransform>()
-            , snapPos
-            , _rectTransform);
+                UIManager.Instance.GetUI<UI_Grid>().contentRect
+                , snapPos
+                , _rectTransform);
             _snapPos = snapPos;
         }
         else
