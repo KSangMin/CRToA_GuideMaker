@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -42,7 +42,7 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
         if (!eventData.dragging)
         {
             transform.localScale = Vector3.one;
-            transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
+            transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().contentRect);
             if (!isLongPress)
             {
                 // 드래그가 되지 않았고 롱 프레스도 아니면 '클릭'으로 판정
@@ -84,14 +84,14 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
     private void MoveToMousePosition(PointerEventData eventData)
     {
         Vector2 offset = new Vector2(-_rect.sizeDelta.x * 0.5f, _rect.sizeDelta.y * 0.5f);
-        offset *= UIManager.Instance.GetUI<UI_Grid>().content.localScale.x;
+        offset *= UIManager.Instance.GetUI<UI_Grid>().contentRect.localScale.x;
         transform.position = eventData.position + offset;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         isLongPress = false;
-        transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().content);
+        transform.SetParent(UIManager.Instance.GetUI<UI_Grid>().contentRect);
         transform.localScale = Vector3.one;
         UIManager.Instance.GetUI<UI_Grid>().HideHandles();
         // 여기서 자석 스냅(3~4단계) 로직 호출

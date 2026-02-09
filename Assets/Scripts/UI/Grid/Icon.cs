@@ -58,7 +58,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         {
             // [CASE B] 빈 공간(Content)에 있는 경우
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                UIManager.Instance.GetUI<UI_Grid>().content
+                UIManager.Instance.GetUI<UI_Grid>().contentRect
                 , eventData.position
                 , eventData.pressEventCamera
                 , out Vector2 localPos);
@@ -83,31 +83,21 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
 
     private void ShowContentPlacementGuide(Vector2 localPos)
     {
-        // Spacing을 포함한 그리드 단위로 인덱스 계산
-        float unit = UIManager.Instance.GetUI<UI_Grid>().GridUnit
-            + UIManager.Instance.GetUI<UI_Grid>().Spacing;
-        // 현재 인덱스 계산
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit
+            + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
+
         int rawX = Mathf.RoundToInt(localPos.x / unit);
         int rawY = Mathf.RoundToInt(localPos.y / -unit);
 
-        // 0보다 작으면 무조건 -1을 보냄 (GridManager에서 1칸 확장의 신호로 씀)
-        int sendX = rawX < 0 ? -1 : rawX;
-        int sendY = rawY < 0 ? -1 : rawY;
-
-        if (sendX < 0 || sendY < 0)
-        {
-            UIManager.Instance.GetUI<UI_Grid>().CheckAndExpand(new Vector2Int(sendX, sendY));
-
-            // 확장 중일 때는 가이드 위치를 0,0에 고정 (시각적 튐 방지)
-            rawX = 0;
-            rawY = 0;
-        }
+        // GridManager에게 현재 마우스가 가리키는 인덱스를 그대로 전달
+        // (음수이든, 현재 크기보다 크든 상관없이 CheckAndExpand에서 판단함)
+        UIManager.Instance.GetUI<UI_Grid>().content.CheckAndExpand(new Vector2Int(rawX, rawY));
 
         // 빈 공간용 가이드 표시 (Content 기준 스냅 위치)
-        Vector2 snapPos = UIManager.Instance.GetUI<UI_Grid>().GetPosFromIndex(
+        Vector2 snapPos = UIManager.Instance.GetUI<UI_Grid>().content.GetPosFromIndex(
             new Vector2Int(Mathf.Max(0, rawX), Mathf.Max(0, rawY)));
         UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
-            UIManager.Instance.GetUI<UI_Grid>().content
+            UIManager.Instance.GetUI<UI_Grid>().contentRect
             , snapPos
             , _rect);
     }
@@ -135,8 +125,8 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
     private void CreateNewBackgroundSlotAtCurrentPos()
     {
         // 현재 위치의 인덱스 계산
-        float unit = UIManager.Instance.GetUI<UI_Grid>().GridUnit 
-            + UIManager.Instance.GetUI<UI_Grid>().Spacing;
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit 
+            + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
         int tx = Mathf.Max(0, Mathf.RoundToInt(_rect.localPosition.x / unit));
         int ty = Mathf.Max(0, Mathf.RoundToInt(_rect.localPosition.y / -unit));
 
@@ -144,10 +134,10 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         BackgroundSlot slot = Util
             .InstantiatePrefabAndGetComponent<BackgroundSlot>(
             path: "UI/BackgroundSlot"
-            , parent: UIManager.Instance.GetUI<UI_Grid>().content);
+            , parent: UIManager.Instance.GetUI<UI_Grid>().contentRect);
         slot.SetSlot(tx, ty, _widthModifier, _heightModifier);
         slot.UpdateVisualPosition();
         slot.AddIcon(_rect);
-        UIManager.Instance.GetUI<UI_Grid>().RegisterSlot(slot);
+        UIManager.Instance.GetUI<UI_Grid>().content.RegisterSlot(slot);
     }
 }

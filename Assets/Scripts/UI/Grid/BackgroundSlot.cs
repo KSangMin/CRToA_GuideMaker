@@ -81,8 +81,8 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
         // 3. [핵심] 픽셀 크기를 기반으로 논리적 gridSize(칸 수) 계산
         // gridUnit(100)으로 나누고 올림(Ceil)하여 최소 몇 칸이 필요한지 구합니다.
-        int cols = Mathf.CeilToInt(contentWidth / UIManager.Instance.GetUI<UI_Grid>().GridUnit);
-        int rows = Mathf.CeilToInt(contentHeight / UIManager.Instance.GetUI<UI_Grid>().GridUnit);
+        int cols = Mathf.CeilToInt(contentWidth / UIManager.Instance.GetUI<UI_Grid>().content.GridUnit);
+        int rows = Mathf.CeilToInt(contentHeight / UIManager.Instance.GetUI<UI_Grid>().content.GridUnit);
 
         // 최소 1x1은 유지
         _gridWH = new Vector2Int(Mathf.Max(1, cols), Mathf.Max(1, rows));
@@ -94,17 +94,17 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     private void UpdatePhysicalSize()
     {
         // 그리드 칸 수 기반 크기 + 양쪽 패딩
-        float finalW = (_gridWH.x * UIManager.Instance.GetUI<UI_Grid>().GridUnit)
-            + (UIManager.Instance.GetUI<UI_Grid>().Padding * 2);
-        float finalH = (_gridWH.y * UIManager.Instance.GetUI<UI_Grid>().GridUnit)
-            + (UIManager.Instance.GetUI<UI_Grid>().Padding * 2);
+        float finalW = (_gridWH.x * UIManager.Instance.GetUI<UI_Grid>().content.GridUnit)
+            + (UIManager.Instance.GetUI<UI_Grid>().content.Padding * 2);
+        float finalH = (_gridWH.y * UIManager.Instance.GetUI<UI_Grid>().content.GridUnit)
+            + (UIManager.Instance.GetUI<UI_Grid>().content.Padding * 2);
 
         _rectTransform.sizeDelta = new Vector2(finalW, finalH);
     }
 
     public void UpdateVisualPosition()
     {
-        _rectTransform.localPosition = UIManager.Instance.GetUI<UI_Grid>().GetPosFromIndex(gridIndex);
+        _rectTransform.localPosition = UIManager.Instance.GetUI<UI_Grid>().content.GetPosFromIndex(gridIndex);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -113,7 +113,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
         // 2. 가이드 UI 설정
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            UIManager.Instance.GetUI<UI_Grid>().content
+            UIManager.Instance.GetUI<UI_Grid>().contentRect
             , eventData.position
             , eventData.pressEventCamera
             , out Vector2 localMousePos);
@@ -174,7 +174,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         if (isSnapped)
         {
             UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
-            UIManager.Instance.GetUI<UI_Grid>().content.GetComponent<RectTransform>()
+            UIManager.Instance.GetUI<UI_Grid>().contentRect.GetComponent<RectTransform>()
             , snapPos
             , _rectTransform);
             _snapPos = snapPos;
