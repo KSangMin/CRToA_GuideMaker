@@ -27,8 +27,8 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
     public Vector2 GetSnapPosition(Vector2 localPos)
     {
-        float snapX = Mathf.Round(localPos.x / gridSize) * gridSize;
-        float snapY = Mathf.Round(localPos.y / gridSize) * gridSize;
+        float snapX = Mathf.FloorToInt(localPos.x / gridSize) * gridSize;
+        float snapY = Mathf.FloorToInt(localPos.y / -gridSize) * gridSize;
         return new Vector2(snapX + padding, snapY - padding);
     }
 
@@ -39,40 +39,33 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     }
 
     // 아이콘이 이 배경에 드롭되었을 때 호출할 함수
-    public void AddIcon(RectTransform iconRect)
+    public void AddIcon(RectTransform iconRect, bool isFirst = false)
     {
         iconRect.SetParent(transform);
-        iconRect.localPosition = GetSnapPosition(iconRect.localPosition);
+        Vector2 pos = isFirst
+            ? new(iconRect.localPosition.x + gridSize / 2f
+                , iconRect.localPosition.y - gridSize / 2f)
+            : iconRect.localPosition;
+        iconRect.localPosition = GetSnapPosition(pos);
         UpdateSize();
     }
 
     public void UpdateSize()
     {
-        RectTransform[] children = GetComponentsInChildren<RectTransform>();
-
-        // 1. 자식이 없으면 기본 1x1 크기로 설정
-        if (children.Length <= 1)
-        {
-            _gridWH = new Vector2Int(1, 1);
-            UpdatePhysicalSize();
-            return;
-        }
-
         float minX = float.MaxValue, maxX = float.MinValue;
         float minY = float.MaxValue, maxY = float.MinValue;
 
-        foreach (var child in children)
+        foreach (RectTransform child in _rectTransform)
         {
-            // 자기 자신 및 가이드 UI 등 제외
-            if (child == _rectTransform || child.name.Contains("Guide")) continue;
+            //가이드 제외
+            if (child.name.Contains("SnapGuide")) continue;
 
-            float halfW = (child.rect.width * child.localScale.x) / 2f;
-            float halfH = (child.rect.height * child.localScale.y) / 2f;
+            Vector2 wh = child.GetComponent<Icon>().GetWH();
 
-            minX = Mathf.Min(minX, child.localPosition.x - halfW);
-            maxX = Mathf.Max(maxX, child.localPosition.x + halfW);
-            minY = Mathf.Min(minY, child.localPosition.y - halfH);
-            maxY = Mathf.Max(maxY, child.localPosition.y + halfH);
+            minX = Mathf.Min(minX, child.localPosition.x);
+            maxX = Mathf.Max(maxX, child.localPosition.x + wh.x);
+            minY = Mathf.Min(minY, child.localPosition.y);
+            maxY = Mathf.Max(maxY, child.localPosition.y + wh.y);
         }
 
         // 2. 순수 콘텐츠 영역 계산
@@ -87,7 +80,6 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
         // 최소 1x1은 유지
         _gridWH = new Vector2Int(Mathf.Max(1, cols), Mathf.Max(1, rows));
 
-        // 4. 최종 물리적 크기 적용
         UpdatePhysicalSize();
     }
 

@@ -57,13 +57,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
         else
         {
             // [CASE B] 빈 공간(Content)에 있는 경우
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                UIManager.Instance.GetUI<UI_Grid>().contentRect
-                , eventData.position
-                , eventData.pressEventCamera
-                , out Vector2 localPos);
-
-            ShowContentPlacementGuide(localPos);
+            ShowContentPlacementGuide(eventData);
         }
     }
 
@@ -81,21 +75,41 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             , _rect);
     }
 
-    private void ShowContentPlacementGuide(Vector2 localPos)
+    private void ShowContentPlacementGuide(PointerEventData eventData)
     {
-        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit
+        // 1. [1차 계산] 확장이 필요한지 판단하기 위해 현재 마우스 위치 파악
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            UIManager.Instance.GetUI<UI_Grid>().contentRect
+            , eventData.position
+            , eventData.pressEventCamera
+            , out Vector2 tempPos);
+
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit 
             + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
+        int rawX = Mathf.FloorToInt(tempPos.x / unit);
+        int rawY = Mathf.FloorToInt(tempPos.y / -unit);
 
-        int rawX = Mathf.RoundToInt(localPos.x / unit);
-        int rawY = Mathf.RoundToInt(localPos.y / -unit);
-
-        // GridManager에게 현재 마우스가 가리키는 인덱스를 그대로 전달
-        // (음수이든, 현재 크기보다 크든 상관없이 CheckAndExpand에서 판단함)
+        // 2. 확장 실행 (여기서 contentRect의 localPosition이 바뀔 수 있음)
         UIManager.Instance.GetUI<UI_Grid>().content.CheckAndExpand(new Vector2Int(rawX, rawY));
 
-        // 빈 공간용 가이드 표시 (Content 기준 스냅 위치)
+        // 3. [재계산] 확장이 완료된 후, 바뀐 좌표계(contentRect) 기준으로 다시 위치 파악
+        // 이 과정이 있어야 마우스가 튀지 않고 정확한 인덱스를 다시 잡습니다.
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            UIManager.Instance.GetUI<UI_Grid>().contentRect
+            , eventData.position
+            , eventData.pressEventCamera
+            , out Vector2 refinedPos);
+
+        int finalX = Mathf.Max(0, Mathf.FloorToInt(refinedPos.x / unit));
+        int finalY = Mathf.Max(0, Mathf.FloorToInt(refinedPos.y / -unit));
+        Debug.Log($"finalX: {finalX}, {finalY}");
+
+        // 4. 최종 스냅 좌표 산출
         Vector2 snapPos = UIManager.Instance.GetUI<UI_Grid>().content.GetPosFromIndex(
-            new Vector2Int(Mathf.Max(0, rawX), Mathf.Max(0, rawY)));
+            new Vector2Int(finalX, finalY));
+        Debug.Log($"snapPos: {snapPos}");
+
+        // 5. 가이드 표시
         UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
             UIManager.Instance.GetUI<UI_Grid>().contentRect
             , snapPos
@@ -119,25 +133,36 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             }
         }
 
-        CreateNewBackgroundSlotAtCurrentPos();
+        CreateNewBackgroundSlotAtCurrentPos(eventData);
     }
 
-    private void CreateNewBackgroundSlotAtCurrentPos()
+    private void CreateNewBackgroundSlotAtCurrentPos(PointerEventData eventData)
     {
-        // 현재 위치의 인덱스 계산
-        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit 
-            + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
-        int tx = Mathf.Max(0, Mathf.RoundToInt(_rect.localPosition.x / unit));
-        int ty = Mathf.Max(0, Mathf.RoundToInt(_rect.localPosition.y / -unit));
-
-        // TODO: 새로운 BackgroundSlot 프리팹을 생성하고 GridManager에 등록
         BackgroundSlot slot = Util
             .InstantiatePrefabAndGetComponent<BackgroundSlot>(
             path: "UI/BackgroundSlot"
             , parent: UIManager.Instance.GetUI<UI_Grid>().contentRect);
+
+        // 현재 위치의 인덱스 계산
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit
+            + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            UIManager.Instance.GetUI<UI_Grid>().contentRect
+            , eventData.position
+            , eventData.pressEventCamera
+            , out Vector2 refinedPos);
+        int tx = Mathf.Max(0, Mathf.FloorToInt(refinedPos.x / unit));
+        int ty = Mathf.Max(0, Mathf.FloorToInt(refinedPos.y / -unit));
+
         slot.SetSlot(tx, ty, _widthModifier, _heightModifier);
         slot.UpdateVisualPosition();
-        slot.AddIcon(_rect);
+        slot.AddIcon(_rect, true);
         UIManager.Instance.GetUI<UI_Grid>().content.RegisterSlot(slot);
+    }
+
+    public Vector2 GetWH()
+    {
+        return new(_width, _height);
     }
 }

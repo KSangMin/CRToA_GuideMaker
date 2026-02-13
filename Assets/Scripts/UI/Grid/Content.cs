@@ -23,8 +23,8 @@ public class Content : MonoBehaviour
     private float curMaxX = 0f;
     private float curMaxY = 0f;
     private float _gridUnit = 100f;
-    private float _padding = 20f;
-    private float _spacing = 50f;
+    private float _padding = 10f;
+    private float _spacing = 10f;
     public float GridUnit => _gridUnit;
     public float Padding => _padding;
     public float Spacing => _spacing;
@@ -40,7 +40,7 @@ public class Content : MonoBehaviour
     {
         _content = GetComponent<RectTransform>();
 
-        unit = GridUnit + Spacing;
+        unit = _gridUnit + _spacing;
     }
 
     #region 크기 계산
@@ -69,7 +69,7 @@ public class Content : MonoBehaviour
         _content.anchoredPosition = new(-bounds.width / 2f, bounds.height / 2f);
 
         curMaxX = Mathf.FloorToInt(_content.sizeDelta.x / unit);
-        curMaxY = Mathf.FloorToInt(_content.sizeDelta.y / unit);
+        curMaxY = Mathf.CeilToInt(_content.sizeDelta.y / unit);
     }
 
     private void OnDrawGizmos()
@@ -183,8 +183,8 @@ public class Content : MonoBehaviour
     #region 슬롯 관리
     public Vector2 GetPosFromIndex(Vector2Int index)
     {
-        float x = index.x * (_gridUnit + _spacing);
-        float y = index.y * -(_gridUnit + _spacing);
+        float x = index.x * unit;
+        float y = index.y * -unit;
         return new Vector2(x, y);
     }
 
@@ -237,7 +237,7 @@ public class Content : MonoBehaviour
         RebuildOccupancy();
 
         curMaxX = Mathf.FloorToInt(_content.sizeDelta.x / unit);
-        curMaxY = Mathf.FloorToInt(_content.sizeDelta.y / unit);
+        curMaxY = Mathf.CeilToInt(_content.sizeDelta.y / unit);
 
         yield return new WaitForSeconds(_expandDelay);
         _isExpanding = false;
