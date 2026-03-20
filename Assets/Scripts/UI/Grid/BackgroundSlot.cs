@@ -10,7 +10,6 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
     private float gridSize = 100f;   // 내부 격자 단위
     private float padding = 10f; // 안쪽 여백
-    private float _snapThreshold = 120f; // 자석 스냅 허용 오차
 
     private RectTransform _rectTransform;
     private PressHandler _pressHandler;
@@ -21,8 +20,6 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         _rectTransform = GetComponent<RectTransform>();
         _pressHandler = GetComponent<PressHandler>();
-
-        _snapThreshold = gridSize + padding * 2;
     }
 
     public Vector2 GetSnapPosition(Vector2 localPos)
@@ -74,8 +71,8 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
         // 3. [핵심] 픽셀 크기를 기반으로 논리적 gridSize(칸 수) 계산
         // gridUnit(100)으로 나누고 올림(Ceil)하여 최소 몇 칸이 필요한지 구합니다.
-        int cols = Mathf.CeilToInt(contentWidth / UIManager.Instance.GetUI<UI_Grid>().content.GridUnit);
-        int rows = Mathf.CeilToInt(contentHeight / UIManager.Instance.GetUI<UI_Grid>().content.GridUnit);
+        int cols = Mathf.CeilToInt(contentWidth / UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit);
+        int rows = Mathf.CeilToInt(contentHeight / UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit);
 
         // 최소 1x1은 유지
         _gridWH = new Vector2Int(Mathf.Max(1, cols), Mathf.Max(1, rows));
@@ -86,9 +83,9 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     private void UpdatePhysicalSize()
     {
         // 그리드 칸 수 기반 크기 + 양쪽 패딩
-        float finalW = (_gridWH.x * UIManager.Instance.GetUI<UI_Grid>().content.GridUnit)
+        float finalW = (_gridWH.x * UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit)
             + (UIManager.Instance.GetUI<UI_Grid>().content.Padding * 2);
-        float finalH = (_gridWH.y * UIManager.Instance.GetUI<UI_Grid>().content.GridUnit)
+        float finalH = (_gridWH.y * UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit)
             + (UIManager.Instance.GetUI<UI_Grid>().content.Padding * 2);
 
         _rectTransform.sizeDelta = new Vector2(finalW, finalH);
@@ -103,79 +100,27 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         if (!_pressHandler.isLongPress) return;
 
-        // 2. 가이드 UI 설정
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             UIManager.Instance.GetUI<UI_Grid>().contentRect
             , eventData.position
             , eventData.pressEventCamera
             , out Vector2 localMousePos);
 
-        // 3. 자석 스냅 위치 계산 (기존 OnEndDrag 로직 활용)
-        Vector2 snapPos = localMousePos; // 기본은 마우스 위치
+        UI_Grid gridui = UIManager.Instance.GetUI<UI_Grid>();
+        Content content = gridui.content;
 
-        Collider2D[] overlaps = Physics2D.OverlapCircleAll(transform.position, _snapThreshold * 5);
-        RectTransform myRect = GetComponent<RectTransform>();
+        // 2. 가상 그리드 단위로 인덱스 계산 (Round 사용)
+        int tx = Mathf.RoundToInt(localMousePos.x / content.SlotUnit);
+        int ty = Mathf.RoundToInt(localMousePos.y / -content.SlotUnit);
 
-        List<BackgroundSlot> slots = new();
-        foreach (var collider in overlaps)
-        {
-            if (collider.gameObject == gameObject)
-            {
-                continue;
-            }
-            if (collider.TryGetComponent(out BackgroundSlot slot))
-            {
-                slots.Add(slot);
-            }
-        }
+        // 3. 확장 체크 (필요시)
+        content.CheckAndExpand(new Vector2Int(tx, ty));
 
-        bool isSnapped = false;
-        foreach (var slot in slots)
-        {
-            RectTransform otherRect = slot.GetComponent<RectTransform>();
+        // 4. 계산된 인덱스를 실제 좌표로 다시 변환
+        _snapPos = content.GetPosFromIndex(new Vector2Int(Mathf.Max(0, tx), Mathf.Max(0, ty)));
 
-            // 여기서부터는 기존의 자석 스냅 로직 동일
-            Vector2 offset = localMousePos - (Vector2)otherRect.localPosition;
-            float targetDistX = (otherRect.rect.width + myRect.rect.width) / 2f + padding;
-            float targetDistY = (otherRect.rect.height + myRect.rect.height) / 2f + padding;
-
-            // X축 자석 체크
-            if (Mathf.Abs(Mathf.Abs(offset.x) - targetDistX) < _snapThreshold
-                && Mathf.Abs(offset.y) < _snapThreshold)
-            {
-                snapPos = new Vector2(
-                    otherRect.localPosition.x + (Mathf.Sign(offset.x) * targetDistX)
-                    , otherRect.localPosition.y);
-                isSnapped = true;
-                break;
-            }
-
-            // Y축 자석 체크
-            if (Mathf.Abs(Mathf.Abs(offset.y) - targetDistY) < _snapThreshold
-                && Mathf.Abs(offset.x) < _snapThreshold)
-            {
-                snapPos = new Vector2(
-                    otherRect.localPosition.x
-                    , otherRect.localPosition.y + (Mathf.Sign(offset.y) * targetDistY));
-                isSnapped = true;
-                break;
-            }
-        }
-
-        //가이드 위치
-        if (isSnapped)
-        {
-            UIManager.Instance.GetUI<UI_Grid>().SetSnapGuide(
-                UIManager.Instance.GetUI<UI_Grid>().contentRect
-                , snapPos
-                , _rectTransform);
-            _snapPos = snapPos;
-        }
-        else
-        {
-            UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();
-            _snapPos = Vector2.zero;
-        }
+        // 5. 가이드 표시 (다른 슬롯 고려 없이 그리드에만 맞춤)
+        gridui.SetSnapGuide(gridui.contentRect, _snapPos, _rectTransform);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -184,7 +129,7 @@ public class BackgroundSlot : MonoBehaviour, IDragHandler, IEndDragHandler
 
         if (_snapPos != Vector2.zero)
         {
-            transform.localPosition = _snapPos;
+            _rectTransform.anchoredPosition = _snapPos;
         }
 
         UIManager.Instance.GetUI<UI_Grid>().HideSnapGuide();

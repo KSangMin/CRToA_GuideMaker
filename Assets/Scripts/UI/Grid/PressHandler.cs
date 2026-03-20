@@ -84,8 +84,8 @@ public class PressHandler : MonoBehaviour, IPointerUpHandler, IPointerDownHandle
     private void MoveToMousePosition(PointerEventData eventData)
     {
         Vector2 offset = new Vector2(
-            -UIManager.Instance.GetUI<UI_Grid>().content.GridUnit * 0.5f
-            , UIManager.Instance.GetUI<UI_Grid>().content.GridUnit * 0.5f);
+            -UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit * 0.5f
+            , UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit * 0.5f);
         offset *= UIManager.Instance.GetUI<UI_Grid>().contentRect.localScale.x;
         transform.position = eventData.position + offset;
     }

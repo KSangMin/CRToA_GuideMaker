@@ -20,15 +20,15 @@ public class Content : MonoBehaviour
         public bool isValid;
     }
 
-    private float curMaxX = 0f;
-    private float curMaxY = 0f;
-    private float _gridUnit = 100f;
+    private float curMaxX = 30f;
+    private float curMaxY = 30f;
+    private float _itemUnit = 100f;
     private float _padding = 10f;
     private float _spacing = 10f;
-    public float GridUnit => _gridUnit;
+    public float ItemUnit => _itemUnit;
+    public float SlotUnit => _itemUnit + _spacing * 2;
     public float Padding => _padding;
     public float Spacing => _spacing;
-    private float unit;
 
     private Dictionary<Vector2Int, BackgroundSlot> _occupancy = new();
     private List<BackgroundSlot> _slots = new();
@@ -39,8 +39,6 @@ public class Content : MonoBehaviour
     private void Awake()
     {
         _content = GetComponent<RectTransform>();
-
-        unit = _gridUnit + _spacing;
     }
 
     #region 크기 계산
@@ -65,11 +63,11 @@ public class Content : MonoBehaviour
             child.anchoredPosition -= diff;
         }
 
-        _content.sizeDelta = new(bounds.width, bounds.height);
-        _content.anchoredPosition = new(-bounds.width / 2f, bounds.height / 2f);
+        curMaxX = Mathf.Max(curMaxX, Mathf.FloorToInt(_content.sizeDelta.x / SlotUnit));
+        curMaxY = Mathf.Max(curMaxY, Mathf.CeilToInt(_content.sizeDelta.y / SlotUnit));
+        _content.sizeDelta = new(curMaxX * SlotUnit, curMaxY * SlotUnit);
+        _content.anchoredPosition = Vector2.zero;
 
-        curMaxX = Mathf.FloorToInt(_content.sizeDelta.x / unit);
-        curMaxY = Mathf.CeilToInt(_content.sizeDelta.y / unit);
     }
 
     private void OnDrawGizmos()
@@ -183,8 +181,8 @@ public class Content : MonoBehaviour
     #region 슬롯 관리
     public Vector2 GetPosFromIndex(Vector2Int index)
     {
-        float x = index.x * unit;
-        float y = index.y * -unit;
+        float x = index.x * SlotUnit;
+        float y = index.y * -SlotUnit;
         return new Vector2(x, y);
     }
 
@@ -224,20 +222,20 @@ public class Content : MonoBehaviour
                 slot.UpdateVisualPosition();
             }
 
-            Vector2 expandAmount = new Vector2(shift.x * unit, shift.y * unit);
+            Vector2 expandAmount = new Vector2(shift.x * SlotUnit, shift.y * SlotUnit);
             _content.sizeDelta += expandAmount;
             // 좌측/상단으로 늘어난 만큼 전체 판을 밀어서 기존 슬롯 위치 고정
             _content.localPosition -= new Vector3(expandAmount.x, -expandAmount.y, 0);
         }
 
         // B. 우측/하단 확장 처리 (단순 크기 증가)
-        if (expandRight) _content.sizeDelta += new Vector2(unit, 0);
-        if (expandBottom) _content.sizeDelta += new Vector2(0, unit);
+        if (expandRight) _content.sizeDelta += new Vector2(SlotUnit, 0);
+        if (expandBottom) _content.sizeDelta += new Vector2(0, SlotUnit);
 
         RebuildOccupancy();
 
-        curMaxX = Mathf.FloorToInt(_content.sizeDelta.x / unit);
-        curMaxY = Mathf.CeilToInt(_content.sizeDelta.y / unit);
+        curMaxX = Mathf.FloorToInt(_content.sizeDelta.x / SlotUnit);
+        curMaxY = Mathf.CeilToInt(_content.sizeDelta.y / SlotUnit);
 
         yield return new WaitForSeconds(_expandDelay);
         _isExpanding = false;

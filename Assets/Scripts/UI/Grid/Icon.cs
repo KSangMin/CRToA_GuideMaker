@@ -84,7 +84,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             , eventData.pressEventCamera
             , out Vector2 tempPos);
 
-        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit 
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit 
             + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
         int rawX = Mathf.FloorToInt(tempPos.x / unit);
         int rawY = Mathf.FloorToInt(tempPos.y / -unit);
@@ -144,7 +144,7 @@ public class Icon : MonoBehaviour, IDragHandler,IEndDragHandler
             , parent: UIManager.Instance.GetUI<UI_Grid>().contentRect);
 
         // 현재 위치의 인덱스 계산
-        float unit = UIManager.Instance.GetUI<UI_Grid>().content.GridUnit
+        float unit = UIManager.Instance.GetUI<UI_Grid>().content.ItemUnit
             + UIManager.Instance.GetUI<UI_Grid>().content.Spacing;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
