@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24fd3b73c34d8a84e84dbe8dd52599a3, type: 3}
+  m_Name: CookieData_1007
+  m_EditorClassIdentifier: Assembly-CSharp::CookieData
+  cookieId: 1007
+  cookieName: "\uD5C8\uB2C8\uBCA0\uC5B4\uB9DB \uCFE0\uD0A4"
+  rarity: 0
+  Icon:
+    m_AssetGUID: 763e0477ce270b64fbb8b1d5ffc917e0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  Type: 2
+  Class: 2
+  AttackType: 4
+  BasicAttack:
+  - sprite:
+      m_AssetGUID: deca634dc22c386438394193fc0dc7a6
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    controlType: 0
+  - sprite:
+      m_AssetGUID: deca634dc22c386438394193fc0dc7a6
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    controlType: 1
+  SpecialAttack:
+  - sprite:
+      m_AssetGUID: 35cebef4b11e92d47b8a789ceb33e728
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    controlType: 0
+  Ultimate:
+  - sprite:
+      m_AssetGUID: 396f6e08eb45c4a4ba445f28aafb12d2
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    controlType: 0
+  Dash: []
