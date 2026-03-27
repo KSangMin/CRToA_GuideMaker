@@ -34,7 +34,7 @@ public enum RarityType
 public enum SkillType
 {
     Basic,
-    Skill,
+    SpecialSkill,
     Ultimate,
     Dash,
 }

@@ -1,33 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
-    private IconType _type;
-    private int _id = -1;
-    private bool _isBackground;
-
-    private float halfSlotSize = 51.25f;
+    private string _id = "";
 
     private ScrollRect _parentScroll;
 
-    [SerializeField] private GameObject iconPrefab;
+    [SerializeField] private Image _icon;
+    [SerializeField] private TextMeshProUGUI _nameText;
     private GameObject _ghost;
+    private float _halfSlotSize;
     private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
 
-    public void SetSlot(ScrollRect scroll, IconType type, int id, Sprite sprite, bool isBackground)
+    private void Awake()
+    {
+        _halfSlotSize = GetComponent<RectTransform>().sizeDelta.x / 2f;
+    }
+
+    public void SetSlot(ScrollRect scroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
     {
         _parentScroll = scroll;
-        _type = type;
         _id = id;
-        _isBackground = isBackground;
-        GetComponent<Image>().sprite = sprite;
+        _icon.sprite = sprite;
+
+        if (controlType == ControlType.Charge)
+        {
+            _nameText.SetText(string.Format("{0}: 차징", GetAttackText(skillType)));
+        }
+        else
+        {
+            _nameText.SetText(GetAttackText(skillType));
+        }
+    }
+
+    private string GetAttackText(SkillType skillType)
+    {
+        string result = "";
+
+        switch (skillType)
+        {
+            case SkillType.Basic:
+                result = "기본 공격";
+                break;
+            case SkillType.SpecialSkill:
+                result = "특수 스킬";
+                break;
+            case SkillType.Ultimate:
+                result = "궁극기";
+                break;
+            case SkillType.Dash:
+                result = "대시";
+                break;
+            default:
+                break;
+        }
+
+        return result;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -43,11 +79,9 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 
         if (!_isCanceled)
         {
-            _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-            //KeyValuePair<int, int> wh = GetWidthHeight();
-            //_ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
+            _ghost = Instantiate(gameObject, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
 
-            _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
+            _ghost.transform.position = eventData.position + new Vector2(-_halfSlotSize, _halfSlotSize);
         }
 
         _holdCoroutine = null;
@@ -64,6 +98,10 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
                 Destroy(_ghost);
                 _ghost = null;
             }
+        }
+        else
+        {
+            //클릭
         }
     }
 
@@ -88,9 +126,8 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
             }
             return;
         }
-
-        _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
     }
+
 
     private void CancelHold()
     {
@@ -129,14 +166,9 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 
         foreach (var result in results)
         {
-            if (result.gameObject.CompareTag("UncreatableUI"))
+            if (result.gameObject.CompareTag("CyclePanel"))
             {
-                return false;
-            }
-            else if (result.gameObject.CompareTag("ForegroundSlot"))
-            {
-                //Slot slot = result.gameObject.GetComponent<Slot>();
-                //slot.SetIconToSlot(_ghost, GetWidthHeight());
+
 
                 return true;
             }
@@ -144,22 +176,5 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
 
         return false;
     }
-
-    //private KeyValuePair<int, int> GetWidthHeight()
-    //{
-    //    KeyValuePair<int, int> wh = new(1, 1);
-    //    switch (_type)
-    //    {
-    //        case IconType.Header:
-    //            wh = new(2, 1);
-    //            break;
-    //        case IconType.Card:
-    //            wh = new(1, 2);
-    //            break;
-    //        default:
-    //            break;
-    //    }
-
-    //    return wh;
-    //}
 }
+
