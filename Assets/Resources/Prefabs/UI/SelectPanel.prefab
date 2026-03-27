@@ -216,6 +216,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4bba80849fd77c41bb64485ba80e186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectPanel
+  _slotPrefab: {fileID: 5419680777328014943, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
+  icon: {fileID: 4366245623233195630}
+  nameText: {fileID: 2435880763977273794}
+  classIcon: {fileID: 379091828901135050}
+  attackTypeIcon: {fileID: 4661445388140004403}
+  rarityFrame: {fileID: 146012794075551992}
+  rarityText: {fileID: 8839419012133997960}
+  content: {fileID: 8332108208773632474}
+  panelBackground: {fileID: 337021637079721051}
+  elementalTypeIcon: {fileID: 4881962003312763521}
 --- !u!1 &2317007208051005638
 GameObject:
   m_ObjectHideFlags: 0
@@ -529,7 +539,7 @@ GameObject:
   - component: {fileID: 6859118769703020672}
   - component: {fileID: 4881962003312763521}
   m_Layer: 5
-  m_Name: Type
+  m_Name: ElementalType
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
