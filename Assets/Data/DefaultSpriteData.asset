@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DefaultSpriteData
   m_EditorClassIdentifier: Assembly-CSharp::DefaultSpriteData
   basicAttack_Default:
-    m_AssetGUID: deca634dc22c386438394193fc0dc7a6
+    m_AssetGUID: d6712eab5416a614a8bf156ef15301a3
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
@@ -31,7 +31,7 @@ MonoBehaviour:
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
   dash_Default:
-    m_AssetGUID: 7117169edc0892647834c0302d84e467
+    m_AssetGUID: c762ca37d1f45ae4087039177dd316ca
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
@@ -109,27 +109,6 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  rarity_frame:
-  - m_AssetGUID: fb29a886413f3f642a2a08626ff7df7d
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
-  - m_AssetGUID: f7add668f3368444b9248a6b9a189e33
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
-  - m_AssetGUID: 7c6a695e60b05a947b5503d2665b3273
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
-  - m_AssetGUID: 91352c99058fdd14fbf5353aca0f9fa6
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 0
   elementalType_frame:
   - m_AssetGUID: b942f1bbc5c256b43a98211387fa9db0
     m_SubObjectName: 
@@ -157,6 +136,27 @@ MonoBehaviour:
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
   - m_AssetGUID: 8fbe2c402a956bf46afb3931db27a95e
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  rarity_frame:
+  - m_AssetGUID: fb29a886413f3f642a2a08626ff7df7d
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: f7add668f3368444b9248a6b9a189e33
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 7c6a695e60b05a947b5503d2665b3273
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 91352c99058fdd14fbf5353aca0f9fa6
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 

@@ -26,14 +26,14 @@ MonoBehaviour:
   AttackType: 1
   BasicAttack:
   - sprite:
-      m_AssetGUID: deca634dc22c386438394193fc0dc7a6
+      m_AssetGUID: d6712eab5416a614a8bf156ef15301a3
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     controlType: 0
   - sprite:
-      m_AssetGUID: deca634dc22c386438394193fc0dc7a6
+      m_AssetGUID: d6712eab5416a614a8bf156ef15301a3
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
