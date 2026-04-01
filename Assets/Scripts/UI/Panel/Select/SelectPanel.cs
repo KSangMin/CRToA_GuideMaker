@@ -18,39 +18,34 @@ public class SelectPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rarityText;
 
     [Header("스크롤뷰")]
+    [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
     [SerializeField] private Image panelBackground;
     [SerializeField] private Image elementalTypeIcon;
 
     private void Awake()
     {
-        foreach(Transform child in transform)
+        foreach(Transform child in content)
         {
-            Destroy(child);
+            Destroy(child.gameObject);
         }
     }
 
-    public void SetPanel(
-        CookieData data
-        , Sprite headIconSprite
-        , Sprite classIconSprite
-        , Sprite attackTypeIconSprite
-        , Sprite rarityFrameSprite
-        , Sprite panelBackgroundSprite
-        , Sprite elementalTypeIconSprite)
+    public void SetPanel(CookieData data)
     {
         _id = data.cookieId;
         _data = data;
-        
-        icon.sprite = headIconSprite;
+
+        DefaultSpriteData spriteData = AddressableManager.Instance.SpriteData;
+        icon.sprite = data.GetSprite(data.Icon);
         nameText.SetText(data.cookieName);
-        classIcon.sprite = classIconSprite;
-        attackTypeIcon.sprite = attackTypeIconSprite;
-        rarityFrame.sprite = rarityFrameSprite;
+        classIcon.sprite = spriteData.GetSprite(spriteData.classType[(int)data.Class]);
+        attackTypeIcon.sprite = spriteData.GetSprite(spriteData.attackType[(int)data.AttackType]);
+        rarityFrame.sprite = spriteData.GetSprite(spriteData.rarity_frame[(int)data.rarity]);
         rarityText.SetText(data.rarity.ToString());
 
-        panelBackground.sprite = panelBackgroundSprite;
-        elementalTypeIcon.sprite = elementalTypeIconSprite;
+        panelBackground.sprite = spriteData.GetSprite(spriteData.elementalType_frame[(int)data.Type]);
+        elementalTypeIcon.sprite = spriteData.GetSprite(spriteData.elementalType[(int)data.Type]);
 
         SetSkillSlots();
     }
@@ -58,56 +53,44 @@ public class SelectPanel : MonoBehaviour
     private void SetSkillSlots()
     {
         SetBasicAttackSlots();
+        SetDashSlots();
         SetSpecialSkillSlots();
         SetUltimateSlots();
-        SetDashSlots();
     }
 
     private void SetBasicAttackSlots()
     {
-        if(_data.BasicAttack.Count > 0)
+        foreach(var sprites in _data.GetBasicAttackSprites())
         {
-
-        }
-        else
-        {
-
+            SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
+            slot.SetSlot(scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
         }
     }
 
     private void SetSpecialSkillSlots()
     {
-        if (_data.SpecialAttack.Count > 0)
+        foreach (var sprites in _data.GetSpecialAttackSprites())
         {
-
-        }
-        else
-        {
-
+            SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
+            slot.SetSlot(scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
         }
     }
 
     private void SetUltimateSlots()
     {
-        if (_data.Ultimate.Count > 0)
+        foreach (var sprites in _data.GetUltimateSprites())
         {
-
-        }
-        else
-        {
-
+            SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
+            slot.SetSlot(scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
         }
     }
 
     private void SetDashSlots()
     {
-        if (_data.Dash.Count > 0)
+        foreach (var sprites in _data.GetDashSprites())
         {
-
-        }
-        else
-        {
-
+            SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
+            slot.SetSlot(scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
         }
     }
 }
