@@ -223,7 +223,7 @@ MonoBehaviour:
   attackTypeIcon: {fileID: 4661445388140004403}
   rarityFrame: {fileID: 146012794075551992}
   rarityText: {fileID: 8839419012133997960}
-  scrollRect: {fileID: 3706648274812267899}
+  scrollRect: {fileID: 6736412162572792228}
   content: {fileID: 8332108208773632474}
   panelBackground: {fileID: 6404854123804435251}
   elementalTypeIcon: {fileID: 4881962003312763521}
@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 8982668158286185300}
   - component: {fileID: 1776876459246481410}
   - component: {fileID: 682743319076840438}
-  - component: {fileID: 3706648274812267899}
+  - component: {fileID: 6736412162572792228}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3706648274812267899
+--- !u!114 &6736412162572792228
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -314,9 +314,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2317007208051005638}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Script: {fileID: 11500000, guid: ab5fa9fd1dc971846a01e331d11ee479, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
+  m_EditorClassIdentifier: Assembly-CSharp::SelectPanelScrollRect
   m_Content: {fileID: 8332108208773632474}
   m_Horizontal: 1
   m_Vertical: 0
@@ -329,9 +329,9 @@ MonoBehaviour:
   m_HorizontalScrollbar: {fileID: 2324220606072250867}
   m_VerticalScrollbar: {fileID: 0}
   m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: -3
-  m_VerticalScrollbarSpacing: -3
+  m_VerticalScrollbarSpacing: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -447,8 +447,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 205.03, y: -10}
-  m_SizeDelta: {x: 0, y: 30}
+  m_AnchoredPosition: {x: 248.77, y: -4.5}
+  m_SizeDelta: {x: 0, y: 35}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1011246839927417792
 CanvasRenderer:
@@ -487,7 +487,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 1.5
 --- !u!114 &1772127587600344671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -976,8 +976,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 47.65, y: -15}
-  m_SizeDelta: {x: 95.3, y: 0}
+  m_AnchoredPosition: {x: 70.975, y: -17.5}
+  m_SizeDelta: {x: 141.95, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1871698316225402187
 CanvasRenderer:
@@ -1034,8 +1034,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1073,7 +1073,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 3, y: 0, z: 3, w: 0}
+  m_margin: {x: 4, y: 0, z: 4, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1372,8 +1372,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 47, y: -25}
-  m_SizeDelta: {x: 92.03, y: 20}
+  m_AnchoredPosition: {x: 44, y: -22}
+  m_SizeDelta: {x: 138.77, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2904952961473524580
 CanvasRenderer:
@@ -1405,8 +1405,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC6A9\uAC10\uD55C \uCFE0\uD0A4"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 42d2a2366abbd164dacb67b7ced572aa, type: 2}
-  m_sharedMaterial: {fileID: 5752223588530750545, guid: 42d2a2366abbd164dacb67b7ced572aa, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ef65cbe8040aee9409f833e7c800b3e6, type: 2}
+  m_sharedMaterial: {fileID: 7887786324638071131, guid: ef65cbe8040aee9409f833e7c800b3e6, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1430,8 +1430,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1543,9 +1543,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 5
+    m_Left: 2
     m_Right: 0
-    m_Top: 10
+    m_Top: 4
     m_Bottom: 0
   m_ChildAlignment: 3
   m_Spacing: 2
@@ -1564,6 +1564,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8332108208773632474}
     m_Modifications:
+    - target: {fileID: 562307531089742624, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
+      propertyPath: m_fontSize
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 562307531089742624, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 17
+      objectReference: {fileID: 0}
     - target: {fileID: 5419680777328014943, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
       propertyPath: m_Name
       value: SelectSlot

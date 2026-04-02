@@ -1811,6 +1811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectMenu
   _panelPrefab: {fileID: 1380582125844640238, guid: 71a5b9a7124fa054b87b640409c261ef, type: 3}
+  scrollRect: {fileID: 6185615030074815198}
   content: {fileID: 4163112172654360179}
 --- !u!1 &2050120656
 GameObject:

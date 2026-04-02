@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SelectMenu : MonoBehaviour
 {
     [SerializeField] private GameObject _panelPrefab;
 
+    [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
 
     private void Start()
@@ -30,7 +32,7 @@ public class SelectMenu : MonoBehaviour
         foreach(CookieData cookieData in cookieDataList)
         {
             SelectPanel panel = Instantiate(_panelPrefab, content).GetComponent<SelectPanel>();
-            panel.SetPanel(cookieData);
+            panel.SetPanel(cookieData, scrollRect);
         }
     }
 }

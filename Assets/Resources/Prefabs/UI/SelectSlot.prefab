@@ -37,7 +37,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 90, y: 100}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4797404761572522968
 MonoBehaviour:
@@ -276,7 +276,6 @@ GameObject:
   - component: {fileID: 9160966780933849094}
   - component: {fileID: 8443309225578566643}
   - component: {fileID: 7096191512092829612}
-  - component: {fileID: 5808423066836158442}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -341,16 +340,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5808423066836158442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8850405106365964614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80b28efcdb7ec1445aa0ccc80c1999df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TabSlot
-  iconPrefab: {fileID: 3469580997410504468, guid: 7c8b903847b4a5447bd6cdb43bcd1680, type: 3}

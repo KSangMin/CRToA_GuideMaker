@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class SelectPanel : MonoBehaviour
@@ -18,6 +19,7 @@ public class SelectPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rarityText;
 
     [Header("스크롤뷰")]
+    private ScrollRect _menuScroll;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
     [SerializeField] private Image panelBackground;
@@ -31,10 +33,12 @@ public class SelectPanel : MonoBehaviour
         }
     }
 
-    public void SetPanel(CookieData data)
+    public void SetPanel(CookieData data, ScrollRect menuScroll)
     {
         _id = data.cookieId;
         _data = data;
+        _menuScroll = menuScroll;
+        scrollRect.GetComponent<SelectPanelScrollRect>().Init(menuScroll);
 
         DefaultSpriteData spriteData = AddressableManager.Instance.SpriteData;
         icon.sprite = data.GetSprite(data.Icon);
@@ -63,7 +67,7 @@ public class SelectPanel : MonoBehaviour
         foreach(var sprites in _data.GetBasicAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
+            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -72,7 +76,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetSpecialAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
+            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -81,7 +85,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetUltimateSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
+            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -90,7 +94,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetDashSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
+            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
         }
     }
 }

@@ -5,11 +5,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private string _id = "";
 
-    private ScrollRect _parentScroll;
+    private ScrollRect _menuScroll;
+    private ScrollRect _panelScroll;
+    private ScrollRect _targetScroll;
+    private bool _isDraggingScroll = false;
 
     [SerializeField] private Image _icon;
     [SerializeField] private TextMeshProUGUI _nameText;
@@ -25,9 +28,10 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         _halfSlotSize = GetComponent<RectTransform>().sizeDelta.x / 2f;
     }
 
-    public void SetSlot(ScrollRect scroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
+    public void SetSlot(ScrollRect menuScroll, ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
     {
-        _parentScroll = scroll;
+        _menuScroll = menuScroll;
+        _panelScroll = panelScroll;
         _id = id;
         _icon.sprite = sprite;
 
@@ -77,11 +81,10 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         yield return new WaitForSeconds(holdTime);
 
-        if (!_isCanceled)
+        if (!_isCanceled && !eventData.dragging)
         {
             _ghost = Instantiate(gameObject, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-
-            _ghost.transform.position = eventData.position + new Vector2(-_halfSlotSize, _halfSlotSize);
+            _ghost.transform.position = eventData.position;
         }
 
         _holdCoroutine = null;
@@ -105,29 +108,29 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         }
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnBeginDrag(PointerEventData eventData)
     {
         if (_ghost == null)
         {
-            float distance = Vector2.Distance(_startPosition, eventData.position);
-            if (!_isCanceled && distance > EventSystem.current.pixelDragThreshold)
-            {
-                CancelHold();
-
-                if (_parentScroll != null)
-                {
-                    _parentScroll.OnInitializePotentialDrag(eventData);
-                    _parentScroll.OnBeginDrag(eventData);
-                }
-            }
-            if (_isCanceled && _parentScroll != null)
-            {
-                _parentScroll.OnDrag(eventData);
-            }
-            return;
+            _isDraggingScroll = true;
+            CancelHold();
+            _panelScroll.OnBeginDrag(eventData);
         }
     }
 
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (_ghost != null)
+        {
+            _ghost.transform.position = eventData.position;
+            return;
+        }
+
+        if (_isDraggingScroll)
+        {
+            _panelScroll.OnDrag(eventData);
+        }
+    }
 
     private void CancelHold()
     {
@@ -141,22 +144,22 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        CancelHold();
-
-        if (_ghost == null)
+        if (_isDraggingScroll)
         {
-            if (_parentScroll != null)
-            {
-                _parentScroll.OnEndDrag(eventData);
-            }
+            _panelScroll.OnEndDrag(eventData);
+            _isDraggingScroll = false;
             return;
         }
 
-        if (!ProcessDrop(eventData))
+        if (_ghost != null)
         {
-            Destroy(_ghost);
+            if (!ProcessDrop(eventData))
+            {
+                Destroy(_ghost);
+            }
+            _ghost = null;
         }
-        _ghost = null;
+        CancelHold();
     }
 
     private bool ProcessDrop(PointerEventData eventData)
@@ -168,8 +171,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         {
             if (result.gameObject.CompareTag("CyclePanel"))
             {
-
-
+                //패널에 부착하는 코드 필요
                 return true;
             }
         }
