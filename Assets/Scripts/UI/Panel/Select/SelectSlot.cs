@@ -14,6 +14,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private ScrollRect _targetScroll;
     private bool _isDraggingScroll = false;
 
+    [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private Image _icon;
     [SerializeField] private TextMeshProUGUI _nameText;
     private GameObject _ghost;
@@ -83,7 +84,8 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _ghost = Instantiate(gameObject, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+            _ghost = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+            _ghost.GetComponent<CycleSlot>().SetSlot(_icon.sprite, _nameText.text);
             _ghost.transform.position = eventData.position;
         }
 
@@ -171,7 +173,14 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         {
             if (result.gameObject.CompareTag("CyclePanel"))
             {
-                //패널에 부착하는 코드 필요
+                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
+                cyclePanel.AddSlotToLast(_ghost.GetComponent<CycleSlot>());
+                return true;
+            }
+            else if (result.gameObject.CompareTag("CycleHorizontalLayout"))
+            {
+                CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
+                hz.AddSlot(_ghost.GetComponent<CycleSlot>());
                 return true;
             }
         }
