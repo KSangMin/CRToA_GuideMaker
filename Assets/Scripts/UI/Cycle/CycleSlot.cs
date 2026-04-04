@@ -10,7 +10,6 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     [SerializeField] private Image _icon;
     [SerializeField] private TextMeshProUGUI _nameText;
     private Transform _originalParent;
-    private Vector2 _startPosition;
     private Coroutine _holdCoroutine;
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
@@ -24,7 +23,6 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
-        _startPosition = eventData.position;
         _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
     }
 
@@ -36,6 +34,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         {
             transform.position = eventData.position;
             _originalParent = transform.parent;
+            _originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromSlot(this);
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
         }
 
@@ -45,11 +44,6 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     public void OnPointerUp(PointerEventData eventData)
     {
         CancelHold();
-
-        //if (!eventData.dragging)
-        //{
-        //    //원래 자리로 돌아가기
-        //}
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -72,9 +66,8 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         if (!ProcessDrop(eventData))
         {
-            //원래 자리로 돌아가기
+            CancelHold();
         }
-        CancelHold();
     }
 
     private bool ProcessDrop(PointerEventData eventData)
@@ -84,16 +77,16 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         foreach (var result in results)
         {
-            if (result.gameObject.CompareTag("CyclePanel"))
-            {
-                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToLast(this);
-                return true;
-            }
-            else if (result.gameObject.CompareTag("CycleHorizontalLayout"))
+            if (result.gameObject.CompareTag("CycleHorizontalLayout"))
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
                 hz.AddSlot(this);
+                return true;
+            }
+            else if (result.gameObject.CompareTag("CyclePanel"))
+            {
+                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
+                cyclePanel.AddSlotToLast(this);
                 return true;
             }
         }

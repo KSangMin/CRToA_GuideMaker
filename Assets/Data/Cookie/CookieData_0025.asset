@@ -49,7 +49,7 @@ MonoBehaviour:
     controlType: 0
   Ultimate:
   - sprite:
-      m_AssetGUID: 171ee628c41181f41858ae25c1ccdb7a
+      m_AssetGUID: eae4a25c72d2c0743a32776eeceb24f3
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 

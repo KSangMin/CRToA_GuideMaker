@@ -47,6 +47,11 @@ public class CycleHorizontalLayout : MonoBehaviour
         }
     }
 
+    public void RemoveFromSlot(CycleSlot slot)
+    {
+        _slots.Remove(slot);
+    }
+
     public void AddRow()
     {
         _cycleVerticalLayout.CreateRow(_id + 1);

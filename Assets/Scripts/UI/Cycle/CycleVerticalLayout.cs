@@ -20,7 +20,6 @@ public class CycleVerticalLayout : MonoBehaviour
     public void AddSlotToLast(CycleSlot slot)
     {
         CycleHorizontalLayout row = _rows.Count <= 0 ? CreateRow() : _rows.Last();
-
         row.AddSlot(slot);
     }
 
