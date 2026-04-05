@@ -84,12 +84,20 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _ghost = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-            _ghost.GetComponent<CycleSlot>().SetSlot(_icon.sprite, _nameText.text);
-            _ghost.transform.position = eventData.position;
+            _ghost = CreateSlot(eventData).gameObject;
         }
 
         _holdCoroutine = null;
+    }
+
+    private CycleSlot CreateSlot(PointerEventData eventData)
+    {
+        CycleSlot slot = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent)
+            .GetComponent<CycleSlot>();
+        slot.SetSlot(_icon.sprite, _nameText.text);
+        slot.transform.position = eventData.position;
+
+        return slot;
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -104,9 +112,9 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 _ghost = null;
             }
         }
-        else
+        else //클릭
         {
-            //클릭
+            UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
         }
     }
 
