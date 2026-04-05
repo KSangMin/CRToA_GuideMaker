@@ -33,18 +33,23 @@ public class CycleHorizontalLayout : MonoBehaviour
         _id = id;
     }
 
-    public void AddSlot(CycleSlot slot)
+    public void AddSlot(CycleSlot slot, int index = -1)
     {
         if (_slots.Count >= _maxSlotCount)
         {
             CycleHorizontalLayout row = _cycleVerticalLayout.CreateRow();
             row.AddSlot(slot);
+            return;
         }
-        else
+        _slots.Add(slot);
+        slot.transform.SetParent(transform);
+
+        if(index != -1)
         {
-            _slots.Add(slot);
-            slot.transform.SetParent(transform);
+            slot.transform.SetSiblingIndex(index);
         }
+        
+        _cycleVerticalLayout.CheckRowEmpty();
     }
 
     public void RemoveFromSlot(CycleSlot slot)
@@ -55,5 +60,10 @@ public class CycleHorizontalLayout : MonoBehaviour
     public void AddRow()
     {
         _cycleVerticalLayout.CreateRow(_id + 1);
+    }
+
+    public void ReBuildLayout()
+    {
+        _cycleVerticalLayout.ReBuildLayout();
     }
 }

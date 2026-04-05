@@ -171,16 +171,16 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
         foreach (var result in results)
         {
-            if (result.gameObject.CompareTag("CyclePanel"))
-            {
-                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToLast(_ghost.GetComponent<CycleSlot>());
-                return true;
-            }
-            else if (result.gameObject.CompareTag("CycleHorizontalLayout"))
+            if (result.gameObject.CompareTag("CycleHorizontalLayout"))
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
                 hz.AddSlot(_ghost.GetComponent<CycleSlot>());
+                return true;
+            }
+            else if (result.gameObject.CompareTag("CyclePanel"))
+            {
+                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
+                cyclePanel.AddSlotToLast(_ghost.GetComponent<CycleSlot>());
                 return true;
             }
         }

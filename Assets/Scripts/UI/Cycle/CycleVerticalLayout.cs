@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CycleVerticalLayout : MonoBehaviour
 {
@@ -43,5 +44,23 @@ public class CycleVerticalLayout : MonoBehaviour
         {
             _rows[i].SetId(i);
         }
+    }
+
+    public void CheckRowEmpty()
+    {
+        for (int i = _rows.Count - 1; i >= 0; i--)
+        {
+            CycleHorizontalLayout row = _rows[i];
+            if (row.transform.childCount <= 0)
+            {
+                _rows.RemoveAt(i);
+                Destroy(row.gameObject);
+            }
+        }
+    }
+
+    public void ReBuildLayout()
+    {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 }

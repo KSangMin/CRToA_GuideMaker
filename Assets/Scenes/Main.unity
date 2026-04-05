@@ -2104,6 +2104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060aafd55d2dc8b4da108c2253c27859, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Result
+  cyclePanel: {fileID: 1757118210}
 --- !u!1 &2016658870
 GameObject:
   m_ObjectHideFlags: 0
