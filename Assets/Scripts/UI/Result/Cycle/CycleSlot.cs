@@ -13,6 +13,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private Coroutine _holdCoroutine;
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
+    private bool _canDrag = false;
 
     private GameObject _placeholder = null;
 
@@ -25,6 +26,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
+        _canDrag = false;
         _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
     }
 
@@ -34,9 +36,13 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         if (!_isCanceled && !eventData.dragging)
         {
+            _canDrag = true;
             transform.position = eventData.position;
             originalParent = transform.parent;
-            originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromSlot(this);
+            if (originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+            {
+                layout.RemoveFromSlot(this);
+            }
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
         }
 
@@ -58,6 +64,8 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (!_canDrag) return;
+
         transform.position = eventData.position;
 
         CheckForPlaceHolder(eventData);
@@ -69,18 +77,23 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         List<RaycastResult> results = new();
         EventSystem.current.RaycastAll(eventData, results);
 
+        CycleHorizontalLayout foundLayout = null;
         foreach (var result in results)
         {
-            var layout = result.gameObject.GetComponent<CycleHorizontalLayout>();
-            if (layout != null)
+            if(result.gameObject.TryGetComponent(out CycleHorizontalLayout layout))
             {
-                UpdatePlaceholder(layout.transform, eventData.position);
-                return;
+                foundLayout = layout;
+                break;
             }
         }
-
-        Destroy(_placeholder);
-        _placeholder = null;
+        if (foundLayout != null)
+        {
+            UpdatePlaceholder(foundLayout.transform, eventData.position);
+        }
+        else
+        {
+            ClearPlaceHolder();
+        }
     }
 
     private void UpdatePlaceholder(Transform parent, Vector2 mousePos)
@@ -135,6 +148,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         transform.SetParent(originalParent);
         _isCanceled = true;
+        _canDrag = false;
         if (_holdCoroutine != null)
         {
             StopCoroutine(_holdCoroutine);
@@ -144,13 +158,18 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!_canDrag)
+        {
+            CancelHold();
+            return;
+        }
+
         int finalIndex = -1;
         if (_placeholder != null)
         {
             // 드롭 시 Placeholder의 위치로 슬롯 이동
             finalIndex = _placeholder.transform.GetSiblingIndex();
-            Destroy(_placeholder);
-            _placeholder = null;
+            ClearPlaceHolder();
         }
         if (!ProcessDrop(eventData, finalIndex))
         {
@@ -180,5 +199,14 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
 
         return false;
+    }
+
+    private void ClearPlaceHolder()
+    {
+        if (_placeholder != null)
+        {
+            Destroy(_placeholder);
+            _placeholder = null;
+        }
     }
 }
