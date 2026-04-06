@@ -9,29 +9,20 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 {
     private string _id = "";
 
-    private ScrollRect _menuScroll;
     private ScrollRect _panelScroll;
-    private ScrollRect _targetScroll;
     private bool _isDraggingScroll = false;
 
     [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private Image _icon;
     [SerializeField] private TextMeshProUGUI _nameText;
-    private GameObject _ghost;
-    private float _halfSlotSize;
-    private Vector2 _startPosition;
+    private CycleSlot _ghostSlot;
+    private int _targetIndex = -1;
     private Coroutine _holdCoroutine;
-    private float holdTime = 0.2f;
+    private float _holdTime = 0.15f;
     private bool _isCanceled = false;
 
-    private void Awake()
+    public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
     {
-        _halfSlotSize = GetComponent<RectTransform>().sizeDelta.x / 2f;
-    }
-
-    public void SetSlot(ScrollRect menuScroll, ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
-    {
-        _menuScroll = menuScroll;
         _panelScroll = panelScroll;
         _id = id;
         _icon.sprite = sprite;
@@ -74,17 +65,16 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
-        _startPosition = eventData.position;
         _holdCoroutine = StartCoroutine(CreateGhostAfterDelay(eventData));
     }
 
     private IEnumerator CreateGhostAfterDelay(PointerEventData eventData)
     {
-        yield return new WaitForSeconds(holdTime);
+        yield return new WaitForSeconds(_holdTime);
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _ghost = CreateSlot(eventData).gameObject;
+            _ghostSlot = CreateSlot(eventData);
         }
 
         _holdCoroutine = null;
@@ -104,12 +94,12 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         CancelHold();
 
-        if (_ghost != null)
+        if (_ghostSlot != null)
         {
             if (!eventData.dragging)
             {
-                Destroy(_ghost);
-                _ghost = null;
+                Destroy(_ghostSlot.gameObject);
+                _ghostSlot = null;
             }
         }
         else if(!_isDraggingScroll)//클릭
@@ -120,7 +110,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (_ghost == null)
+        if (_ghostSlot == null)
         {
             _isDraggingScroll = true;
             CancelHold();
@@ -130,9 +120,9 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (_ghost != null)
+        if (_ghostSlot != null)
         {
-            _ghost.transform.position = eventData.position;
+            _ghostSlot.Drag(eventData);
             return;
         }
 
@@ -161,13 +151,16 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             return;
         }
 
-        if (_ghost != null)
+        if (_ghostSlot != null)
         {
+            _targetIndex = _ghostSlot.GetPlaceHolderIndex();
+            _ghostSlot.ClearPlaceHolder();
+
             if (!ProcessDrop(eventData))
             {
-                Destroy(_ghost);
+                Destroy(_ghostSlot.gameObject);
             }
-            _ghost = null;
+            _ghostSlot = null;
         }
         CancelHold();
     }
@@ -182,13 +175,13 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             if (result.gameObject.CompareTag("CycleHorizontalLayout"))
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
-                hz.AddSlot(_ghost.GetComponent<CycleSlot>());
+                hz.AddSlot(_ghostSlot, _targetIndex);
                 return true;
             }
             else if (result.gameObject.CompareTag("CyclePanel"))
             {
                 CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToLast(_ghost.GetComponent<CycleSlot>());
+                cyclePanel.AddSlotToLast(_ghostSlot);
                 return true;
             }
         }

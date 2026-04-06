@@ -67,7 +67,7 @@ public class SelectPanel : MonoBehaviour
         foreach(var sprites in _data.GetBasicAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -76,7 +76,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetSpecialAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
+            slot.SetSlot( scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -85,7 +85,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetUltimateSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
         }
     }
 
@@ -94,7 +94,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var sprites in _data.GetDashSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(_menuScroll, scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
         }
     }
 }

@@ -11,7 +11,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     [SerializeField] private TextMeshProUGUI _nameText;
     [HideInInspector] public Transform originalParent;
     private Coroutine _holdCoroutine;
-    private float holdTime = 0.2f;
+    private float _holdTime = 0.15f;
     private bool _isCanceled = false;
     private bool _canDrag = false;
 
@@ -32,7 +32,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     private IEnumerator CheckHoldAfterDelay(PointerEventData eventData)
     {
-        yield return new WaitForSeconds(holdTime);
+        yield return new WaitForSeconds(_holdTime);
 
         if (!_isCanceled && !eventData.dragging)
         {
@@ -51,24 +51,29 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!eventData.dragging)
+        if (!eventData.dragging)//클릭 시
         {
+            CancelHold();
             transform.SetParent(null);
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();
             Destroy(gameObject);
             return;
         }
+    }
 
-        CancelHold();
+    //SelectSlot에서 넘겨받는 메서드
+    public void Drag(PointerEventData eventData)
+    {
+        transform.position = eventData.position;
+
+        CheckForPlaceHolder(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (!_canDrag) return;
 
-        transform.position = eventData.position;
-
-        CheckForPlaceHolder(eventData);
+        Drag(eventData);
     }
 
     private void CheckForPlaceHolder(PointerEventData eventData)
@@ -80,7 +85,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         CycleHorizontalLayout foundLayout = null;
         foreach (var result in results)
         {
-            if(result.gameObject.TryGetComponent(out CycleHorizontalLayout layout))
+            if (result.gameObject.TryGetComponent(out CycleHorizontalLayout layout))
             {
                 foundLayout = layout;
                 break;
@@ -144,6 +149,12 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
     }
 
+    //SelectSlot에서 사용하는 메서드
+    public int GetPlaceHolderIndex()
+    {
+        return _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
+    }
+
     private void CancelHold()
     {
         transform.SetParent(originalParent);
@@ -164,16 +175,17 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             return;
         }
 
-        int finalIndex = -1;
-        if (_placeholder != null)
-        {
-            // 드롭 시 Placeholder의 위치로 슬롯 이동
-            finalIndex = _placeholder.transform.GetSiblingIndex();
-            ClearPlaceHolder();
-        }
+        int finalIndex = _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
+        ClearPlaceHolder();
+
         if (!ProcessDrop(eventData, finalIndex))
         {
             CancelHold();
+        }
+        else
+        {
+            _isCanceled = true;
+            _canDrag = false;
         }
     }
 
@@ -201,7 +213,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         return false;
     }
 
-    private void ClearPlaceHolder()
+    public void ClearPlaceHolder()
     {
         if (_placeholder != null)
         {
