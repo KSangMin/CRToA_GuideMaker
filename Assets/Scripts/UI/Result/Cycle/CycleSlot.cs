@@ -9,7 +9,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 {
     [SerializeField] private Image _icon;
     [SerializeField] private TextMeshProUGUI _nameText;
-    private Transform _originalParent;
+    [HideInInspector] public Transform originalParent;
     private Coroutine _holdCoroutine;
     private float holdTime = 0.2f;
     private bool _isCanceled = false;
@@ -35,8 +35,8 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         if (!_isCanceled && !eventData.dragging)
         {
             transform.position = eventData.position;
-            _originalParent = transform.parent;
-            _originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromSlot(this);
+            originalParent = transform.parent;
+            originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromSlot(this);
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
         }
 
@@ -45,6 +45,14 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (!eventData.dragging)
+        {
+            transform.SetParent(null);
+            UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();
+            Destroy(gameObject);
+            return;
+        }
+
         CancelHold();
     }
 
@@ -125,7 +133,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     private void CancelHold()
     {
-        transform.SetParent(_originalParent);
+        transform.SetParent(originalParent);
         _isCanceled = true;
         if (_holdCoroutine != null)
         {

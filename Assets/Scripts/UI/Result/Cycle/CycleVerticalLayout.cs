@@ -22,7 +22,7 @@ public class CycleVerticalLayout : MonoBehaviour
     {
         CycleHorizontalLayout row = _rows.Count <= 0 ? CreateRow() : _rows.Last();
         row.AddSlot(slot);
-        ReBuildLayout();
+        RebuildLayout();
     }
 
     public CycleHorizontalLayout CreateRow(int id = -1)
@@ -60,7 +60,7 @@ public class CycleVerticalLayout : MonoBehaviour
         }
     }
 
-    public void ReBuildLayout()
+    public void RebuildLayout()
     {
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }

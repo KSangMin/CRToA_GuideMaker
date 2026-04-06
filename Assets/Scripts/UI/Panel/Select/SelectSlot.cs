@@ -112,7 +112,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 _ghost = null;
             }
         }
-        else //클릭
+        else if(!_isDraggingScroll)//클릭
         {
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
         }

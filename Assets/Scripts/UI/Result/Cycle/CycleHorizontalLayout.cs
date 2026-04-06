@@ -48,7 +48,8 @@ public class CycleHorizontalLayout : MonoBehaviour
         {
             slot.transform.SetSiblingIndex(index);
         }
-        
+
+        slot.originalParent = slot.transform.parent;
         _cycleVerticalLayout.CheckRowEmpty();
     }
 
@@ -64,6 +65,6 @@ public class CycleHorizontalLayout : MonoBehaviour
 
     public void ReBuildLayout()
     {
-        _cycleVerticalLayout.ReBuildLayout();
+        _cycleVerticalLayout.RebuildLayout();
     }
 }
