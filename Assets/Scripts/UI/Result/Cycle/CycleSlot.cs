@@ -7,8 +7,9 @@ using UnityEngine.UI;
 
 public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private Image _icon;
-    [SerializeField] private TextMeshProUGUI _nameText;
+    [SerializeField] private Image icon;
+    [SerializeField] private Image head;
+    [SerializeField] private TextMeshProUGUI nameText;
     [HideInInspector] public Transform originalParent;
     private Coroutine _holdCoroutine;
     private float _holdTime = 0.15f;
@@ -17,10 +18,11 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     private GameObject _placeholder = null;
 
-    public void SetSlot(Sprite sprite, string text)
+    public void SetSlot(Sprite skillIcon, Sprite headIcon, string text)
     {
-        _icon.sprite = sprite;
-        _nameText.SetText(text);
+        icon.sprite = skillIcon;
+        head.sprite = headIcon;
+        nameText.SetText(text);
     }
 
     public void OnPointerDown(PointerEventData eventData)

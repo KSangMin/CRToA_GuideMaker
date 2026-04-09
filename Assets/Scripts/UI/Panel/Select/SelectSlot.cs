@@ -13,27 +13,28 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private bool _isDraggingScroll = false;
 
     [SerializeField] private GameObject ghostPrefab;
-    [SerializeField] private Image _icon;
-    [SerializeField] private TextMeshProUGUI _nameText;
+    [SerializeField] private Image icon;
+    [SerializeField] private Image head;
+    [SerializeField] private TextMeshProUGUI nameText;
     private CycleSlot _ghostSlot;
     private int _targetIndex = -1;
     private Coroutine _holdCoroutine;
     private float _holdTime = 0.15f;
     private bool _isCanceled = false;
 
-    public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite sprite)
+    public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite skillIcon, Sprite headIcon)
     {
         _panelScroll = panelScroll;
         _id = id;
-        _icon.sprite = sprite;
-
+        icon.sprite = skillIcon;
+        head.sprite = headIcon;
         if (controlType == ControlType.Charge)
         {
-            _nameText.SetText(string.Format("{0}: 차징", GetAttackText(skillType)));
+            nameText.SetText(string.Format("{0}: 차징", GetAttackText(skillType)));
         }
         else
         {
-            _nameText.SetText(GetAttackText(skillType));
+            nameText.SetText(GetAttackText(skillType));
         }
     }
 
@@ -84,7 +85,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         CycleSlot slot = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent)
             .GetComponent<CycleSlot>();
-        slot.SetSlot(_icon.sprite, _nameText.text);
+        slot.SetSlot(icon.sprite, head.sprite, nameText.text);
         slot.transform.position = eventData.position;
 
         return slot;

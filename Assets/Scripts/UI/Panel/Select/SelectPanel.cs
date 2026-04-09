@@ -64,37 +64,37 @@ public class SelectPanel : MonoBehaviour
 
     private void SetBasicAttackSlots()
     {
-        foreach(var sprites in _data.GetBasicAttackSprites())
+        foreach(var basicAttack in _data.GetBasicAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Basic, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Basic, basicAttack.controlType, basicAttack.sprite, icon.sprite);
         }
     }
 
     private void SetSpecialSkillSlots()
     {
-        foreach (var sprites in _data.GetSpecialAttackSprites())
+        foreach (var specialSkill in _data.GetSpecialAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot( scrollRect, _id, SkillType.SpecialSkill, sprites.controlType, sprites.sprite);
+            slot.SetSlot( scrollRect, _id, SkillType.SpecialSkill, specialSkill.controlType, specialSkill.sprite, icon.sprite);
         }
     }
 
     private void SetUltimateSlots()
     {
-        foreach (var sprites in _data.GetUltimateSprites())
+        foreach (var ultimate in _data.GetUltimateSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Ultimate, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Ultimate, ultimate.controlType, ultimate.sprite, icon.sprite);
         }
     }
 
     private void SetDashSlots()
     {
-        foreach (var sprites in _data.GetDashSprites())
+        foreach (var dash in _data.GetDashSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot(scrollRect, _id, SkillType.Dash, sprites.controlType, sprites.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.Dash, dash.controlType, dash.sprite, icon.sprite);
         }
     }
 }
