@@ -25,6 +25,13 @@ public class CycleVerticalLayout : MonoBehaviour
         RebuildLayout();
     }
 
+    public void AddSlotToNewRow(CycleSlot slot)
+    {
+        CycleHorizontalLayout row = CreateRow();
+        row.AddSlot(slot);
+        RebuildLayout();
+    }
+
     public CycleHorizontalLayout CreateRow(int id = -1)
     {
         if(id == -1)

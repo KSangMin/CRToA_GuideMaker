@@ -181,7 +181,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             else if (result.gameObject.CompareTag("CyclePanel"))
             {
                 CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToLast(_ghostSlot);
+                cyclePanel.AddSlotToNewRow(_ghostSlot);
                 return true;
             }
         }

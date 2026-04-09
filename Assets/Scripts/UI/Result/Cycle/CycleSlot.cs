@@ -205,7 +205,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             else if (result.gameObject.CompareTag("CyclePanel"))
             {
                 CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToLast(this);
+                cyclePanel.AddSlotToNewRow(this);
                 return true;
             }
         }

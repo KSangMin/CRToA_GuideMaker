@@ -18,6 +18,11 @@ public class CyclePanel : MonoBehaviour
         _vert.AddSlotToLast(slot);
     }
 
+    public void AddSlotToNewRow(CycleSlot slot)
+    {
+        _vert.AddSlotToNewRow(slot);
+    }
+
     public void CheckRowEmpty()
     {
         _vert.CheckRowEmpty();
