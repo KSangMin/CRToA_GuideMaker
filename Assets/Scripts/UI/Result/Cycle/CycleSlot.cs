@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
+    [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -17,10 +18,20 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private bool _canDrag = false;
 
     private GameObject _placeholder = null;
+    private ControlType _controlType = ControlType.Normal;
 
-    public void SetSlot(Sprite skillIcon, Sprite headIcon, string text)
+    public void SetSlot(Sprite skillIcon, ControlType controlType, Sprite headIcon, string text)
     {
         icon.sprite = skillIcon;
+        _controlType = controlType;
+        if(controlType == ControlType.Charge)
+        {
+            chargeBackground.SetActive(true);
+        }
+        else if(controlType == ControlType.Normal)
+        {
+            chargeBackground.SetActive(false);
+        }
         head.sprite = headIcon;
         nameText.SetText(text);
     }

@@ -13,9 +13,11 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private bool _isDraggingScroll = false;
 
     [SerializeField] private GameObject ghostPrefab;
+    [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
+    private ControlType _controlType = ControlType.Normal;
     private CycleSlot _ghostSlot;
     private int _targetIndex = -1;
     private Coroutine _holdCoroutine;
@@ -28,12 +30,15 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         _id = id;
         icon.sprite = skillIcon;
         head.sprite = headIcon;
+        _controlType = controlType;
         if (controlType == ControlType.Charge)
         {
+            chargeBackground.SetActive(true);
             nameText.SetText(string.Format("{0}: 차징", GetAttackText(skillType)));
         }
         else
         {
+            chargeBackground.SetActive(false);
             nameText.SetText(GetAttackText(skillType));
         }
     }
@@ -85,7 +90,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         CycleSlot slot = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent)
             .GetComponent<CycleSlot>();
-        slot.SetSlot(icon.sprite, head.sprite, nameText.text);
+        slot.SetSlot(icon.sprite, _controlType, head.sprite, nameText.text);
         slot.transform.position = eventData.position;
 
         return slot;
