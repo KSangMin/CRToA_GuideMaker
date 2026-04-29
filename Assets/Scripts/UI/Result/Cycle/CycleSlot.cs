@@ -127,7 +127,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
         if (foundLayout != null)
         {
-            UpdatePlaceholder(foundLayout.transform, eventData.position);
+            UpdatePlaceholder(foundLayout.transform, eventData);
         }
         else
         {
@@ -135,13 +135,13 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
     }
 
-    private void UpdatePlaceholder(Transform parent, Vector2 mousePos)
+    private void UpdatePlaceholder(Transform parent, PointerEventData eventData)
     {
         if (_placeholder == null)
         {
             // 1. Placeholder 초기 생성
             _placeholder = new GameObject("Placeholder");
-            _placeholder.transform.SetParent(parent);
+            _placeholder.transform.SetParent(parent, false);
             var le = _placeholder.AddComponent<LayoutElement>();
             var rect = GetComponent<RectTransform>();
             le.preferredWidth = rect.rect.width;
@@ -150,16 +150,40 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         if (_placeholder.transform.parent != parent)
         {
-            _placeholder.transform.SetParent(parent);
+            _placeholder.transform.SetParent(parent, false);
         }
 
         // 2. 마우스 위치에 따른 순서(SiblingIndex) 결정
-        int newIndex = parent.childCount;
+        RectTransform parentRect = parent.GetComponent<RectTransform>();
+        if (parentRect == null)
+        {
+            return;
+        }
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localMousePos);
+
+        int newIndex = parent.childCount - 1;
         for (int i = 0; i < parent.childCount; i++)
         {
-            if (mousePos.x < parent.GetChild(i).position.x)
+            Transform child = parent.GetChild(i);
+            if (child == _placeholder.transform)
             {
-                newIndex = i;
+                continue;
+            }
+
+            if (!child.TryGetComponent(out RectTransform childRect))
+            {
+                continue;
+            }
+
+            Vector2 childCenter = parentRect.InverseTransformPoint(childRect.TransformPoint(childRect.rect.center));
+            if (localMousePos.x < childCenter.x)
+            {
+                newIndex = child.GetSiblingIndex();
                 if (_placeholder.transform.GetSiblingIndex() < newIndex)
                 {
                     newIndex--;
