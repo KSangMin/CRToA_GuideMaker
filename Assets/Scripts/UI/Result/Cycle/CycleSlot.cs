@@ -50,13 +50,17 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         if (!_isCanceled && !eventData.dragging)
         {
             _canDrag = true;
-            transform.position = eventData.position;
             originalParent = transform.parent;
             if (originalParent.TryGetComponent(out CycleHorizontalLayout layout))
             {
                 layout.RemoveFromSlot(this);
             }
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+            RectTransform rectTransform = GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            SetPositionToPointer(eventData);
         }
 
         _holdCoroutine = null;
@@ -77,9 +81,22 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     //SelectSlot에서 넘겨받는 메서드
     public void Drag(PointerEventData eventData)
     {
-        transform.position = eventData.position;
+        SetPositionToPointer(eventData);
 
         CheckForPlaceHolder(eventData);
+    }
+
+    public void SetPositionToPointer(PointerEventData eventData)
+    {
+        RectTransform parentRect = transform.parent.GetComponent<RectTransform>();
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRect,
+                eventData.position,
+                eventData.pressEventCamera,
+                out Vector2 localPoint);
+
+        GetComponent<RectTransform>().anchoredPosition = localPoint;
     }
 
     public void OnDrag(PointerEventData eventData)

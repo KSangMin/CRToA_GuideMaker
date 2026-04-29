@@ -88,10 +88,11 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     private CycleSlot CreateSlot(PointerEventData eventData)
     {
-        CycleSlot slot = Instantiate(ghostPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent)
+        Transform ghostParent = UIManager.Instance.GetUI<UI_Panel>().forGhostParent;
+        CycleSlot slot = Instantiate(ghostPrefab, ghostParent)
             .GetComponent<CycleSlot>();
         slot.SetSlot(icon.sprite, _controlType, head.sprite, nameText.text);
-        slot.transform.position = eventData.position;
+        slot.SetPositionToPointer(eventData);
 
         return slot;
     }
