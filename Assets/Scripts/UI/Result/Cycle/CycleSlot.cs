@@ -101,7 +101,11 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!_canDrag) return;
+        if (!_canDrag)
+        {
+            _isCanceled = true;
+            return;
+        }
 
         Drag(eventData);
     }
