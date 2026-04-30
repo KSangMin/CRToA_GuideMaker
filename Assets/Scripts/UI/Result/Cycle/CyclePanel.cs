@@ -7,6 +7,85 @@ public class CyclePanel : MonoBehaviour
     [SerializeField] private Transform verticalLayout;
     private CycleVerticalLayout _vert;
 
+    // 카메라 상태를 저장·복원하는 구조체
+    private readonly struct CameraState
+    {
+        readonly Camera _cam;
+        readonly RenderTexture _rt, _activeRT;
+        readonly bool _ortho;
+        readonly float _orthoSize;
+        readonly Vector3 _pos;
+        readonly Quaternion _rot;
+        readonly int _mask;
+        readonly CameraClearFlags _flags;
+        readonly Color _bg;
+
+        internal CameraState(Camera cam)
+        {
+            _cam = cam;
+            _rt = cam.targetTexture;
+            _activeRT = RenderTexture.active;
+            _ortho = cam.orthographic;
+            _orthoSize = cam.orthographicSize;
+            _pos = cam.transform.position;
+            _rot = cam.transform.rotation;
+            _mask = cam.cullingMask;
+            _flags = cam.clearFlags;
+            _bg = cam.backgroundColor;
+        }
+
+        internal void Restore()
+        {
+            _cam.targetTexture = _rt;
+            _cam.orthographic = _ortho;
+            _cam.orthographicSize = _orthoSize;
+            _cam.transform.SetPositionAndRotation(_pos, _rot);
+            _cam.cullingMask = _mask;
+            _cam.clearFlags = _flags;
+            _cam.backgroundColor = _bg;
+            RenderTexture.active = _activeRT;
+        }
+    }
+
+    // RectTransform 상태를 저장·복원하는 구조체
+    private readonly struct RectTransformState
+    {
+        readonly RectTransform _rect;
+        readonly Transform _parent;
+        readonly int _siblingIndex;
+        readonly Vector2 _anchorMin, _anchorMax, _sizeDelta, _pivot;
+        readonly Vector3 _anchoredPos3D;
+        readonly Quaternion _localRot;
+        readonly Vector3 _localScale;
+
+        internal RectTransformState(RectTransform rect)
+        {
+            _rect = rect;
+            _parent = rect.parent;
+            _siblingIndex = rect.GetSiblingIndex();
+            _anchorMin = rect.anchorMin;
+            _anchorMax = rect.anchorMax;
+            _pivot = rect.pivot;
+            _sizeDelta = rect.sizeDelta;
+            _anchoredPos3D = rect.anchoredPosition3D;
+            _localRot = rect.localRotation;
+            _localScale = rect.localScale;
+        }
+
+        internal void Restore()
+        {
+            _rect.SetParent(_parent, false);
+            _rect.SetSiblingIndex(_siblingIndex);
+            _rect.anchorMin = _anchorMin;
+            _rect.anchorMax = _anchorMax;
+            _rect.pivot = _pivot;
+            _rect.sizeDelta = _sizeDelta;
+            _rect.anchoredPosition3D = _anchoredPos3D;
+            _rect.localRotation = _localRot;
+            _rect.localScale = _localScale;
+        }
+    }
+
     private void Awake()
     {
         _vert = verticalLayout.GetComponent<CycleVerticalLayout>();
@@ -32,160 +111,99 @@ public class CyclePanel : MonoBehaviour
         _vert.RebuildLayout();
     }
 
-    public Texture2D GetCycleTexture(Camera captureCamera, Canvas canvas)
+    public Texture2D GetCycleTexture(Camera captureCamera, Canvas captureCanvas, Canvas canvas)
     {
         RectTransform targetRect = _vert.GetComponent<RectTransform>();
 
-        RenderTexture previousRT = captureCamera.targetTexture;
-        RenderTexture previousActiveRT = RenderTexture.active;
-        bool previousOrthographic = captureCamera.orthographic;
-        float previousOrthographicSize = captureCamera.orthographicSize;
-        Vector3 previousCameraPosition = captureCamera.transform.position;
-        Quaternion previousCameraRotation = captureCamera.transform.rotation;
-        int previousCullingMask = captureCamera.cullingMask;
-        CameraClearFlags previousClearFlags = captureCamera.clearFlags;
-        Color previousBackgroundColor = captureCamera.backgroundColor;
-
-        Transform previousParent = targetRect.parent;
-        int previousSiblingIndex = targetRect.GetSiblingIndex();
-        Vector2 previousAnchorMin = targetRect.anchorMin;
-        Vector2 previousAnchorMax = targetRect.anchorMax;
-        Vector3 previousAnchoredPosition = targetRect.anchoredPosition3D;
-        Vector2 previousSizeDelta = targetRect.sizeDelta;
-        Vector2 previousPivot = targetRect.pivot;
-        Quaternion previousLocalRotation = targetRect.localRotation;
-        Vector3 previousLocalScale = targetRect.localScale;
+        var camState = new CameraState(captureCamera);
+        var rectState = new RectTransformState(targetRect);
 
         RenderTexture rt = null;
+        var layerTargets = new List<Transform>();
+        var previousLayers = new List<int>();
         Texture2D result = null;
-        GameObject tempCanvasObject = null;
-        List<Transform> layerTargets = new();
-        List<int> previousLayers = new();
 
         try
         {
             Canvas.ForceUpdateCanvases();
 
-            Vector3[] corners = new Vector3[4];
-            targetRect.GetWorldCorners(corners);
-
-            Camera sizeCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
-            Vector3 screenCornerMin = RectTransformUtility.WorldToScreenPoint(sizeCamera, corners[0]);
-            Vector3 screenCornerMax = RectTransformUtility.WorldToScreenPoint(sizeCamera, corners[2]);
-            int textureWidth = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(screenCornerMax.x - screenCornerMin.x)));
-            int textureHeight = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(screenCornerMax.y - screenCornerMin.y)));
+            (int w, int h) = GetScreenSize(targetRect, canvas);
             int captureLayer = targetRect.gameObject.layer;
 
-            rt = new RenderTexture(textureWidth, textureHeight, 24);
-            result = new Texture2D(textureWidth, textureHeight, TextureFormat.ARGB32, false);
+            rt = new RenderTexture(w, h, 24);
+            result = new Texture2D(w, h, TextureFormat.ARGB32, false);
 
-            float targetWidth = Mathf.Max(1f, targetRect.rect.width);
-            float targetHeight = Mathf.Max(1f, targetRect.rect.height);
-            float renderTextureAspect = textureWidth / (float)textureHeight;
-
-            tempCanvasObject = new GameObject("Cycle Capture Canvas", typeof(RectTransform), typeof(Canvas));
-            tempCanvasObject.layer = captureLayer;
-
-            Canvas tempCanvas = tempCanvasObject.GetComponent<Canvas>();
-            tempCanvas.renderMode = RenderMode.WorldSpace;
-            tempCanvas.worldCamera = captureCamera;
-            tempCanvas.sortingOrder = short.MaxValue;
-
-            RectTransform tempCanvasRect = tempCanvasObject.GetComponent<RectTransform>();
-            tempCanvasRect.sizeDelta = new Vector2(targetWidth, targetHeight);
-            tempCanvasRect.position = Vector3.zero;
-            tempCanvasRect.rotation = Quaternion.identity;
-            tempCanvasRect.localScale = Vector3.one;
-
-            targetRect.SetParent(tempCanvasRect, false);
-            targetRect.anchorMin = new Vector2(0.5f, 0.5f);
-            targetRect.anchorMax = new Vector2(0.5f, 0.5f);
-            targetRect.pivot = new Vector2(0.5f, 0.5f);
-            targetRect.sizeDelta = new Vector2(targetWidth, targetHeight);
-            targetRect.anchoredPosition = Vector2.zero;
-            targetRect.localRotation = Quaternion.identity;
-            targetRect.localScale = Vector3.one;
-
-            SetLayerRecursively(targetRect, captureLayer, layerTargets, previousLayers);
+            SetCaptureCanvas(captureCanvas, targetRect, captureLayer);
             Canvas.ForceUpdateCanvases();
 
-            captureCamera.transform.rotation = Quaternion.identity;
-            captureCamera.transform.position = new Vector3(0f, 0f, -10f);
-            captureCamera.orthographic = true;
-            captureCamera.orthographicSize = Mathf.Max(targetHeight * 0.5f, targetWidth / renderTextureAspect * 0.5f);
-            captureCamera.cullingMask = 1 << captureLayer;
-            captureCamera.clearFlags = CameraClearFlags.SolidColor;
-            captureCamera.backgroundColor = new Color(0f, 0f, 0f, 0f);
-            captureCamera.targetTexture = rt;
-
+            SetupCaptureCamera(captureCamera, rt, targetRect.rect, w, h, captureLayer);
             captureCamera.Render();
 
             RenderTexture.active = rt;
-
-            result.ReadPixels(
-                new Rect(0, 0, textureWidth, textureHeight),
-                0, 0);
+            result.ReadPixels(new Rect(0, 0, w, h), 0, 0);
             result.Apply();
         }
         finally
         {
-            captureCamera.targetTexture = previousRT;
-            captureCamera.orthographic = previousOrthographic;
-            captureCamera.orthographicSize = previousOrthographicSize;
-            captureCamera.transform.position = previousCameraPosition;
-            captureCamera.transform.rotation = previousCameraRotation;
-            captureCamera.cullingMask = previousCullingMask;
-            captureCamera.clearFlags = previousClearFlags;
-            captureCamera.backgroundColor = previousBackgroundColor;
-            RenderTexture.active = previousActiveRT;
+            camState.Restore();
+            rectState.Restore();
+
             if (rt != null)
             {
                 rt.Release();
                 Destroy(rt);
             }
 
-            targetRect.SetParent(previousParent, false);
-            targetRect.SetSiblingIndex(previousSiblingIndex);
-            targetRect.anchorMin = previousAnchorMin;
-            targetRect.anchorMax = previousAnchorMax;
-            targetRect.pivot = previousPivot;
-            targetRect.sizeDelta = previousSizeDelta;
-            targetRect.anchoredPosition3D = previousAnchoredPosition;
-            targetRect.localRotation = previousLocalRotation;
-            targetRect.localScale = previousLocalScale;
-
-            if (tempCanvasObject != null)
-            {
-                Destroy(tempCanvasObject);
-            }
-
-            RestoreLayers(layerTargets, previousLayers);
             Canvas.ForceUpdateCanvases();
         }
 
         return result;
     }
 
-    private static void SetLayerRecursively(Transform target, int layer, List<Transform> targets, List<int> previousLayers)
+    // 캡처 대상의 픽셀 크기를 계산합니다.
+    private (int w, int h) GetScreenSize(RectTransform rect, Canvas canvas)
     {
-        targets.Add(target);
-        previousLayers.Add(target.gameObject.layer);
-        target.gameObject.layer = layer;
+        Vector3[] corners = new Vector3[4];
+        rect.GetWorldCorners(corners);
 
-        for (int i = 0; i < target.childCount; i++)
-        {
-            SetLayerRecursively(target.GetChild(i), layer, targets, previousLayers);
-        }
+        Vector2 min = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, corners[0]);
+        Vector2 max = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, corners[2]);
+
+        int w = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(max.x - min.x)));
+        int h = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(max.y - min.y)));
+        return (w, h);
     }
 
-    private static void RestoreLayers(List<Transform> targets, List<int> previousLayers)
+    // 임시 WorldSpace 캔버스를 만들고 targetRect를 그 안으로 이식합니다.
+    private void SetCaptureCanvas(Canvas captureCanvas, RectTransform targetRect, int captureLayer)
     {
-        for (int i = 0; i < targets.Count; i++)
-        {
-            if (targets[i] != null)
-            {
-                targets[i].gameObject.layer = previousLayers[i];
-            }
-        }
+        float targetWidth = Mathf.Max(1f, targetRect.rect.width);
+        float targetHeight = Mathf.Max(1f, targetRect.rect.height);
+
+        var canvasRect = captureCanvas.GetComponent<RectTransform>();
+        canvasRect.sizeDelta = new Vector2(targetWidth, targetHeight);
+        canvasRect.position = Vector3.zero;
+
+        targetRect.SetParent(canvasRect, false);
+        targetRect.anchorMin = new Vector2(0.5f, 0.5f);
+        targetRect.anchorMax = new Vector2(0.5f, 0.5f);
+        targetRect.pivot = new Vector2(0.5f, 0.5f);
+        targetRect.sizeDelta = new Vector2(targetWidth, targetHeight);
+        targetRect.anchoredPosition = Vector2.zero;
+    }
+
+    // 캡처용 카메라 파라미터를 일괄 세팅합니다.
+    private void SetupCaptureCamera(Camera cam, RenderTexture rt, Rect bounds, int w, int h, int captureLayer)
+    {
+        float aspect = w / (float)h;
+
+        cam.transform.SetPositionAndRotation(new Vector3(0f, 0f, -10f), Quaternion.identity);
+
+        cam.orthographic = true;
+        cam.orthographicSize = Mathf.Max(bounds.height * 0.5f, bounds.width / aspect * 0.5f);
+        cam.cullingMask = 1 << captureLayer;
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+        cam.targetTexture = rt;
     }
 }

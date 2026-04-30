@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8372368882071485759}
   - component: {fileID: 4444262853387943243}
   - component: {fileID: 1661894391670190908}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CycleHorizontalLayout
   m_TagString: CycleHorizontalLayout
   m_Icon: {fileID: 0}
