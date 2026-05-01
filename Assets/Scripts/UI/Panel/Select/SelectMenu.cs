@@ -29,10 +29,10 @@ public class SelectMenu : MonoBehaviour
     {
         List<CookieData> cookieDataList = AddressableManager.Instance.GetAllCookieData();
 
-        foreach(CookieData cookieData in cookieDataList)
+        for (int i = cookieDataList.Count - 1; i >= 0; i--)
         {
             SelectPanel panel = Instantiate(_panelPrefab, content).GetComponent<SelectPanel>();
-            panel.SetPanel(cookieData, scrollRect);
+            panel.SetPanel(cookieDataList[i], scrollRect);
         }
     }
 }

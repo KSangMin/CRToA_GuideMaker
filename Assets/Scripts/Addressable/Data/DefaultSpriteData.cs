@@ -22,8 +22,11 @@ public class DefaultSpriteData : ScriptableObject
     private Dictionary<AssetReferenceSprite, Sprite> _loadedSprites = new();
     private Dictionary<AssetReferenceSprite, AsyncOperationHandle<Sprite>> _handles = new();
 
+    public bool IsPreLoadSucceeded { get; private set; } = true;
+
     public IEnumerator PreLoadAll()
     {
+        IsPreLoadSucceeded = true;
         yield return LoadSprite(basicAttack_Default);
         yield return LoadSprite(specialAttack_Default);
         yield return LoadSprite(ultimate_Default);
@@ -100,6 +103,7 @@ public class DefaultSpriteData : ScriptableObject
         else
         {
             Debug.LogError($"Load Failed: {reference.RuntimeKey}");
+            IsPreLoadSucceeded = false;
             callback?.Invoke(null);
         }
     }

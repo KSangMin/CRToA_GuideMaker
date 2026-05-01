@@ -51,13 +51,6 @@ MonoBehaviour:
     - SpriteData
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2653602bcf303e2419efe2364faddade
-    m_Address: Assets/Sprites/CRToA/Seasonite
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Seasonite
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 325d9338acf6e0f489aee25a3a3f3380
     m_Address: Assets/Sprites/CRToA/Potential
     m_ReadOnly: 0

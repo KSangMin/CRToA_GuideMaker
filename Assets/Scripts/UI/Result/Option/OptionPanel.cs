@@ -40,7 +40,7 @@ public class OptionPanel : MonoBehaviour
         };
 
         // 2. 저장 경로 받아오기
-        string path = StandaloneFileBrowser.SaveFilePanel("이미지 저장하기", "", "MyImage", extensions);
+        string path = StandaloneFileBrowser.SaveFilePanel("이미지 저장하기", "", "New Cycle", extensions);
 
         if (!string.IsNullOrEmpty(path))
         {

@@ -34,8 +34,11 @@ public class CookieData : ScriptableObject
     private Dictionary<AssetReferenceSprite, Sprite> _loadedSprites = new();
     private Dictionary<AssetReferenceSprite, AsyncOperationHandle<Sprite>> _handles = new();
 
+    public bool IsPreLoadSucceeded { get; private set; } = true;
+
     public IEnumerator PreLoadAll()
     {
+        IsPreLoadSucceeded = true;
         List<AsyncOperationHandle> allHandles = new List<AsyncOperationHandle>();
 
         void AddLoadOperation(AssetReferenceSprite reference)
@@ -55,6 +58,13 @@ public class CookieData : ScriptableObject
                 };
             }
 
+            if (handle.IsDone && handle.Status != AsyncOperationStatus.Succeeded)
+            {
+                IsPreLoadSucceeded = false;
+                Debug.LogError($"CookieData sprite preload failed: {cookieId} / {reference.RuntimeKey}");
+                return;
+            }
+
             if (!handle.IsDone)
                 allHandles.Add(handle);
         }
@@ -72,6 +82,17 @@ public class CookieData : ScriptableObject
             // Addressables.ResourceManager.CreateGenericGroupOperation를 사용하여 묶어서 기다림
             var groupHandle = Addressables.ResourceManager.CreateGenericGroupOperation(allHandles);
             yield return groupHandle;
+
+            if (groupHandle.Status != AsyncOperationStatus.Succeeded)
+            {
+                IsPreLoadSucceeded = false;
+                Debug.LogError($"CookieData sprite preload failed: {cookieId}");
+            }
+
+            if (groupHandle.IsValid())
+            {
+                Addressables.Release(groupHandle);
+            }
         }
     }
 
@@ -124,6 +145,7 @@ public class CookieData : ScriptableObject
         else
         {
             Debug.LogError($"Load Failed: {reference.RuntimeKey}");
+            IsPreLoadSucceeded = false;
             callback?.Invoke(null);
         }
     }
