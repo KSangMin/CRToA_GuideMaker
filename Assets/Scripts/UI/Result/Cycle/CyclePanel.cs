@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CyclePanel : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform verticalLayout;
     private CycleVerticalLayout _vert;
+    private float _captureScale = 1.8286f;
 
-    // 카메라 상태를 저장·복원하는 구조체
     private readonly struct CameraState
     {
         readonly Camera _cam;
@@ -47,7 +48,6 @@ public class CyclePanel : MonoBehaviour
         }
     }
 
-    // RectTransform 상태를 저장·복원하는 구조체
     private readonly struct RectTransformState
     {
         readonly RectTransform _rect;
@@ -119,14 +119,13 @@ public class CyclePanel : MonoBehaviour
         var rectState = new RectTransformState(targetRect);
 
         RenderTexture rt = null;
-        var layerTargets = new List<Transform>();
-        var previousLayers = new List<int>();
         Texture2D result = null;
 
         try
         {
             Canvas.ForceUpdateCanvases();
 
+            // 원본 Screen Space Canvas 기준으로 픽셀 크기 계산
             (int w, int h) = GetScreenSize(targetRect, canvas);
             int captureLayer = targetRect.gameObject.layer;
 
@@ -160,21 +159,15 @@ public class CyclePanel : MonoBehaviour
         return result;
     }
 
-    // 캡처 대상의 픽셀 크기를 계산합니다.
-    private (int w, int h) GetScreenSize(RectTransform rect, Canvas canvas)
+    private (int w, int h) GetScreenSize(RectTransform targetRect, Canvas canvas)
     {
-        Vector3[] corners = new Vector3[4];
-        rect.GetWorldCorners(corners);
-
-        Vector2 min = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, corners[0]);
-        Vector2 max = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, corners[2]);
-
-        int w = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(max.x - min.x)));
-        int h = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(max.y - min.y)));
+        // rect.rect.size는 브라우저 크기와 무관하게 고정값
+        // scaleFactor를 곱하면 오히려 브라우저 크기에 따라 픽셀이 변하므로 사용하지 않음
+        int w = Mathf.Max(1, Mathf.RoundToInt(targetRect.rect.width * _captureScale));
+        int h = Mathf.Max(1, Mathf.RoundToInt(targetRect.rect.height * _captureScale));
         return (w, h);
     }
 
-    // 임시 WorldSpace 캔버스를 만들고 targetRect를 그 안으로 이식합니다.
     private void SetCaptureCanvas(Canvas captureCanvas, RectTransform targetRect, int captureLayer)
     {
         float targetWidth = Mathf.Max(1f, targetRect.rect.width);
@@ -192,13 +185,11 @@ public class CyclePanel : MonoBehaviour
         targetRect.anchoredPosition = Vector2.zero;
     }
 
-    // 캡처용 카메라 파라미터를 일괄 세팅합니다.
     private void SetupCaptureCamera(Camera cam, RenderTexture rt, Rect bounds, int w, int h, int captureLayer)
     {
         float aspect = w / (float)h;
 
         cam.transform.SetPositionAndRotation(new Vector3(0f, 0f, -10f), Quaternion.identity);
-
         cam.orthographic = true;
         cam.orthographicSize = Mathf.Max(bounds.height * 0.5f, bounds.width / aspect * 0.5f);
         cam.cullingMask = 1 << captureLayer;
