@@ -42,16 +42,24 @@ public class SelectPanel : MonoBehaviour
 
         DefaultSpriteData spriteData = AddressableManager.Instance.SpriteData;
         icon.sprite = data.GetSprite(data.Icon);
+
         nameText.SetText(data.cookieName);
+        nameText.ForceMeshUpdate();
+
         classIcon.sprite = spriteData.GetSprite(spriteData.classType[(int)data.Class]);
         attackTypeIcon.sprite = spriteData.GetSprite(spriteData.attackType[(int)data.AttackType]);
         rarityFrame.sprite = spriteData.GetSprite(spriteData.rarity_frame[(int)data.rarity]);
+
         rarityText.SetText(data.rarity.ToString());
+        rarityText.ForceMeshUpdate();
 
         panelBackground.sprite = spriteData.GetSprite(spriteData.elementalType_frame[(int)data.Type]);
         elementalTypeIcon.sprite = spriteData.GetSprite(spriteData.elementalType[(int)data.Type]);
 
         SetSkillSlots();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(nameText.rectTransform);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rarityText.rectTransform);
     }
 
     private void SetSkillSlots()

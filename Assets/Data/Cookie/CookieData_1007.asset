@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CookieData
   cookieId: 1007
   cookieName: "\uD5C8\uB2C8\uBCA0\uC5B4\uB9DB \uCFE0\uD0A4"
-  rarity: 0
+  rarity: 2
   Icon:
     m_AssetGUID: 763e0477ce270b64fbb8b1d5ffc917e0
     m_SubObjectName: 
