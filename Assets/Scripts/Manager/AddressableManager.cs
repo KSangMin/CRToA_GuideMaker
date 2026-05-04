@@ -12,12 +12,12 @@ public class AddressableManager : Singleton<AddressableManager>
     private List<string> _labels = new()
     {
         "Cookie",
-        "Artifact",
-        "Equipment",
-        "Potential",
-        "Thumbnail",
-        "Header",
-        "Card",
+        //"Artifact",
+        //"Equipment",
+        //"Potential",
+        //"Thumbnail",
+        //"Header",
+        //"Card",
         //"Seasonite"
     };
 

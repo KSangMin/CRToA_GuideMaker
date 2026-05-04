@@ -36,42 +36,11 @@ MonoBehaviour:
     - ElementalFrame
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 240834416d8b2954fbc29bbbc1c48639
-    m_Address: Assets/Sprites/CRToA/Artifact/Card
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Artifact
-    - Card
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 24303400971c25f4c8d42e55c7f2ce03
     m_Address: Assets/Data/DefaultSpriteData.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - SpriteData
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 325d9338acf6e0f489aee25a3a3f3380
-    m_Address: Assets/Sprites/CRToA/Potential
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Potential
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 811f1dcf8e2857747869d64bc19da586
-    m_Address: Assets/Sprites/CRToA/Artifact/Thumbnail
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Artifact
-    - Thumbnail
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 88e1a50af3db64e42a1490aa1273db51
-    m_Address: Assets/Sprites/CRToA/Artifact/Header
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Artifact
-    - Header
     - default
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 95baaa18ed6bbec489e6ab8b29635d71
@@ -86,13 +55,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - RarityFrame
-    - default
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: da094a7754f4bf54e96253917b4338ff
-    m_Address: Assets/Sprites/CRToA/Equipment
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Equipment
     - default
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dc59d2a34e17690458a5d53c08164360
