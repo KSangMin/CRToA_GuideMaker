@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8851095461331603392
 RectTransform:
   m_ObjectHideFlags: 0
@@ -165,7 +165,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 478, y: 150}
+  m_SizeDelta: {x: 478, y: 160}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2602440332093708957
 CanvasRenderer:
@@ -279,7 +279,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 478, y: 105}
+  m_SizeDelta: {x: 478, y: 115}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &1776876459246481410
 CanvasRenderer:
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.397, g: 0.397, b: 0.397, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -382,7 +382,7 @@ RectTransform:
   m_Father: {fileID: 5549023807941799018}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -461,7 +461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 266.77002, y: -4.5}
+  m_AnchoredPosition: {x: 268.77002, y: -2.5}
   m_SizeDelta: {x: 0, y: 35}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1011246839927417792
@@ -916,7 +916,7 @@ RectTransform:
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 40, y: 40}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8996698966893000986
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -947,7 +947,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 26eff8357c4aa7b4c849abdd3f17676b, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1386,7 +1386,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 44, y: -22}
+  m_AnchoredPosition: {x: 46, y: -20}
   m_SizeDelta: {x: 141.77, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2904952961473524580
@@ -1541,7 +1541,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -4}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &8127758455569012407
@@ -1557,9 +1557,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 2
+    m_Left: 4
     m_Right: 0
-    m_Top: 4
+    m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
   m_Spacing: 2
@@ -1580,11 +1580,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 562307531089742624, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
       propertyPath: m_fontSize
-      value: 17
-      objectReference: {fileID: 0}
-    - target: {fileID: 562307531089742624, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 17
+      value: 19.6
       objectReference: {fileID: 0}
     - target: {fileID: 5419680777328014943, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
       propertyPath: m_Name
