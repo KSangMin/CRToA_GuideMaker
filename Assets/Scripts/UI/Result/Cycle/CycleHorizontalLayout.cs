@@ -33,34 +33,49 @@ public class CycleHorizontalLayout : MonoBehaviour
         _id = id;
     }
 
-    public void AddSlot(CycleSlot slot, int index = -1)
+    private void AddSlot(CycleSlot slot, int index = -1)
     {
-        if (_slots.Count >= _maxSlotCount)
-        {
-            CycleHorizontalLayout row = _cycleVerticalLayout.CreateRow();
-            row.AddSlot(slot);
-            return;
-        }
         _slots.Add(slot);
         slot.transform.SetParent(transform);
 
-        if(index != -1)
+        if (index != -1)
         {
             slot.transform.SetSiblingIndex(index);
         }
 
         slot.originalParent = slot.transform.parent;
+
         _cycleVerticalLayout.CheckRowEmpty();
     }
 
-    public void RemoveFromSlot(CycleSlot slot)
+    public void AddSlotJust(CycleSlot slot, int index = -1)
     {
-        _slots.Remove(slot);
+        if (_slots.Count >= _maxSlotCount)
+        {
+            CycleHorizontalLayout row = _cycleVerticalLayout.CreateRow();
+            row.AddSlotJust(slot);
+            return;
+        }
+
+        AddSlot(slot, index);
     }
 
-    public void AddRow()
+    public void AddSlotAndCheckExplode(CycleSlot slot, int index = -1)
     {
-        _cycleVerticalLayout.CreateRow(_id + 1);
+        AddSlot(slot, index);
+
+        if (_slots.Count > _maxSlotCount)
+        {
+            CycleHorizontalLayout row = _cycleVerticalLayout.GetRow(_id + 1);
+            CycleSlot lastSlot = transform.GetChild(transform.childCount - 1).GetComponent<CycleSlot>();
+            RemoveFromHorizontalLayout(lastSlot);
+            row.AddSlotAndCheckExplode(lastSlot, 0);
+        }
+    }
+
+    public void RemoveFromHorizontalLayout(CycleSlot slot)
+    {
+        _slots.Remove(slot);
     }
 
     public void ReBuildLayout()

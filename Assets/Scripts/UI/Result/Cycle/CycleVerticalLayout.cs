@@ -21,24 +21,40 @@ public class CycleVerticalLayout : MonoBehaviour
     public void AddSlotToLast(CycleSlot slot)
     {
         CycleHorizontalLayout row = _rows.Count <= 0 ? CreateRow() : _rows.Last();
-        row.AddSlot(slot);
+        row.AddSlotJust(slot);
         RebuildLayout();
     }
 
     public void AddSlotToNewRow(CycleSlot slot)
     {
         CycleHorizontalLayout row = CreateRow();
-        row.AddSlot(slot);
+        row.AddSlotJust(slot);
         RebuildLayout();
+    }
+
+    public CycleHorizontalLayout GetRow(int id = -1)
+    {
+        if (_rows.Count <= 0 || id >= _rows.Count)
+        {
+            return CreateRow();
+        }
+
+        if (id == -1)
+        {
+            return _rows[_rows.Count - 1];
+        }
+
+        return _rows[id];
     }
 
     public CycleHorizontalLayout CreateRow(int id = -1)
     {
-        if(id == -1)
+        if (id == -1)
         {
             id = _rows.Count;
         }
         CycleHorizontalLayout row = Instantiate(rowPanelPrefab, _verticalLayout).GetComponent<CycleHorizontalLayout>();
+        row.name = $"Row_{id}";
         row.Init(id, this, maxSlotCount);
         InsertRow(id, row);
 
@@ -48,7 +64,7 @@ public class CycleVerticalLayout : MonoBehaviour
     public void InsertRow(int id, CycleHorizontalLayout row)
     {
         _rows.Insert(id, row);
-        for(int i = 0; i < _rows.Count; i++)
+        for (int i = 0; i < _rows.Count; i++)
         {
             _rows[i].SetId(i);
         }

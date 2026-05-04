@@ -53,7 +53,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             originalParent = transform.parent;
             if (originalParent.TryGetComponent(out CycleHorizontalLayout layout))
             {
-                layout.RemoveFromSlot(this);
+                layout.RemoveFromHorizontalLayout(this);
             }
             transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
             RectTransform rectTransform = GetComponent<RectTransform>();
@@ -70,7 +70,9 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         if (!eventData.dragging)//클릭 시
         {
+            originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromHorizontalLayout(this);
             CancelHold();
+
             transform.SetParent(null);
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();
             Destroy(gameObject);
@@ -257,7 +259,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             if (result.gameObject.CompareTag("CycleHorizontalLayout"))
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
-                hz.AddSlot(this, targetIndex);
+                hz.AddSlotAndCheckExplode(this, targetIndex);
                 return true;
             }
             else if (result.gameObject.CompareTag("CyclePanel"))
@@ -275,6 +277,8 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         if (_placeholder != null)
         {
+            //Destroy가 한 프레임에서 즉각 실행되지 않기 때문에 Row에 남아 있어서 다른 부분에서 문제가 생기기 때문에 추가
+            _placeholder.transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
             Destroy(_placeholder);
             _placeholder = null;
         }

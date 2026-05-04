@@ -91,6 +91,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         Transform ghostParent = UIManager.Instance.GetUI<UI_Panel>().forGhostParent;
         CycleSlot slot = Instantiate(ghostPrefab, ghostParent)
             .GetComponent<CycleSlot>();
+        slot.name = $"Slot_{head.sprite.name}_{nameText.text}";
         slot.SetSlot(icon.sprite, _controlType, head.sprite, nameText.text);
         slot.SetPositionToPointer(eventData);
 
@@ -182,7 +183,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             if (result.gameObject.CompareTag("CycleHorizontalLayout"))
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
-                hz.AddSlot(_ghostSlot, _targetIndex);
+                hz.AddSlotAndCheckExplode(_ghostSlot, _targetIndex);
                 return true;
             }
             else if (result.gameObject.CompareTag("CyclePanel"))
