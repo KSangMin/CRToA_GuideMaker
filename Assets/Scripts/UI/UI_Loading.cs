@@ -14,6 +14,8 @@ public class UI_Loading : UI
 
     [SerializeField] private Button continueButton;
 
+    private Coroutine downloadingCoroutine;
+
     protected override void Start()
     {
         base.Start();
@@ -24,6 +26,7 @@ public class UI_Loading : UI
         AddressableManager.Instance.startLoadAsset += LoadAsset;
         AddressableManager.Instance.onLoadProgress += OnProgressChanged;
         AddressableManager.Instance.endLoad += EndLoad;
+        AddressableManager.Instance.loadFailed += LoadFailed;
 
         loadingPercentText.gameObject.SetActive(false);
         loadingMBText.gameObject.SetActive(false);
@@ -37,7 +40,7 @@ public class UI_Loading : UI
         float percent = progress / 100;
         loadingBar.value = percent;
         loadingPercentText.gameObject.SetActive(true);
-        loadingPercentText.SetText("{0}%", progress);
+        loadingPercentText.SetText("{0}%", Mathf.RoundToInt(progress));
         Debug.Log($"progress: {progress}, percent: {percent}");
     }
 
@@ -55,7 +58,12 @@ public class UI_Loading : UI
     {
         loadingText.SetText("Downloading");
 
-        StartCoroutine(Downloading());
+        if (downloadingCoroutine != null)
+        {
+            StopCoroutine(downloadingCoroutine);
+        }
+
+        downloadingCoroutine = StartCoroutine(Downloading());
     }
 
     private IEnumerator Downloading()
@@ -68,14 +76,16 @@ public class UI_Loading : UI
         while (true)
         {
             cur = AddressableManager.Instance.patchMap.Sum(x => x.Value);
-            loadingBar.value = cur / AddressableManager.Instance.patchSize;
-            loadingPercentText.SetText("{0}%"
-                , (int)(cur / AddressableManager.Instance.patchSize) * 100);
+            float patchSize = AddressableManager.Instance.patchSize;
+            float progress = patchSize > 0 ? Mathf.Clamp01(cur / patchSize) : 1f;
+
+            loadingBar.value = progress;
+            loadingPercentText.SetText("{0}%", Mathf.RoundToInt(progress * 100f));
             loadingMBText.SetText("{0}/{1}(MB)"
                 , Util.ConversionToMB(cur)
                 , Util.ConversionToMB(AddressableManager.Instance.patchSize));
 
-            if (cur >= AddressableManager.Instance.patchSize)
+            if (progress >= 1f)
             {
                 loadingMBText.gameObject.SetActive(false);
                 break;
@@ -91,14 +101,26 @@ public class UI_Loading : UI
         loadingText.SetText("Loading Assets");
     }
 
-    private new void Clear()
+    public override void Clear()
     {
+        if (downloadingCoroutine != null)
+        {
+            StopCoroutine(downloadingCoroutine);
+            downloadingCoroutine = null;
+        }
+
         AddressableManager.Instance.startLoad -= Load;
         AddressableManager.Instance.startCatalogCheck -= CheckCatalog;
         AddressableManager.Instance.startDownload -= Download;
         AddressableManager.Instance.startLoadAsset -= LoadAsset;
         AddressableManager.Instance.onLoadProgress -= OnProgressChanged;
         AddressableManager.Instance.endLoad -= EndLoad;
+        AddressableManager.Instance.loadFailed -= LoadFailed;
+    }
+
+    private void OnDestroy()
+    {
+        Clear();
     }
 
     private void EndLoad()
@@ -106,9 +128,22 @@ public class UI_Loading : UI
         Clear();
 
         loadingText.SetText("Loading Complete!");
-        loadingMBText.SetText("100%");
+        loadingBar.value = 1f;
+        loadingPercentText.SetText("100%");
         loadingMBText.gameObject.SetActive(true);
         loadingMBText.SetText("Click Anywhere To Continue");
         continueButton.interactable = true;
+    }
+
+    private void LoadFailed(string message)
+    {
+        Clear();
+
+        loadingText.SetText("Loading Failed");
+        loadingPercentText.gameObject.SetActive(true);
+        loadingPercentText.SetText("0%");
+        loadingMBText.gameObject.SetActive(true);
+        loadingMBText.SetText(message);
+        continueButton.interactable = false;
     }
 }

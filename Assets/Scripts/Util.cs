@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 
 public static class Util
@@ -9,7 +9,7 @@ public static class Util
     }
 
     /// <summary>
-    /// Resources/Prefabs Æú´õ ³»ÀÇ ÁöÁ¤µÈ °æ·Î¿¡¼­ PrefabÀ» ·ÎµåÇÏ¿© ÇÏÀÌ¾î¶óÅ°¿¡ Ãß°¡ÇÕ´Ï´Ù.
+    /// Resources/Prefabs í´ë” ë‚´ì˜ ì§€ì •ëœ ê²½ë¡œì—ì„œ Prefabì„ ë¡œë“œí•˜ì—¬ í•˜ì´ì–´ë¼í‚¤ì— ì¶”ê°€í•©ë‹ˆë‹¤.
     /// </summary>
     public static GameObject InstantiatePrefab(string path, Vector3 position = default, Quaternion rotation = default, Transform parent = null)
     {
@@ -24,7 +24,7 @@ public static class Util
     }
 
     /// <summary>
-    /// Resources/Prefabs Æú´õ ³»ÀÇ ÁöÁ¤µÈ °æ·Î¿¡¼­ PrefabÀ» ·ÎµåÇÏ¿© Ãß°¡µÈ ÇÏÀÌ¾î¶óÅ°ÀÇ ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿É´Ï´Ù.
+    /// Resources/Prefabs í´ë” ë‚´ì˜ ì§€ì •ëœ ê²½ë¡œì—ì„œ Prefabì„ ë¡œë“œí•˜ì—¬ ì¶”ê°€ëœ í•˜ì´ì–´ë¼í‚¤ì˜ ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
     /// </summary>
     public static T InstantiatePrefabAndGetComponent<T>(string path, Vector3 position = default, Quaternion rotation = default, Transform parent = null) where T : Component
     {
@@ -37,7 +37,7 @@ public static class Util
     }
 
     /// <summary>
-    /// ¹ÙÀÌÆ®(byte)¸¦ ¸Ş°¡¹ÙÀÌÆ®(MB)·Î º¯È¯ÇÏ¿© int·Î ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ë°”ì´íŠ¸(byte)ë¥¼ ë©”ê°€ë°”ì´íŠ¸(MB)ë¡œ ë³€í™˜í•˜ì—¬ intë¡œ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public static int ConversionToMB(long bytes)
     {

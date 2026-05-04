@@ -10,7 +10,7 @@ public class TabScrollView : MonoBehaviour
 
     public void Init(string label)
     {
-        List<Sprite> sprites = AddressableManager.Instance.GetAllSpriteByLabel(label);
+        List<Sprite> sprites = AddressableManager.Instance.GetSpritesByLabel(label);
 
         if (!Enum.TryParse(label, out IconType iconType))
         {

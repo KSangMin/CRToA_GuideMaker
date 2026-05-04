@@ -15,49 +15,53 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 35224a181f50c8544b420a8953ba5039
   m_SerializeEntries:
-  - m_GUID: 240834416d8b2954fbc29bbbc1c48639
-    m_Address: Assets/Sprites/CRToA/Artifact/Card
+  - m_GUID: 0650a2358f4ff2543b2b229a9fd38f87
+    m_Address: Assets/Sprites/CRToA/Skill
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Artifact
-    - Card
+    - Skill
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2653602bcf303e2419efe2364faddade
-    m_Address: Assets/Sprites/CRToA/Seasonite
+  - m_GUID: 0c2e9111a8545354abbb3c1a91a9a438
+    m_Address: Assets/Sprites/CRToA/Elements/Class
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Seasonite
+    - Class
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 325d9338acf6e0f489aee25a3a3f3380
-    m_Address: Assets/Sprites/CRToA/Potential
+  - m_GUID: 173b5781a2fe9cb43a7135c8ac502304
+    m_Address: Assets/Sprites/UI/Type
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Potential
+    - ElementalFrame
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 811f1dcf8e2857747869d64bc19da586
-    m_Address: Assets/Sprites/CRToA/Artifact/Thumbnail
+  - m_GUID: 24303400971c25f4c8d42e55c7f2ce03
+    m_Address: Assets/Data/DefaultSpriteData.asset
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Artifact
-    - Thumbnail
+    - SpriteData
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 88e1a50af3db64e42a1490aa1273db51
-    m_Address: Assets/Sprites/CRToA/Artifact/Header
+  - m_GUID: 95baaa18ed6bbec489e6ab8b29635d71
+    m_Address: Assets/Sprites/CRToA/Elements/AttackType
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Artifact
-    - Header
+    - AttackType
     - default
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: da094a7754f4bf54e96253917b4338ff
-    m_Address: Assets/Sprites/CRToA/Equipment
+  - m_GUID: c99ba86573610de4db8c28b0f91b249f
+    m_Address: Assets/Sprites/UI/Rarity
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Equipment
+    - RarityFrame
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dc59d2a34e17690458a5d53c08164360
+    m_Address: Assets/Sprites/CRToA/Elements/Type
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ElementalType
     - default
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ea420f1f67c730f4e9894952a89e5b41
@@ -65,6 +69,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Cookie
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f7b2b8fe537b103459b8706d0819f3ad
+    m_Address: Assets/Data/Cookie
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CookieData
     - default
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0

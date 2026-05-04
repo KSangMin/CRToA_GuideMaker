@@ -4,18 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public enum IconType
-{
-    Cookie,
-    Artifact,
-    Thumbnail,
-    Header,
-    Card,
-    Equipment,
-    Potential,
-    Seasonite,
-}
-
 public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
     private IconType _type;
@@ -56,8 +44,8 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
         if (!_isCanceled)
         {
             _ghost = Instantiate(iconPrefab, UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-            KeyValuePair<int, int> wh = GetWidthHeight();
-            _ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite, _isBackground);
+            //KeyValuePair<int, int> wh = GetWidthHeight();
+            //_ghost.GetComponent<Icon>().SetIcon(wh.Key, wh.Value, GetComponent<Image>().sprite);
 
             _ghost.transform.position = eventData.position + new Vector2(-halfSlotSize, halfSlotSize);
         }
@@ -147,8 +135,8 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
             }
             else if (result.gameObject.CompareTag("ForegroundSlot"))
             {
-                Slot slot = result.gameObject.GetComponent<Slot>();
-                slot.SetIconToSlot(_ghost, GetWidthHeight());
+                //Slot slot = result.gameObject.GetComponent<Slot>();
+                //slot.SetIconToSlot(_ghost, GetWidthHeight());
 
                 return true;
             }
@@ -157,21 +145,21 @@ public class TabSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, ID
         return false;
     }
 
-    private KeyValuePair<int, int> GetWidthHeight()
-    {
-        KeyValuePair<int, int> wh = new(1, 1);
-        switch (_type)
-        {
-            case IconType.Header:
-                wh = new(2, 1);
-                break;
-            case IconType.Card:
-                wh = new(1, 2);
-                break;
-            default:
-                break;
-        }
+    //private KeyValuePair<int, int> GetWidthHeight()
+    //{
+    //    KeyValuePair<int, int> wh = new(1, 1);
+    //    switch (_type)
+    //    {
+    //        case IconType.Header:
+    //            wh = new(2, 1);
+    //            break;
+    //        case IconType.Card:
+    //            wh = new(1, 2);
+    //            break;
+    //        default:
+    //            break;
+    //    }
 
-        return wh;
-    }
+    //    return wh;
+    //}
 }

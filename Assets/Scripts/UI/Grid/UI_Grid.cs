@@ -1,105 +1,147 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class UI_Grid : UI
+public class UI_Grid : UI, IPointerDownHandler, IDragHandler, IScrollHandler
 {
-    private GameObject _backgroundSlotPrefab;
-    private GameObject _foregroundSlotPrefab;
-    [SerializeField] private Transform _backgroundGridParent;
-    [SerializeField] private Transform _foregroundSlotGridParent;
+    public Content content;
+    [HideInInspector] public RectTransform contentRect;
 
-    private List<List<Slot>> _backgroundSlots = new();
-    private List<GameObject> _backgroundSlotsRowGOs = new();
-    private List<List<Slot>> _foregroundSlots = new();
-    private List<GameObject> _foregroundSlotsRowGOs = new();
-    private int _curRow = 20;
-    private int _curCol = 20;
-    private int _spacing = 0;
+    [SerializeField] private float zoomSpeed = 0.2f;
+    [SerializeField] private float minZoom = 0.4f;
+    [SerializeField] private float maxZoom = 5.0f;
+
+    [SerializeField] private List<ResizeHandle> _handles = new();
+    public Transform _forDragParent;
+    [HideInInspector] public bool isHandleVisible;
+
+    [SerializeField] private RectTransform _snapGuide;
 
     protected override void Awake()
     {
         base.Awake();
 
-        _backgroundSlotPrefab = Resources.Load<GameObject>($"Prefabs/UI/BackgroundSlot");
-        _foregroundSlotPrefab = Resources.Load<GameObject>($"Prefabs/UI/ForegroundSlot");
+        contentRect = content.GetComponent<RectTransform>();
+
+        _handles[0].InitHandle(HandlePosition.TopLeft, 0, 1);
+        _handles[1].InitHandle(HandlePosition.TopRight, 1, 1);
+        _handles[2].InitHandle(HandlePosition.BottomLeft, 0, 0);
+        _handles[3].InitHandle(HandlePosition.BottomRight, 1, 0);
+
+        HideHandles();
     }
 
-    protected override void Start()
-    {
-        base.Start();
+    #region 드래그 및 줌
 
-        CreateBackground();
-        CreateSlot();
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        HideHandles();
     }
 
-    private void CreateBackground()
+    public void OnDrag(PointerEventData eventData)
     {
-        for (int i = 0; i < _curRow; i++)
-        {
-            GameObject row = new($"Row_{i}");
-            HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
-            hlGroup.childControlWidth = false;
-            hlGroup.childControlHeight = false;
-            hlGroup.spacing = _spacing;
-            ContentSizeFitter fitter = row.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            row.transform.SetParent(_backgroundGridParent);
-            _backgroundSlotsRowGOs.Add(row);
-
-            List<Slot> tempSlots = new();
-            for (int j = 0; j < _curCol; j++)
-            {
-                Slot slot = Instantiate(_backgroundSlotPrefab, row.transform).GetComponent<Slot>();
-                slot.gameObject.name = $"BackgroundSlot_{i}_{j}";
-                slot.InitSlot(this, i, j);
-                tempSlots.Add(slot);
-            }
-
-            _backgroundSlots.Add(tempSlots);
-        }
-    }
-
-    private void CreateSlot()
-    {
-        for (int i = 0; i < _curRow; i++)
-        {
-            GameObject row = new($"Row_{i}");
-            HorizontalLayoutGroup hlGroup = row.AddComponent<HorizontalLayoutGroup>();
-            hlGroup.childControlWidth = false;
-            hlGroup.childControlHeight = false;
-            hlGroup.spacing = _spacing;
-            ContentSizeFitter fitter = row.AddComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            row.transform.SetParent(_foregroundSlotGridParent);
-            _foregroundSlotsRowGOs.Add(row);
-
-            List<Slot> tempSlots = new();
-            for (int j = 0; j < _curCol; j++)
-            {
-                Slot slot = Instantiate(_foregroundSlotPrefab, row.transform).GetComponent<Slot>();
-                slot.gameObject.name = $"ForegroundSlot_{i}_{j}";
-                slot.InitSlot(this, i, j);
-                tempSlots.Add(slot);
-            }
-
-            _foregroundSlots.Add(tempSlots);
-        }
-    }
-
-    public void CheckOccupiedSlot(Slot source, int r, int c)
-    {
-        if(r < 0 || r >= _curRow || c < 0 || c >= _curCol)
+        if (contentRect == null)
         {
             return;
         }
 
-        Slot cur = _foregroundSlots[r][c];
-
-        cur.ClearSlot();
-        cur.OccupySlot(source);
+        contentRect.anchoredPosition += eventData.delta / GetCanvasScale();
     }
+
+    public void OnScroll(PointerEventData eventData)
+    {
+        if (contentRect == null) return;
+
+        Vector3 newScale = contentRect.localScale;
+
+        float scroll = eventData.scrollDelta.y;
+        float zoomStep = scroll > 0 ? +zoomSpeed : -zoomSpeed;
+
+        newScale.x = Mathf.Clamp(newScale.x + zoomStep, minZoom, maxZoom);
+        newScale.y = Mathf.Clamp(newScale.y + zoomStep, minZoom, maxZoom);
+        newScale.z = 1;
+
+        contentRect.localScale = newScale;
+
+        RefreshHandleScale();
+    }
+
+    private float GetCanvasScale()
+    {
+        // 캔버스의 Scale Factor를 가져와 드래그 속도를 일정하게 유지
+        Canvas canvas = GetComponentInParent<Canvas>();
+        return canvas != null ? canvas.scaleFactor : 1.0f;
+    }
+
+    #endregion 드래그 및 줌
+
+    #region 핸들
+    public void OpenResizeUI(RectTransform target)
+    {
+        ShowHandle();
+
+        // 네 모서리에 핸들 생성
+        foreach (ResizeHandle h in _handles)
+        {
+            h.SetHandle(target);
+        }
+    }
+
+    private void ShowHandle()
+    {
+        isHandleVisible = true;
+
+        foreach (ResizeHandle h in _handles)
+        {
+            h.gameObject.SetActive(true);
+        }
+    }
+
+    public void HideHandles()
+    {
+        isHandleVisible = false;
+
+        foreach (ResizeHandle h in _handles)
+        {
+            h.gameObject.SetActive(false);
+        }
+    }
+
+    public void RefreshHandleScale()
+    {
+        // Content의 현재 scale 값을 가져옵니다. (줌 배율)
+        float currentZoom = contentRect.localScale.x;
+
+        foreach (var handle in _handles)
+        {
+            // 줌 배율의 역수를 scale로 지정 (예: 줌이 2배면 스케일은 0.5)
+            // 이렇게 하면 화면상에서의 물리적 크기는 항상 일정하게 유지됩니다.
+            handle.transform.localScale = new Vector3(1f / currentZoom, 1f / currentZoom, 1f);
+        }
+    }
+    #endregion 핸들
+
+    #region 가이드
+    public void SetSnapGuide(RectTransform parentRect, Vector2 pos, RectTransform targetRect)
+    {
+        ShowSnapGuide();
+        _snapGuide.SetParent(parentRect);
+
+        _snapGuide.localPosition = pos;
+        _snapGuide.sizeDelta = targetRect.sizeDelta;
+    }
+
+    private void ShowSnapGuide()
+    {
+        _snapGuide.gameObject.SetActive(true);
+        _snapGuide.localScale = GetCanvasScale() * Vector2.one;
+    }
+
+    public void HideSnapGuide()
+    {
+        _snapGuide.SetParent(_forDragParent);
+        _snapGuide.localScale = Vector2.one;
+        _snapGuide.gameObject.SetActive(false);
+    }
+    #endregion 가이드
 }
