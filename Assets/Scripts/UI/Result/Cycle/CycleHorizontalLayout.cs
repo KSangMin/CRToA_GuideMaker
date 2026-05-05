@@ -9,8 +9,6 @@ public class CycleHorizontalLayout : MonoBehaviour
     private CycleVerticalLayout _cycleVerticalLayout;
     private List<CycleSlot> _slots = new();
 
-    [SerializeField] private Button addRowButton;
-
     private void Awake()
     {
         //addRowButton.onClick.AddListener(AddRow);
