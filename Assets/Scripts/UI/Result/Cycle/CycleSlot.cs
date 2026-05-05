@@ -296,4 +296,9 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         countBackground.SetActive(true);
         countText.SetText($"{count}");
     }
+
+    public void ResetSlot()
+    {
+        countBackground.SetActive(false);
+    }
 }
