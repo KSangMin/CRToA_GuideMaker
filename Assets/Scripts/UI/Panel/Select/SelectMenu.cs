@@ -11,8 +11,6 @@ public class SelectMenu : MonoBehaviour
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
 
-    [SerializeField] private GameObject specialPanelPrefab;
-
     private void Start()
     {
         SetPanels();
@@ -20,14 +18,7 @@ public class SelectMenu : MonoBehaviour
 
     private void SetPanels()
     {
-        SetSpecialPanel();
         SetCookiePanels();
-    }
-
-    private void SetSpecialPanel()
-    {
-        SpecialPanel specialPanel = Instantiate(specialPanelPrefab, content).GetComponent<SpecialPanel>();
-        specialPanel.SetPanel(scrollRect);
     }
 
     private void SetCookiePanels()

@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5895725640527338650
 RectTransform:
   m_ObjectHideFlags: 0
@@ -428,7 +428,7 @@ GameObject:
   - component: {fileID: 3813861089030300510}
   - component: {fileID: 6005175537515522248}
   - component: {fileID: 9204456577736019911}
-  - component: {fileID: 7113285991723953452}
+  - component: {fileID: 7253945827559999646}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -495,7 +495,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7113285991723953452
+--- !u!114 &7253945827559999646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -504,9 +504,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5892124444617552246}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab5fa9fd1dc971846a01e331d11ee479, type: 3}
+  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PanelScrollRect
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 3310547767141108045}
   m_Horizontal: 1
   m_Vertical: 0
@@ -599,7 +599,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 478, y: 160}
+  m_SizeDelta: {x: 478, y: 115}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2977577219693956664
 CanvasRenderer:
@@ -651,7 +651,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 480c5b9f6f423ae4a8a79d08c587f603, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpecialPanel
-  scrollRect: {fileID: 7113285991723953452}
+  scrollRect: {fileID: 7253945827559999646}
   resetSlot: {fileID: 8348700262730627829}
   countSlot: {fileID: 4561511878919782091}
 --- !u!1 &8183725448871862189

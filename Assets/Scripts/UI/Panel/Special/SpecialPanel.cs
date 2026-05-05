@@ -7,10 +7,8 @@ public class SpecialPanel : MonoBehaviour
     [SerializeField] private ResetSlot resetSlot;
     [SerializeField] private CountSlot countSlot;
 
-    public void SetPanel(ScrollRect menuScroll)
+    private void Start()
     {
-        scrollRect.GetComponent<PanelScrollRect>().Init(menuScroll);
-
         resetSlot.SetSlot(scrollRect);
         countSlot.SetSlot(scrollRect);
     }
