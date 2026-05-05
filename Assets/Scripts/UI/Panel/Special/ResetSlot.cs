@@ -32,7 +32,7 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         yield return new WaitForSeconds(_holdTime);
 
-        if (!_isCanceled && !eventData.dragging)
+        if (!_isCanceled)
         {
             CreateGhost(eventData);
         }
@@ -53,7 +53,12 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         CancelHold();
 
-        DestroyGhost();
+        if (_ghost != null)
+        {
+            ProcessDrop(eventData);
+            DestroyGhost();
+            return;
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -105,12 +110,6 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             _panelScroll.OnEndDrag(eventData);
             _isDraggingScroll = false;
             return;
-        }
-
-        if (_ghost != null)
-        {
-            ProcessDrop(eventData);
-            DestroyGhost();
         }
 
         CancelHold();

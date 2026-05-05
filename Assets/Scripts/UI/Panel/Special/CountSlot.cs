@@ -60,7 +60,7 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         yield return new WaitForSeconds(_holdTime);
 
-        if (!_isCanceled && !eventData.dragging)
+        if (!_isCanceled)
         {
             CreateGhost(eventData);
         }
@@ -81,12 +81,17 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         CancelHold();
 
-        if (!eventData.dragging && _ghost == null)//드래그하지 않고 클릭 시
+        if (_ghost == null && !eventData.dragging)//클릭
         {
             UpCount();
         }
 
-        DestroyGhost();
+        if (_ghost != null)
+        {
+            ProcessDrop(eventData);
+            DestroyGhost();
+            return;
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -133,12 +138,6 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             _panelScroll.OnEndDrag(eventData);
             _isDraggingScroll = false;
             return;
-        }
-
-        if (_ghost != null)
-        {
-            ProcessDrop(eventData);
-            DestroyGhost();
         }
 
         CancelHold();
