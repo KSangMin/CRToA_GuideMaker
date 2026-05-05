@@ -9,6 +9,8 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 {
     [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
+    [SerializeField] private GameObject countBackground;
+    [SerializeField] private TextMeshProUGUI countText;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
     [HideInInspector] public Transform originalParent;
@@ -19,6 +21,11 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     private GameObject _placeholder = null;
     private ControlType _controlType = ControlType.Normal;
+
+    private void Start()
+    {
+        countBackground.SetActive(false);
+    }
 
     public void SetSlot(Sprite skillIcon, ControlType controlType, Sprite headIcon, string text)
     {
@@ -282,5 +289,16 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             Destroy(_placeholder);
             _placeholder = null;
         }
+    }
+
+    public void SetSlotCount(int count)
+    {
+        countBackground.SetActive(true);
+        countText.SetText($"{count}");
+    }
+
+    public void ResetSlot()
+    {
+        countBackground.SetActive(false);
     }
 }

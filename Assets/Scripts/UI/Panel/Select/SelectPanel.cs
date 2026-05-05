@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class SelectPanel : MonoBehaviour
@@ -19,7 +18,6 @@ public class SelectPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rarityText;
 
     [Header("스크롤뷰")]
-    private ScrollRect _menuScroll;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
     [SerializeField] private Image panelBackground;
@@ -27,7 +25,7 @@ public class SelectPanel : MonoBehaviour
 
     private void Awake()
     {
-        foreach(Transform child in content)
+        foreach (Transform child in content)
         {
             Destroy(child.gameObject);
         }
@@ -37,8 +35,7 @@ public class SelectPanel : MonoBehaviour
     {
         _id = data.cookieId;
         _data = data;
-        _menuScroll = menuScroll;
-        scrollRect.GetComponent<SelectPanelScrollRect>().Init(menuScroll);
+        scrollRect.GetComponent<PanelScrollRect>().Init(menuScroll);
 
         DefaultSpriteData spriteData = AddressableManager.Instance.SpriteData;
         icon.sprite = data.GetSprite(data.Icon);
@@ -72,7 +69,7 @@ public class SelectPanel : MonoBehaviour
 
     private void SetBasicAttackSlots()
     {
-        foreach(var basicAttack in _data.GetBasicAttackSprites())
+        foreach (var basicAttack in _data.GetBasicAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
             slot.SetSlot(scrollRect, _id, SkillType.Basic, basicAttack.controlType, basicAttack.sprite, icon.sprite);
@@ -84,7 +81,7 @@ public class SelectPanel : MonoBehaviour
         foreach (var specialSkill in _data.GetSpecialAttackSprites())
         {
             SelectSlot slot = Instantiate(_slotPrefab, content).GetComponent<SelectSlot>();
-            slot.SetSlot( scrollRect, _id, SkillType.SpecialSkill, specialSkill.controlType, specialSkill.sprite, icon.sprite);
+            slot.SetSlot(scrollRect, _id, SkillType.SpecialSkill, specialSkill.controlType, specialSkill.sprite, icon.sprite);
         }
     }
 

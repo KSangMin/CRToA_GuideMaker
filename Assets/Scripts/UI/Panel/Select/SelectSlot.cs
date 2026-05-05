@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -78,7 +79,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         yield return new WaitForSeconds(_holdTime);
 
-        if (!_isCanceled && !eventData.dragging)
+        if (!_isCanceled)
         {
             _ghostSlot = CreateSlot(eventData);
         }
@@ -102,17 +103,21 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         CancelHold();
 
-        if (_ghostSlot != null)
-        {
-            if (!eventData.dragging)
-            {
-                Destroy(_ghostSlot.gameObject);
-                _ghostSlot = null;
-            }
-        }
-        else if(!_isDraggingScroll)//클릭
+        if (_ghostSlot == null && !eventData.dragging)//클릭
         {
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
+        }
+
+        if (_ghostSlot != null)
+        {
+            _targetIndex = _ghostSlot.GetPlaceHolderIndex();
+            _ghostSlot.ClearPlaceHolder();
+
+            if (!ProcessDrop(eventData))
+            {
+                Destroy(_ghostSlot.gameObject);
+            }
+            _ghostSlot = null;
         }
     }
 
@@ -158,18 +163,7 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             _isDraggingScroll = false;
             return;
         }
-
-        if (_ghostSlot != null)
-        {
-            _targetIndex = _ghostSlot.GetPlaceHolderIndex();
-            _ghostSlot.ClearPlaceHolder();
-
-            if (!ProcessDrop(eventData))
-            {
-                Destroy(_ghostSlot.gameObject);
-            }
-            _ghostSlot = null;
-        }
+        
         CancelHold();
     }
 
