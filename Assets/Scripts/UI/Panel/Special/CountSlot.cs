@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private GameObject ghostObject;
     [SerializeField] private TextMeshProUGUI countText;
+
+    private ScrollRect _panelScroll;
+    private bool _isDraggingScroll = false;
 
     private GameObject _ghost;
     private RectTransform _ghostRect;
     private Coroutine _holdCoroutine;
     private float _holdTime = 0.15f;
     private bool _isCanceled = false;
-    private bool _canDrag = false;
 
     private int _minCount = 2;
     private int _curCount = 2;
@@ -23,6 +26,11 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private void Start()
     {
         SetCountText();
+    }
+
+    public void SetSlot(ScrollRect panelScroll)
+    {
+        _panelScroll = panelScroll;
     }
 
     private void SetCountText()
@@ -34,7 +42,7 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         _curCount++;
 
-        if(_curCount > _maxCount)
+        if (_curCount > _maxCount)
         {
             _curCount = _minCount;
         }
@@ -45,7 +53,6 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
-        _canDrag = false;
         _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
     }
 
@@ -55,10 +62,7 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _canDrag = true;
-
             CreateGhost(eventData);
-            SetGhostPositionToPointer(eventData);
         }
 
         _holdCoroutine = null;
@@ -75,18 +79,37 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!eventData.dragging)//클릭 시
+        CancelHold();
+
+        if (!eventData.dragging && _ghost == null)//드래그하지 않고 클릭 시
         {
-            CancelHold();
             UpCount();
         }
 
+        DestroyGhost();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (_ghost == null)
+        {
+            _isDraggingScroll = true;
+            CancelHold();
+            _panelScroll.OnBeginDrag(eventData);
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
         if (_ghost != null)
         {
-            _ghost.transform.SetParent(null);
-            Destroy(_ghost);
-            _ghost = null;
-            _ghostRect = null;
+            SetGhostPositionToPointer(eventData);
+            return;
+        }
+
+        if (_isDraggingScroll)
+        {
+            _panelScroll.OnDrag(eventData);
         }
     }
 
@@ -103,45 +126,22 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         _ghostRect.anchoredPosition = localPoint;
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!_canDrag)
-        {
-            _isCanceled = true;
-            return;
-        }
-
-        SetGhostPositionToPointer(eventData);
-    }
-
-    private void CancelHold()
-    {
-        _isCanceled = true;
-        _canDrag = false;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!_canDrag)
+        if (_isDraggingScroll)
         {
-            CancelHold();
+            _panelScroll.OnEndDrag(eventData);
+            _isDraggingScroll = false;
             return;
         }
 
-        if (!ProcessDrop(eventData))
+        if (_ghost != null)
         {
-            CancelHold();
+            ProcessDrop(eventData);
+            DestroyGhost();
         }
-        else
-        {
-            _isCanceled = true;
-            _canDrag = false;
-        }
+
+        CancelHold();
     }
 
     private bool ProcessDrop(PointerEventData eventData)
@@ -160,5 +160,26 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
 
         return false;
+    }
+
+    private void CancelHold()
+    {
+        _isCanceled = true;
+        if (_holdCoroutine != null)
+        {
+            StopCoroutine(_holdCoroutine);
+            _holdCoroutine = null;
+        }
+    }
+
+    private void DestroyGhost()
+    {
+        if (_ghost != null)
+        {
+            _ghost.transform.SetParent(null);
+            Destroy(_ghost);
+            _ghost = null;
+            _ghostRect = null;
+        }
     }
 }

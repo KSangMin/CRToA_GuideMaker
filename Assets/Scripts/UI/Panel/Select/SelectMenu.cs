@@ -6,10 +6,12 @@ using UnityEngine.UI;
 
 public class SelectMenu : MonoBehaviour
 {
-    [SerializeField] private GameObject _panelPrefab;
+    [SerializeField] private GameObject selectPanelPrefab;
 
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Transform content;
+
+    [SerializeField] private GameObject specialPanelPrefab;
 
     private void Start()
     {
@@ -24,7 +26,8 @@ public class SelectMenu : MonoBehaviour
 
     private void SetSpecialPanel()
     {
-        //다른 기능 추가 예정
+        SpecialPanel specialPanel = Instantiate(specialPanelPrefab, content).GetComponent<SpecialPanel>();
+        specialPanel.SetPanel(scrollRect);
     }
 
     private void SetCookiePanels()
@@ -39,7 +42,7 @@ public class SelectMenu : MonoBehaviour
 
         for (int i = orderedCookieDataList.Count - 1; i >= 0; i--)
         {
-            SelectPanel panel = Instantiate(_panelPrefab, content).GetComponent<SelectPanel>();
+            SelectPanel panel = Instantiate(selectPanelPrefab, content).GetComponent<SelectPanel>();
             panel.SetPanel(orderedCookieDataList[i], scrollRect);
         }
 

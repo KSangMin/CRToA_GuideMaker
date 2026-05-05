@@ -1,24 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private GameObject ghostObject;
+
+    private ScrollRect _panelScroll;
+    private bool _isDraggingScroll = false;
 
     private GameObject _ghost;
     private RectTransform _ghostRect;
     private Coroutine _holdCoroutine;
     private float _holdTime = 0.15f;
     private bool _isCanceled = false;
-    private bool _canDrag = false;
+
+    public void SetSlot(ScrollRect panelScroll)
+    {
+        _panelScroll = panelScroll;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
-        _canDrag = false;
         _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
     }
 
@@ -28,10 +34,7 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _canDrag = true;
-
             CreateGhost(eventData);
-            SetGhostPositionToPointer(eventData);
         }
 
         _holdCoroutine = null;
@@ -48,22 +51,42 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!eventData.dragging)//클릭 시
-        {
-            CancelHold();
-        }
+        CancelHold();
 
+        DestroyGhost();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (_ghost == null)
+        {
+            _isDraggingScroll = true;
+            CancelHold();
+            _panelScroll.OnBeginDrag(eventData);
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
         if (_ghost != null)
         {
-            _ghost.transform.SetParent(null);
-            Destroy(_ghost);
-            _ghost = null;
-            _ghostRect = null;
+            SetGhostPositionToPointer(eventData);
+            return;
+        }
+
+        if (_isDraggingScroll)
+        {
+            _panelScroll.OnDrag(eventData);
         }
     }
 
     public void SetGhostPositionToPointer(PointerEventData eventData)
     {
+        if(_ghost == null)
+        {
+            return;
+        }
+
         RectTransform parentRect = _ghost.transform.parent.GetComponent<RectTransform>();
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -75,45 +98,22 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         _ghostRect.anchoredPosition = localPoint;
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!_canDrag)
-        {
-            _isCanceled = true;
-            return;
-        }
-
-        SetGhostPositionToPointer(eventData);
-    }
-
-    private void CancelHold()
-    {
-        _isCanceled = true;
-        _canDrag = false;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!_canDrag)
+        if (_isDraggingScroll)
         {
-            CancelHold();
+            _panelScroll.OnEndDrag(eventData);
+            _isDraggingScroll = false;
             return;
         }
 
-        if (!ProcessDrop(eventData))
+        if (_ghost != null)
         {
-            CancelHold();
+            ProcessDrop(eventData);
+            DestroyGhost();
         }
-        else
-        {
-            _isCanceled = true;
-            _canDrag = false;
-        }
+
+        CancelHold();
     }
 
     private bool ProcessDrop(PointerEventData eventData)
@@ -132,5 +132,26 @@ public class ResetSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
 
         return false;
+    }
+
+    private void CancelHold()
+    {
+        _isCanceled = true;
+        if (_holdCoroutine != null)
+        {
+            StopCoroutine(_holdCoroutine);
+            _holdCoroutine = null;
+        }
+    }
+
+    private void DestroyGhost()
+    {
+        if (_ghost != null)
+        {
+            _ghost.transform.SetParent(null);
+            Destroy(_ghost);
+            _ghost = null;
+            _ghostRect = null;
+        }
     }
 }
