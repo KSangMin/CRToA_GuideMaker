@@ -15,6 +15,9 @@ public class SpriteType
 [CreateAssetMenu(fileName = "CookieData_", menuName = "Scriptable Objects/CookieData")]
 public class CookieData : ScriptableObject
 {
+    [Range(1, 100)]
+    public int order;
+
     [Tooltip("4자리 숫자(0001~9999)")]
     public string cookieId;
     public string cookieName;

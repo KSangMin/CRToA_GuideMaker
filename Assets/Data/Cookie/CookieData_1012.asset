@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fd3b73c34d8a84e84dbe8dd52599a3, type: 3}
   m_Name: CookieData_1012
   m_EditorClassIdentifier: Assembly-CSharp::CookieData
+  order: 28
   cookieId: 1012
   cookieName: "\uBC14\uC9C8\uD398\uC2A4\uD1A0\uB9DB \uCFE0\uD0A4"
   rarity: 2

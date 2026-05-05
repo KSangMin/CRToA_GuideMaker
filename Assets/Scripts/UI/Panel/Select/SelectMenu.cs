@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,11 +35,12 @@ public class SelectMenu : MonoBehaviour
     private IEnumerator SetCookiePanelsCoroutine()
     {
         List<CookieData> cookieDataList = AddressableManager.Instance.GetAllCookieData();
+        List<CookieData> orderedCookieDataList = cookieDataList.OrderBy(data => data.order).ToList();
 
-        for (int i = cookieDataList.Count - 1; i >= 0; i--)
+        for (int i = orderedCookieDataList.Count - 1; i >= 0; i--)
         {
             SelectPanel panel = Instantiate(_panelPrefab, content).GetComponent<SelectPanel>();
-            panel.SetPanel(cookieDataList[i], scrollRect);
+            panel.SetPanel(orderedCookieDataList[i], scrollRect);
         }
 
         yield return null;
