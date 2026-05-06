@@ -1,4 +1,4 @@
-[플레이 링크](https://play.unity.com/api/v1/games/game/23e2d091-6437-40fb-8127-d403c6cfc4cf/build/latest/frame)
+[플레이 링크](https://play.unity.com/ko/games/23e2d091-6437-40fb-8127-d403c6cfc4cf/crtoa-cyclemaker)
 
 <img width="752" height="421" alt="스크린샷 2026-05-06 083248" src="https://github.com/user-attachments/assets/24839dfe-f6ea-40f6-b0f1-cc60a3fdb820" />
 
