@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24fd3b73c34d8a84e84dbe8dd52599a3, type: 3}
-  m_Name: CookieData_1025
+  m_Name: CookieData_0250
   m_EditorClassIdentifier: Assembly-CSharp::CookieData
-  order: 47
-  cookieId: 1025
-  cookieName: "\uBA5C\uB791\uD06C\uB9BC \uCFE0\uD0A4"
-  rarity: 3
+  order: 53
+  cookieId: 0250
+  cookieName: "\uCCB4\uB9AC\uCF5C\uB77C\uB9DB \uCFE0\uD0A4"
+  rarity: 2
   Icon:
-    m_AssetGUID: d9fd78d6f9c56e4419a6c77fad6ccdeb
+    m_AssetGUID: 375323ee66a5236489f3c3e903a86ae0
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
-  Type: 0
-  Class: 0
+  Type: 4
+  Class: 1
   AttackType: 2
   BasicAttack:
   - sprite:
@@ -34,22 +34,15 @@ MonoBehaviour:
       m_EditorAssetChanged: 0
     controlType: 0
   - sprite:
-      m_AssetGUID: d6712eab5416a614a8bf156ef15301a3
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    controlType: 1
-  SpecialAttack:
-  - sprite:
-      m_AssetGUID: ad125e552cbd28b468f058f0d849dc96
+      m_AssetGUID: bf87973092e44c04f8cae4183fb73e35
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     controlType: 0
+  SpecialAttack:
   - sprite:
-      m_AssetGUID: ff3812b75c8662046b9de39c3e5c33fc
+      m_AssetGUID: 9d3520deb15d8d24b91af60329c78ec9
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
@@ -57,14 +50,7 @@ MonoBehaviour:
     controlType: 0
   Ultimate:
   - sprite:
-      m_AssetGUID: 5bb97e3d21cba604d9ef918b73169abb
-      m_SubObjectName: 
-      m_SubObjectType: 
-      m_SubObjectGUID: 
-      m_EditorAssetChanged: 0
-    controlType: 0
-  - sprite:
-      m_AssetGUID: bdc910b053681c645969c0504fefbdf6
+      m_AssetGUID: 9dcbfa037c9e1094cb7297b94b149e8d
       m_SubObjectName: 
       m_SubObjectType: 
       m_SubObjectGUID: 
