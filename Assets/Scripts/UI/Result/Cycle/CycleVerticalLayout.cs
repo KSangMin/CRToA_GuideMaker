@@ -6,16 +6,22 @@ using UnityEngine.UI;
 public class CycleVerticalLayout : MonoBehaviour
 {
     [Header("Setting")]
-    [Range(1, 12)]
+    [Range(4, 12)]
     [SerializeField] private int maxSlotCount = 8;
+
     [Header("References")]
     [SerializeField] private GameObject rowPanelPrefab;
+    [SerializeField] private IntEventChannel onRowLengthChangedEvent;
+
     private List<CycleHorizontalLayout> _rows = new();
     private Transform _verticalLayout;
 
     private void Awake()
     {
         _verticalLayout = GetComponent<Transform>();
+
+        onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
+        onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
     }
 
     public void AddSlotToLast(CycleSlot slot)
@@ -86,5 +92,15 @@ public class CycleVerticalLayout : MonoBehaviour
     public void RebuildLayout()
     {
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+
+    private void OnRowLengthChanged(int value)
+    {
+        maxSlotCount = value;
+    }
+
+    private void OnDestroy()
+    {
+        onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
     }
 }

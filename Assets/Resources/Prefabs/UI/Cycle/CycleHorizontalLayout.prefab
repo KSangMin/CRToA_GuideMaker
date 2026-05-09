@@ -130,4 +130,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eddc5b8adef416e4dbd3cb8116592452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CycleHorizontalLayout
-  addRowButton: {fileID: 0}
+  maxSlotCount: 8
+  onRowLengthChangedEvent: {fileID: 11400000, guid: c9e668c80741a4d40931c5914b250448, type: 2}
