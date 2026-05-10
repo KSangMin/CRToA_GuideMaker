@@ -104,6 +104,20 @@ public class CycleHorizontalLayout : MonoBehaviour
         }
     }
 
+    public void ResetCycle()
+    {
+        foreach(Transform child in transform)
+        {
+            if(child.TryGetComponent(out CycleSlot slot))
+            {
+                slot.ClearSlot();
+                Destroy(slot.gameObject);
+            }            
+        }
+
+        _slots.Clear();
+    }
+
     private void OnDestroy()
     {
         onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);

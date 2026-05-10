@@ -8,6 +8,11 @@ public class UI_Result : UI
     [SerializeField] private Canvas captureCanvas;
     [SerializeField] private Canvas canvas;
 
+    public void ResetCycle()
+    {
+        cyclePanel.ResetCycle();
+    }
+
     public Texture2D GetCycleTexture()
     {
         captureCamera.gameObject.SetActive(true);

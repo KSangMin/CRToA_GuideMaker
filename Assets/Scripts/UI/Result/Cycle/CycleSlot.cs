@@ -301,4 +301,9 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         countBackground.SetActive(false);
     }
+
+    public void ClearSlot()
+    {
+
+    }
 }

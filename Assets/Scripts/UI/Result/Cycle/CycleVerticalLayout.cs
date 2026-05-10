@@ -99,6 +99,20 @@ public class CycleVerticalLayout : MonoBehaviour
         maxSlotCount = value;
     }
 
+    public void ResetCycle()
+    {
+        foreach(Transform child in transform)
+        {
+            if(child.TryGetComponent(out CycleHorizontalLayout row))
+            {
+                row.ResetCycle();
+                Destroy(row.gameObject);
+            }
+        }
+
+        _rows.Clear();
+    }
+
     private void OnDestroy()
     {
         onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
