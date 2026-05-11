@@ -78,6 +78,10 @@ crashlytics-build.properties
 /Assets/Sprites/
 /Assets/Sprites.meta
 
+/Assets/FlexibleColorPicker
+/Assets/FlexibleColorPicker/
+/Assets/FlexibleColorPicker.meta
+
 /ServerData
 /ServerData/
 
