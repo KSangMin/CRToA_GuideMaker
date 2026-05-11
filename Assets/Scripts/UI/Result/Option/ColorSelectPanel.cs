@@ -17,7 +17,14 @@ public class ColorSelectPanel : MonoBehaviour
     [SerializeField] private FlexibleColorPicker colorPicker;
     [SerializeField] private Button closeColorPickerButton;
     [SerializeField] private Button colorPreviewAsCloseColorPickerButton;
+    [SerializeField] private ColorEventChannel onBackgroundColorChanged;
+    [SerializeField] private ColorEventChannel onFontColorChanged;
     private RectTransform colorPickerRect;
+
+    private Color _curBackgroundColor;
+    private Color _curFontColor;
+
+    private bool curTargetisBackground = true;
 
     private void Awake()
     {
@@ -32,27 +39,56 @@ public class ColorSelectPanel : MonoBehaviour
         closeColorPickerButton.onClick.AddListener(CloseColorPicker);
         colorPreviewAsCloseColorPickerButton.onClick.AddListener(CloseColorPicker);
 
-        backgroundColorImage.color = Util.HexToColor("#9A9A9AFF");
-        fontColorImage.color = Color.white;
+        _curBackgroundColor = Util.HexToColor("#9A9A9AFF");
+        _curFontColor = Color.white;
+
+        backgroundColorImage.color = _curBackgroundColor;
+        fontColorImage.color = _curFontColor;
     }
 
     private void OpenBackgroundColorPicker()
     {
-        OpenColorPicker();
+        curTargetisBackground = true;
 
+        OpenColorPickerWithColor(_curBackgroundColor);
         colorPickerRect.SetPosToNearTargetTopLeft(backgroundColorRect, new(-5, 5));
     }
 
     private void OpenFontColorPicker()
     {
-        OpenColorPicker();
+        curTargetisBackground = false;
 
+        OpenColorPickerWithColor(_curFontColor);
         colorPickerRect.SetPosToNearTargetTopLeft(fontColorRect, new(-5, 5));
     }
 
-    private void OpenColorPicker()
+    private void SetImageColor(Color color)
     {
+        if (!colorPicker.gameObject.activeSelf)
+        {
+            return;
+        }
+
+        if(curTargetisBackground)
+        {
+            _curBackgroundColor = color;
+            backgroundColorImage.color = color;
+            onBackgroundColorChanged.RaiseEvent(color);
+        }
+        else
+        {
+            _curFontColor = color;
+            fontColorImage.color = color;
+            onFontColorChanged.RaiseEvent(color);
+        }
+    }
+
+    private void OpenColorPickerWithColor(Color targetColor)
+    {
+        colorPicker.onColorChange.RemoveListener(SetImageColor);
         colorPicker.gameObject.SetActive(true);
+        colorPicker.color = targetColor;
+        colorPicker.onColorChange.AddListener(SetImageColor);
     }
 
     private void CloseColorPicker()

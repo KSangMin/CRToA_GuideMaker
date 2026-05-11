@@ -22,6 +22,14 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private GameObject _placeholder = null;
     private ControlType _controlType = ControlType.Normal;
 
+    [Header("색깔 변경")]
+    [SerializeField] private ColorEventChannel onFontColorChanged;
+
+    private void Awake()
+    {
+        onFontColorChanged.RegisterListener(SetFontColor);
+    }
+
     private void Start()
     {
         countBackground.SetActive(false);
@@ -302,8 +310,13 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         countBackground.SetActive(false);
     }
 
+    private void SetFontColor(Color color)
+    {
+        nameText.color = color;
+    }
+
     public void ClearSlot()
     {
-
+        onFontColorChanged.UnregisterListener(SetFontColor);
     }
 }

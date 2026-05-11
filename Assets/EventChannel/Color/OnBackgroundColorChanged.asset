@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7ad4a311a0c21294eba26f7b08611ec9, type: 3}
-  m_Name: OnSelectedColorChanged
+  m_Name: OnBackgroundColorChanged
   m_EditorClassIdentifier: Assembly-CSharp::ColorEventChannel

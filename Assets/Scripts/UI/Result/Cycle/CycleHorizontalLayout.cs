@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class CycleHorizontalLayout : MonoBehaviour
 {
-
     [Header("References")]
     [SerializeField] private IntEventChannel onRowLengthChangedEvent;
 
@@ -13,10 +12,16 @@ public class CycleHorizontalLayout : MonoBehaviour
     private CycleVerticalLayout _cycleVerticalLayout;
     private List<CycleSlot> _slots = new();
 
+    [Header("색깔 변경")]
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private ColorEventChannel onBackgroundColorChanged;
+
     private void Awake()
     {
         onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
         onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
+
+        onBackgroundColorChanged.RegisterListener(SetBackgroundColor);
 
         foreach (Transform child in transform)
         {
@@ -118,8 +123,14 @@ public class CycleHorizontalLayout : MonoBehaviour
         _slots.Clear();
     }
 
+    private void SetBackgroundColor(Color color)
+    {
+        backgroundImage.color = color;
+    }
+
     private void OnDestroy()
     {
         onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
+        onBackgroundColorChanged.UnregisterListener(SetBackgroundColor);
     }
 }
