@@ -11392,7 +11392,7 @@ MonoBehaviour:
       - m_Target: {fileID: 2130943085032207315}
         m_TargetAssemblyTypeName: FlexibleColorPicker, Assembly-CSharp
         m_MethodName: FinishTypeHex
-        m_Mode: 5
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -11422,7 +11422,7 @@ MonoBehaviour:
       - m_Target: {fileID: 2130943085032207315}
         m_TargetAssemblyTypeName: FlexibleColorPicker, Assembly-CSharp
         m_MethodName: TypeHex
-        m_Mode: 5
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
