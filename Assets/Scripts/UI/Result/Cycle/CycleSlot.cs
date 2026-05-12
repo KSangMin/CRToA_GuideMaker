@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
+public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
@@ -17,7 +17,10 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private Coroutine _holdCoroutine;
     private float _holdTime = 0.15f;
     private bool _isCanceled = false;
-    private bool _canDrag = false;
+    private bool _isDragging = false;
+
+    private ScrollRect _parentScroll;
+    private bool _isScrolling;
 
     private GameObject _placeholder = null;
     private ControlType _controlType = ControlType.Normal;
@@ -55,7 +58,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     public void OnPointerDown(PointerEventData eventData)
     {
         _isCanceled = false;
-        _canDrag = false;
+        _isDragging = false;
         _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
     }
 
@@ -65,7 +68,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
         if (!_isCanceled && !eventData.dragging)
         {
-            _canDrag = true;
+            _isDragging = true;
             originalParent = transform.parent;
             if (originalParent.TryGetComponent(out CycleHorizontalLayout layout))
             {
@@ -82,9 +85,26 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         _holdCoroutine = null;
     }
 
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (_isDragging)
+        {
+            return;
+        }
+
+        CancelHold();
+
+        _parentScroll = GetComponentInParent<ScrollRect>();
+        if (_parentScroll != null)
+        {
+            _isScrolling = true;
+            _parentScroll.OnBeginDrag(eventData);
+        }
+    }
+
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!eventData.dragging)//클릭 시
+        if (!_isDragging && !eventData.dragging)//클릭 시
         {
             originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromHorizontalLayout(this);
             CancelHold();
@@ -93,6 +113,22 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();
             Destroy(gameObject);
             return;
+        }
+
+        if (_isDragging)
+        {
+            int finalIndex = _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
+            ClearPlaceHolder();
+
+            if (!ProcessDrop(eventData, finalIndex))
+            {
+                CancelHold();
+            }
+            else
+            {
+                _isCanceled = true;
+                _isDragging = false;
+            }
         }
     }
 
@@ -119,13 +155,16 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!_canDrag)
+        if (_isDragging)
         {
-            _isCanceled = true;
+            Drag(eventData);
             return;
         }
 
-        Drag(eventData);
+        if (_isScrolling && _parentScroll != null)
+        {
+            _parentScroll.OnDrag(eventData);
+        }
     }
 
     private void CheckForPlaceHolder(PointerEventData eventData)
@@ -235,7 +274,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         transform.SetParent(originalParent);
         _isCanceled = true;
-        _canDrag = false;
+        _isDragging = false;
         if (_holdCoroutine != null)
         {
             StopCoroutine(_holdCoroutine);
@@ -245,24 +284,14 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!_canDrag)
+        if (_isScrolling && _parentScroll != null)
         {
-            CancelHold();
+            _parentScroll.OnEndDrag(eventData);
+            _isScrolling = false;
             return;
         }
 
-        int finalIndex = _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
-        ClearPlaceHolder();
-
-        if (!ProcessDrop(eventData, finalIndex))
-        {
-            CancelHold();
-        }
-        else
-        {
-            _isCanceled = true;
-            _canDrag = false;
-        }
+        CancelHold();
     }
 
     private bool ProcessDrop(PointerEventData eventData, int targetIndex)
@@ -276,12 +305,14 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             {
                 CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
                 hz.AddSlotAndCheckExplode(this, targetIndex);
+                
                 return true;
             }
             else if (result.gameObject.CompareTag("CyclePanel"))
             {
                 CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
                 cyclePanel.AddSlotToNewRow(this);
+
                 return true;
             }
         }
