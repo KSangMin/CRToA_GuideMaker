@@ -22,7 +22,9 @@ public class ColorSelectPanel : MonoBehaviour
     private RectTransform colorPickerRect;
 
     private Color _curBackgroundColor;
+    public Color CurBackgroundColor => _curBackgroundColor;
     private Color _curFontColor;
+    public Color CurFontColor => _curFontColor;
 
     private bool curTargetisBackground = true;
 

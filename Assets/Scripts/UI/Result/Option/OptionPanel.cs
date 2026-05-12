@@ -9,6 +9,8 @@ public class OptionPanel : MonoBehaviour
 {
     [SerializeField] private Button resetCycleButton;
     [SerializeField] private Button downloadButton;
+    public RowLengthPanel rowLengthPanel;
+    public ColorSelectPanel colorSelectPanel;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]

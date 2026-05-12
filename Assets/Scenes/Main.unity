@@ -3584,6 +3584,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OptionPanel
   resetCycleButton: {fileID: 1630736529}
   downloadButton: {fileID: 507878345}
+  rowLengthPanel: {fileID: 1085292407}
+  colorSelectPanel: {fileID: 4187643}
 --- !u!114 &1109983400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3889,7 +3891,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06d296d6f42585447a8598ef221a7c51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CycleVerticalLayout
-  maxSlotCount: 8
   rowPanelPrefab: {fileID: 4596172119022157341, guid: 2b71b568bae75884fa418f737d9fc873, type: 3}
   onRowLengthChangedEvent: {fileID: 11400000, guid: c9e668c80741a4d40931c5914b250448, type: 2}
 --- !u!1 &1220015917
@@ -5045,7 +5046,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC0AC\uC774\uD074 \uCD08\uAE30\uD654"
+  m_text: "\uC0AC\uC774\uD074 \uC0AD\uC81C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 42d2a2366abbd164dacb67b7ced572aa, type: 2}
   m_sharedMaterial: {fileID: 5752223588530750545, guid: 42d2a2366abbd164dacb67b7ced572aa, type: 2}
@@ -5588,6 +5589,7 @@ MonoBehaviour:
   captureCamera: {fileID: 345450314}
   captureCanvas: {fileID: 1220015920}
   canvas: {fileID: 842340728}
+  optionPanel: {fileID: 1109983399}
 --- !u!1 &1955698499
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ public class RowLengthPanel : MonoBehaviour
     private int _minValue = 4;
     private int _maxValue = 12;
     private int _curValue = 8;
+    public int CurValue => _curValue;
 
     private void Awake()
     {

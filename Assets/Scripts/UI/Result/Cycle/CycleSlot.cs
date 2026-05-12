@@ -33,6 +33,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     private void Start()
     {
         countBackground.SetActive(false);
+        SetFontColor(UIManager.Instance.GetUI<UI_Result>().optionPanel.colorSelectPanel.CurFontColor);
     }
 
     public void SetSlot(Sprite skillIcon, ControlType controlType, Sprite headIcon, string text)

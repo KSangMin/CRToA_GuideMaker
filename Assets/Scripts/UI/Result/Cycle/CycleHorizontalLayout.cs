@@ -29,11 +29,12 @@ public class CycleHorizontalLayout : MonoBehaviour
         }
     }
 
-    public void Init(int id, CycleVerticalLayout vert, int maxSlotCount)
+    public void Init(int id, CycleVerticalLayout vert)
     {
         SetId(id);
         _cycleVerticalLayout = vert;
-        _maxSlotCount = maxSlotCount;
+        _maxSlotCount = UIManager.Instance.GetUI<UI_Result>().optionPanel.rowLengthPanel.CurValue;
+        SetBackgroundColor(UIManager.Instance.GetUI<UI_Result>().optionPanel.colorSelectPanel.CurBackgroundColor);
     }
 
     public void SetId(int id)
