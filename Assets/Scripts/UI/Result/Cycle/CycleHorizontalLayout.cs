@@ -18,7 +18,6 @@ public class CycleHorizontalLayout : MonoBehaviour
 
     private void Awake()
     {
-        onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
         onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
 
         onBackgroundColorChanged.RegisterListener(SetBackgroundColor);
@@ -103,7 +102,8 @@ public class CycleHorizontalLayout : MonoBehaviour
 
         if(_slots.Count > _maxSlotCount)
         {
-            for(int i = _maxSlotCount;  i < _slots.Count; i++)
+            int repeatCount = _slots.Count - _maxSlotCount;
+            for(int i = 0;  i < repeatCount; i++)
             {
                 MoveLastSlotToNextRow();
             }

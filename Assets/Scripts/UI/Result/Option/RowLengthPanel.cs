@@ -53,6 +53,13 @@ public class RowLengthPanel : MonoBehaviour
     public void ResetLength()
     {
         _curValue = _originalValue;
+        SetSliderToCurValue();
         SetCurValueText();
+        onRowLengthChangedEvent.RaiseEvent(_curValue);
+    }
+
+    private void SetSliderToCurValue()
+    {
+        rowLengthSlider.value = _curValue;
     }
 }
