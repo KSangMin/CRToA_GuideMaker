@@ -7,7 +7,9 @@ using System.Runtime.InteropServices; // WebGL 연동
 
 public class OptionPanel : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Button resetCycleButton;
+    [SerializeField] private Button resetOptionButton;
     [SerializeField] private Button downloadButton;
     public RowLengthPanel rowLengthPanel;
     public ColorSelectPanel colorSelectPanel;
@@ -21,6 +23,7 @@ public class OptionPanel : MonoBehaviour
     {
         resetCycleButton.onClick.AddListener(ResetCycle);
         downloadButton.onClick.AddListener(DownLoad);
+        resetOptionButton.onClick.AddListener(ResetOption);
     }
 
     private void DownLoad()
@@ -74,5 +77,11 @@ public class OptionPanel : MonoBehaviour
     private void ResetCycle()
     {
         UIManager.Instance.GetUI<UI_Result>().ResetCycle();
+    }
+
+    private void ResetOption()
+    {
+        rowLengthPanel.ResetLength();
+        colorSelectPanel.ResetColor();
     }
 }

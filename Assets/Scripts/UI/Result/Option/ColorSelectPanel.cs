@@ -21,8 +21,11 @@ public class ColorSelectPanel : MonoBehaviour
     [SerializeField] private ColorEventChannel onFontColorChanged;
     private RectTransform colorPickerRect;
 
+    private Color _originalBackgroundColor = Util.HexToColor("#9A9A9AFF");
     private Color _curBackgroundColor;
     public Color CurBackgroundColor => _curBackgroundColor;
+
+    private Color _originalFontColor = Color.white;
     private Color _curFontColor;
     public Color CurFontColor => _curFontColor;
 
@@ -41,8 +44,8 @@ public class ColorSelectPanel : MonoBehaviour
         closeColorPickerButton.onClick.AddListener(CloseColorPicker);
         colorPreviewAsCloseColorPickerButton.onClick.AddListener(CloseColorPicker);
 
-        _curBackgroundColor = Util.HexToColor("#9A9A9AFF");
-        _curFontColor = Color.white;
+        _curBackgroundColor = _originalBackgroundColor;
+        _curFontColor = _originalFontColor;
 
         backgroundColorImage.color = _curBackgroundColor;
         fontColorImage.color = _curFontColor;
@@ -73,16 +76,26 @@ public class ColorSelectPanel : MonoBehaviour
 
         if(curTargetisBackground)
         {
-            _curBackgroundColor = color;
-            backgroundColorImage.color = color;
-            onBackgroundColorChanged.RaiseEvent(color);
+            SetBackgroundColor(color);
         }
         else
         {
-            _curFontColor = color;
-            fontColorImage.color = color;
-            onFontColorChanged.RaiseEvent(color);
+            SetFontColor(color);
         }
+    }
+
+    private void SetBackgroundColor(Color color)
+    {
+        _curBackgroundColor = color;
+        backgroundColorImage.color = color;
+        onBackgroundColorChanged.RaiseEvent(color);
+    }
+
+    private void SetFontColor(Color color)
+    {
+        _curFontColor = color;
+        fontColorImage.color = color;
+        onFontColorChanged.RaiseEvent(color);
     }
 
     private void OpenColorPickerWithColor(Color targetColor)
@@ -96,5 +109,13 @@ public class ColorSelectPanel : MonoBehaviour
     private void CloseColorPicker()
     {
         colorPicker.gameObject.SetActive(false);
+    }
+
+    public void ResetColor()
+    {
+        CloseColorPicker();
+
+        SetBackgroundColor(_originalBackgroundColor);
+        SetFontColor(_originalFontColor);
     }
 }

@@ -13,11 +13,14 @@ public class RowLengthPanel : MonoBehaviour
 
     private int _minValue = 4;
     private int _maxValue = 12;
-    private int _curValue = 8;
+    private int _originalValue = 8;
+    private int _curValue;
     public int CurValue => _curValue;
 
     private void Awake()
     {
+        _curValue = _originalValue;
+
         rowLengthSlider.onValueChanged.AddListener(OnSliderValueChanged);
 
         ResetSlider();
@@ -45,5 +48,11 @@ public class RowLengthPanel : MonoBehaviour
     private void SetCurValueText()
     {
         curValueText.SetText($"{_curValue}");
+    }
+
+    public void ResetLength()
+    {
+        _curValue = _originalValue;
+        SetCurValueText();
     }
 }
