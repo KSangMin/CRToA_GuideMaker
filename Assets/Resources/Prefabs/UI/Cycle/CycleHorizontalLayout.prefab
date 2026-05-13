@@ -130,4 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eddc5b8adef416e4dbd3cb8116592452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CycleHorizontalLayout
-  addRowButton: {fileID: 0}
+  onRowLengthChangedEvent: {fileID: 11400000, guid: c9e668c80741a4d40931c5914b250448, type: 2}
+  backgroundImage: {fileID: 114838710033416499}
+  onBackgroundColorChanged: {fileID: 11400000, guid: 9d1336dc4e8cc8b4280d3a1813c0193d, type: 2}

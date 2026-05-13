@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 public class CycleVerticalLayout : MonoBehaviour
 {
-    [Header("Setting")]
-    [Range(1, 12)]
-    [SerializeField] private int maxSlotCount = 8;
     [Header("References")]
     [SerializeField] private GameObject rowPanelPrefab;
+    [SerializeField] private IntEventChannel onRowLengthChangedEvent;
+
     private List<CycleHorizontalLayout> _rows = new();
     private Transform _verticalLayout;
 
@@ -55,7 +54,7 @@ public class CycleVerticalLayout : MonoBehaviour
         }
         CycleHorizontalLayout row = Instantiate(rowPanelPrefab, _verticalLayout).GetComponent<CycleHorizontalLayout>();
         row.name = $"Row_{id}";
-        row.Init(id, this, maxSlotCount);
+        row.Init(id, this);
         InsertRow(id, row);
 
         return row;
@@ -86,5 +85,19 @@ public class CycleVerticalLayout : MonoBehaviour
     public void RebuildLayout()
     {
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+
+    public void ResetCycle()
+    {
+        foreach(Transform child in transform)
+        {
+            if(child.TryGetComponent(out CycleHorizontalLayout row))
+            {
+                row.ResetCycle();
+                Destroy(row.gameObject);
+            }
+        }
+
+        _rows.Clear();
     }
 }

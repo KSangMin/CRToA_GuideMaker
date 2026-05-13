@@ -3,10 +3,19 @@ using UnityEngine;
 
 public class UI_Result : UI
 {
+    [Header("사이클")]
     public CyclePanel cyclePanel;
     [SerializeField] private Camera captureCamera;
     [SerializeField] private Canvas captureCanvas;
     [SerializeField] private Canvas canvas;
+
+    [Header("옵션")]
+    public OptionPanel optionPanel;
+
+    public void ResetCycle()
+    {
+        cyclePanel.ResetCycle();
+    }
 
     public Texture2D GetCycleTexture()
     {

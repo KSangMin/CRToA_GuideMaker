@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public static class Util
@@ -47,5 +47,44 @@ public static class Util
     public static int ConversionToMB(float bytes)
     {
         return Mathf.RoundToInt(bytes / (1024f * 1024f));
+    }
+
+    public static Color HexToColor(string hex)
+    {
+        ColorUtility.TryParseHtmlString(hex, out Color color);
+        return color;
+    }
+
+    public static void SetPosToNearTargetTopLeft(
+    this RectTransform rect,
+    RectTransform target,
+    Vector2 offset = default)
+    {
+        Canvas canvas = rect.GetComponentInParent<Canvas>();
+
+        Camera cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : canvas.worldCamera;
+
+        // target 좌상단 월드 좌표
+        Vector3[] targetCorners = new Vector3[4];
+        target.GetWorldCorners(targetCorners);
+
+        Vector3 worldTopLeft = targetCorners[1];
+
+        RectTransform parentRect = rect.parent as RectTransform;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            parentRect,
+            RectTransformUtility.WorldToScreenPoint(cam, worldTopLeft),
+            cam,
+            out Vector2 localPoint);
+
+        // rect 자신의 좌상단 보정
+        Vector2 pivotOffset = new(
+            rect.rect.width * rect.pivot.x,
+            -rect.rect.height * (1 - rect.pivot.y));
+
+        rect.anchoredPosition = localPoint + pivotOffset + offset;
     }
 }

@@ -197,4 +197,9 @@ public class CyclePanel : MonoBehaviour
         cam.backgroundColor = new Color(0f, 0f, 0f, 0f);
         cam.targetTexture = rt;
     }
+
+    public void ResetCycle()
+    {
+        _vert.ResetCycle();
+    }
 }

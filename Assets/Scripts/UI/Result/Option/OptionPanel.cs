@@ -7,7 +7,12 @@ using System.Runtime.InteropServices; // WebGL 연동
 
 public class OptionPanel : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private Button resetCycleButton;
+    [SerializeField] private Button resetOptionButton;
     [SerializeField] private Button downloadButton;
+    public RowLengthPanel rowLengthPanel;
+    public ColorSelectPanel colorSelectPanel;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -16,7 +21,9 @@ public class OptionPanel : MonoBehaviour
 
     private void Awake()
     {
+        resetCycleButton.onClick.AddListener(ResetCycle);
         downloadButton.onClick.AddListener(DownLoad);
+        resetOptionButton.onClick.AddListener(ResetOption);
     }
 
     private void DownLoad()
@@ -65,5 +72,16 @@ public class OptionPanel : MonoBehaviour
             Debug.Log($"이미지가 성공적으로 저장되었습니다: {path}");
         }
 #endif
+    }
+
+    private void ResetCycle()
+    {
+        UIManager.Instance.GetUI<UI_Result>().ResetCycle();
+    }
+
+    private void ResetOption()
+    {
+        rowLengthPanel.ResetLength();
+        colorSelectPanel.ResetColor();
     }
 }
