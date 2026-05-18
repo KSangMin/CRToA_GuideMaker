@@ -1,17 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class SelectSlot : DraggableSlot
 {
     private string _id = "";
 
     private ScrollRect _panelScroll;
-    private bool _isDraggingScroll = false;
 
     [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private GameObject chargeBackground;
@@ -20,12 +16,9 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     [SerializeField] private TextMeshProUGUI nameText;
     private ControlType _controlType = ControlType.Normal;
     private CycleSlot _ghostSlot;
-    private int _targetIndex = -1;
-    private Coroutine _holdCoroutine;
-    private float _holdTime = 0.15f;
-    private bool _isCanceled = false;
 
-    public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite skillIcon, Sprite headIcon)
+    public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite skillIcon,
+        Sprite headIcon)
     {
         _panelScroll = panelScroll;
         _id = id;
@@ -69,22 +62,15 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         return result;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    protected override void OnSlotPointerDown(PointerEventData eventData)
     {
-        _isCanceled = false;
-        _holdCoroutine = StartCoroutine(CreateGhostAfterDelay(eventData));
+        holdCanceled = false;
+        holdCoroutine = StartCoroutine(WaitHoldThen(eventData, OnHoldElapsedCreateGhost));
     }
 
-    private IEnumerator CreateGhostAfterDelay(PointerEventData eventData)
+    private void OnHoldElapsedCreateGhost(PointerEventData eventData)
     {
-        yield return new WaitForSeconds(_holdTime);
-
-        if (!_isCanceled)
-        {
-            _ghostSlot = CreateSlot(eventData);
-        }
-
-        _holdCoroutine = null;
+        _ghostSlot = CreateSlot(eventData);
     }
 
     private CycleSlot CreateSlot(PointerEventData eventData)
@@ -99,96 +85,66 @@ public class SelectSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         return slot;
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    protected override void OnSlotPointerUp(PointerEventData eventData)
     {
-        CancelHold();
+        ResolveClickOrDragDropPointerUp(eventData);
+    }
 
-        if (_ghostSlot == null && !eventData.dragging)//클릭
+    protected override void BeforeSlotPointerUp(PointerEventData eventData)
+    {
+        CancelHoldTracking();
+    }
+
+    protected override bool IsDragDropActive()
+    {
+        return _ghostSlot != null;
+    }
+
+    protected override void OnSlotClick(PointerEventData eventData)
+    {
+        UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
+    }
+
+    protected override void OnSlotDragDrop(PointerEventData eventData)
+    {
+        int targetIndex = _ghostSlot.GetPlaceHolderIndex();
+        _ghostSlot.ClearPlaceHolder();
+
+        if (!TryDropOnCycleLayouts(_ghostSlot, targetIndex, eventData))
         {
-            UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
+            Destroy(_ghostSlot.gameObject);
         }
 
+        _ghostSlot = null;
+    }
+
+    protected override void OnSlotBeginDrag(PointerEventData eventData)
+    {
         if (_ghostSlot != null)
         {
-            _targetIndex = _ghostSlot.GetPlaceHolderIndex();
-            _ghostSlot.ClearPlaceHolder();
-
-            if (!ProcessDrop(eventData))
-            {
-                Destroy(_ghostSlot.gameObject);
-            }
-            _ghostSlot = null;
+            return;
         }
+
+        CancelHoldTracking();
+        TryForwardScrollOrDraggable(eventData);
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (_ghostSlot == null)
-        {
-            _isDraggingScroll = true;
-            CancelHold();
-            _panelScroll.OnBeginDrag(eventData);
-        }
-    }
+    protected override bool ShouldForwardScrollDrag(PointerEventData eventData) => true;
 
-    public void OnDrag(PointerEventData eventData)
+    protected override ScrollRect ResolveScrollRectForDrag(PointerEventData eventData) => _panelScroll;
+
+    protected override void OnBeforeScrollDragForwarded(PointerEventData eventData) { }
+
+    protected override void OnDraggableDrag(PointerEventData eventData)
     {
         if (_ghostSlot != null)
         {
             _ghostSlot.Drag(eventData);
-            return;
-        }
-
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnDrag(eventData);
         }
     }
 
-    private void CancelHold()
+    protected override void OnDraggableEndDrag(PointerEventData eventData)
     {
-        _isCanceled = true;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnEndDrag(eventData);
-            _isDraggingScroll = false;
-            return;
-        }
-        
-        CancelHold();
-    }
-
-    private bool ProcessDrop(PointerEventData eventData)
-    {
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (var result in results)
-        {
-            if (result.gameObject.CompareTag("CycleHorizontalLayout"))
-            {
-                CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
-                hz.AddSlotAndCheckExplode(_ghostSlot, _targetIndex);
-                return true;
-            }
-            else if (result.gameObject.CompareTag("CyclePanel"))
-            {
-                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToNewRow(_ghostSlot);
-                return true;
-            }
-        }
-
-        return false;
+        CancelHoldTracking();
     }
 }
-

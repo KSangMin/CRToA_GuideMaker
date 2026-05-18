@@ -5,19 +5,16 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class CountSlot : Slot
 {
     [SerializeField] private GameObject ghostObject;
     [SerializeField] private TextMeshProUGUI countText;
 
     private ScrollRect _panelScroll;
-    private bool _isDraggingScroll = false;
+    private bool _isDraggingScroll;
 
     private GameObject _ghost;
     private RectTransform _ghostRect;
-    private Coroutine _holdCoroutine;
-    private float _holdTime = 0.15f;
-    private bool _isCanceled = false;
 
     private int _minCount = 2;
     private int _curCount = 2;
@@ -50,105 +47,64 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         SetCountText();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    protected override void OnSlotPointerDown(PointerEventData eventData)
     {
-        _isCanceled = false;
-        _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
+        holdCanceled = false;
+        holdCoroutine = StartCoroutine(WaitHoldThen(eventData, _ => CreateGhostAfterHold(eventData)));
     }
 
-    private IEnumerator CheckHoldAfterDelay(PointerEventData eventData)
+    private void CreateGhostAfterHold(PointerEventData eventData)
     {
-        yield return new WaitForSeconds(_holdTime);
-
-        if (!_isCanceled)
-        {
-            CreateGhost(eventData);
-        }
-
-        _holdCoroutine = null;
+        InstantiateGhostUnderPanel(ghostObject, eventData, out _ghost, out _ghostRect);
     }
 
-    private void CreateGhost(PointerEventData eventData)
+    protected override void OnSlotPointerUp(PointerEventData eventData)
     {
-        Transform ghostParent = UIManager.Instance.GetUI<UI_Panel>().forGhostParent;
-        _ghost = Instantiate(ghostObject, ghostParent);
-        _ghostRect = _ghost.GetComponent<RectTransform>();
-
-        SetGhostPositionToPointer(eventData);
+        ResolveClickOrDragDropPointerUp(eventData);
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    protected override void BeforeSlotPointerUp(PointerEventData eventData)
     {
-        CancelHold();
-
-        if (_ghost == null && !eventData.dragging)//클릭
-        {
-            UpCount();
-        }
-
-        if (_ghost != null)
-        {
-            ProcessDrop(eventData);
-            DestroyGhost();
-            return;
-        }
+        CancelHoldTracking();
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    protected override bool IsDragDropActive()
     {
-        if (_ghost == null)
-        {
-            _isDraggingScroll = true;
-            CancelHold();
-            _panelScroll.OnBeginDrag(eventData);
-        }
+        return _ghost != null;
     }
 
-    public void OnDrag(PointerEventData eventData)
+    protected override void OnSlotClick(PointerEventData eventData)
     {
-        if (_ghost != null)
-        {
-            SetGhostPositionToPointer(eventData);
-            return;
-        }
-
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnDrag(eventData);
-        }
+        UpCount();
     }
 
-    public void SetGhostPositionToPointer(PointerEventData eventData)
+    protected override void OnSlotDragDrop(PointerEventData eventData)
     {
-        RectTransform parentRect = _ghost.transform.parent.GetComponent<RectTransform>();
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parentRect,
-                eventData.position,
-                eventData.pressEventCamera,
-                out Vector2 localPoint);
-
-        _ghostRect.anchoredPosition = localPoint;
+        ProcessDrop(eventData);
+        DestroyGhostRoot(ref _ghost, ref _ghostRect);
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    protected override void OnSlotBeginDrag(PointerEventData eventData)
     {
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnEndDrag(eventData);
-            _isDraggingScroll = false;
-            return;
-        }
+        TryBeginPanelScrollDragUnlessGhost(eventData, _panelScroll, ref _isDraggingScroll, _ghost != null);
+    }
 
-        CancelHold();
+    protected override void OnSlotDrag(PointerEventData eventData)
+    {
+        ResolveDragGhostOrPanelScroll(eventData, _ghostRect, _panelScroll, ref _isDraggingScroll, _ghost != null);
+    }
+
+    protected override void OnSlotEndDrag(PointerEventData eventData)
+    {
+        ResolveEndDragPanelScrollOrCancelHold(eventData, _panelScroll, ref _isDraggingScroll);
     }
 
     private bool ProcessDrop(PointerEventData eventData)
     {
-        List<RaycastResult> results = new();
+        var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
-        foreach (var result in results)
+        foreach (RaycastResult result in results)
         {
             if (result.gameObject.CompareTag("CycleSlot"))
             {
@@ -159,26 +115,5 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
 
         return false;
-    }
-
-    private void CancelHold()
-    {
-        _isCanceled = true;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
-    private void DestroyGhost()
-    {
-        if (_ghost != null)
-        {
-            _ghost.transform.SetParent(null);
-            Destroy(_ghost);
-            _ghost = null;
-            _ghostRect = null;
-        }
     }
 }
