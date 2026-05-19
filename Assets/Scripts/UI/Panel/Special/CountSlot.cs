@@ -1,37 +1,57 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class CountSlot : SelfGhostSlot
 {
-    [SerializeField] private GameObject ghostObject;
+    #region Serialized Fields
+
     [SerializeField] private TextMeshProUGUI countText;
 
-    private ScrollRect _panelScroll;
-    private bool _isDraggingScroll = false;
+    #endregion
 
-    private GameObject _ghost;
-    private RectTransform _ghostRect;
-    private Coroutine _holdCoroutine;
-    private float _holdTime = 0.15f;
-    private bool _isCanceled = false;
+    #region Private Fields
 
     private int _minCount = 2;
     private int _curCount = 2;
     private int _maxCount = 9;
+
+    #endregion
+
+    #region Unity Lifecycle
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        if (countText == null)
+        {
+            Debug.LogError($"[{nameof(CountSlot)}] countText is not assigned on {name}.", this);
+        }
+    }
 
     private void Start()
     {
         SetCountText();
     }
 
-    public void SetSlot(ScrollRect panelScroll)
+    #endregion
+
+    #region Protected Methods
+
+    protected override void OnSelfGhostClick(PointerEventData eventData)
     {
-        _panelScroll = panelScroll;
+        UpCount();
     }
+
+    protected override bool ProcessDrop(PointerEventData eventData)
+    {
+        return TryRaycastCycleSlot(eventData, cycleSlot => cycleSlot.SetSlotCount(_curCount));
+    }
+
+    #endregion
+
+    #region Private Methods
 
     private void SetCountText()
     {
@@ -50,135 +70,5 @@ public class CountSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         SetCountText();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        _isCanceled = false;
-        _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
-    }
-
-    private IEnumerator CheckHoldAfterDelay(PointerEventData eventData)
-    {
-        yield return new WaitForSeconds(_holdTime);
-
-        if (!_isCanceled)
-        {
-            CreateGhost(eventData);
-        }
-
-        _holdCoroutine = null;
-    }
-
-    private void CreateGhost(PointerEventData eventData)
-    {
-        Transform ghostParent = UIManager.Instance.GetUI<UI_Panel>().forGhostParent;
-        _ghost = Instantiate(ghostObject, ghostParent);
-        _ghostRect = _ghost.GetComponent<RectTransform>();
-
-        SetGhostPositionToPointer(eventData);
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        CancelHold();
-
-        if (_ghost == null && !eventData.dragging)//클릭
-        {
-            UpCount();
-        }
-
-        if (_ghost != null)
-        {
-            ProcessDrop(eventData);
-            DestroyGhost();
-            return;
-        }
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (_ghost == null)
-        {
-            _isDraggingScroll = true;
-            CancelHold();
-            _panelScroll.OnBeginDrag(eventData);
-        }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (_ghost != null)
-        {
-            SetGhostPositionToPointer(eventData);
-            return;
-        }
-
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnDrag(eventData);
-        }
-    }
-
-    public void SetGhostPositionToPointer(PointerEventData eventData)
-    {
-        RectTransform parentRect = _ghost.transform.parent.GetComponent<RectTransform>();
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parentRect,
-                eventData.position,
-                eventData.pressEventCamera,
-                out Vector2 localPoint);
-
-        _ghostRect.anchoredPosition = localPoint;
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (_isDraggingScroll)
-        {
-            _panelScroll.OnEndDrag(eventData);
-            _isDraggingScroll = false;
-            return;
-        }
-
-        CancelHold();
-    }
-
-    private bool ProcessDrop(PointerEventData eventData)
-    {
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (var result in results)
-        {
-            if (result.gameObject.CompareTag("CycleSlot"))
-            {
-                CycleSlot cs = result.gameObject.GetComponent<CycleSlot>();
-                cs.SetSlotCount(_curCount);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void CancelHold()
-    {
-        _isCanceled = true;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
-    private void DestroyGhost()
-    {
-        if (_ghost != null)
-        {
-            _ghost.transform.SetParent(null);
-            Destroy(_ghost);
-            _ghost = null;
-            _ghostRect = null;
-        }
-    }
+    #endregion
 }

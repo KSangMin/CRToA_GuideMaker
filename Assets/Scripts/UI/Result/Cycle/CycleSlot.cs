@@ -1,32 +1,37 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class CycleSlot : DraggableSlot
 {
+    #region Serialized Fields
+
     [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
     [SerializeField] private GameObject countBackground;
     [SerializeField] private TextMeshProUGUI countText;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
-    [HideInInspector] public Transform originalParent;
-    private Coroutine _holdCoroutine;
-    private float _holdTime = 0.15f;
-    private bool _isCanceled = false;
-    private bool _isDragging = false;
-
-    private ScrollRect _parentScroll;
-    private bool _isScrolling;
-
-    private GameObject _placeholder = null;
-    private ControlType _controlType = ControlType.Normal;
 
     [Header("색깔 변경")]
     [SerializeField] private ColorEventChannel onFontColorChanged;
+
+    #endregion
+
+    #region Private Fields
+
+    [HideInInspector]
+    public Transform originalParent;
+
+    private bool _isDragging;
+    private GameObject _placeholder;
+    private ControlType _controlType = ControlType.Normal;
+
+    #endregion
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -39,72 +44,102 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         SetFontColor(UIManager.Instance.GetUI<UI_Result>().optionPanel.colorSelectPanel.CurFontColor);
     }
 
+    #endregion
+
+    #region Public Methods
+
     public void SetSlot(Sprite skillIcon, ControlType controlType, Sprite headIcon, string text)
     {
         icon.sprite = skillIcon;
         _controlType = controlType;
-        if(controlType == ControlType.Charge)
+        if (controlType == ControlType.Charge)
         {
             chargeBackground.SetActive(true);
         }
-        else if(controlType == ControlType.Normal)
+        else if (controlType == ControlType.Normal)
         {
             chargeBackground.SetActive(false);
         }
+
         head.sprite = headIcon;
         nameText.SetText(text);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void Drag(PointerEventData eventData)
     {
-        _isCanceled = false;
-        _isDragging = false;
-        _holdCoroutine = StartCoroutine(CheckHoldAfterDelay(eventData));
+        SetPositionToPointer(eventData);
+        CheckForPlaceHolder(eventData);
     }
 
-    private IEnumerator CheckHoldAfterDelay(PointerEventData eventData)
+    public void SetPositionToPointer(PointerEventData eventData)
     {
-        yield return new WaitForSeconds(_holdTime);
+        SetRectTransformToPointer(GetComponent<RectTransform>(), eventData);
+    }
 
-        if (!_isCanceled && !eventData.dragging)
+    public int GetPlaceHolderIndex()
+    {
+        return _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
+    }
+
+    public void ClearPlaceHolder()
+    {
+        if (_placeholder != null)
         {
+            _placeholder.transform.SetParent(GetGhostParent());
+            Destroy(_placeholder);
+            _placeholder = null;
+        }
+    }
+
+    public void SetSlotCount(int count)
+    {
+        countBackground.SetActive(true);
+        countText.SetText($"{count}");
+    }
+
+    public void ResetSlot()
+    {
+        countBackground.SetActive(false);
+    }
+
+    public void ClearSlot()
+    {
+        onFontColorChanged.UnregisterListener(SetFontColor);
+    }
+
+    #endregion
+
+    #region Protected Methods
+
+    protected override void OnSlotPointerDown(PointerEventData eventData)
+    {
+        _isDragging = false;
+        WaitHoldThen(eventData, () =>
+        {
+            if (eventData.dragging)
+            {
+                return;
+            }
+
             _isDragging = true;
             originalParent = transform.parent;
             if (originalParent.TryGetComponent(out CycleHorizontalLayout layout))
             {
                 layout.RemoveFromHorizontalLayout(this);
             }
-            transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
+
+            transform.SetParent(GetGhostParent());
             RectTransform rectTransform = GetComponent<RectTransform>();
             rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             SetPositionToPointer(eventData);
-        }
-
-        _holdCoroutine = null;
+        });
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    protected override void OnSlotPointerUp(PointerEventData eventData)
     {
-        if (_isDragging)
-        {
-            return;
-        }
-
-        CancelHold();
-
-        _parentScroll = GetComponentInParent<ScrollRect>();
-        if (_parentScroll != null)
-        {
-            _isScrolling = true;
-            _parentScroll.OnBeginDrag(eventData);
-        }
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (!_isDragging && !eventData.dragging)//클릭 시
+        if (!_isDragging && !eventData.dragging)
         {
             originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromHorizontalLayout(this);
             CancelHold();
@@ -120,40 +155,29 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             int finalIndex = _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
             ClearPlaceHolder();
 
-            if (!ProcessDrop(eventData, finalIndex))
+            if (!TryDropOnCycleLayouts(this, finalIndex, eventData))
             {
                 CancelHold();
             }
             else
             {
-                _isCanceled = true;
+                MarkHoldCanceled();
                 _isDragging = false;
             }
         }
     }
 
-    //SelectSlot에서 넘겨받는 메서드
-    public void Drag(PointerEventData eventData)
+    protected override void OnSlotBeginDrag(PointerEventData eventData)
     {
-        SetPositionToPointer(eventData);
-
-        CheckForPlaceHolder(eventData);
+        if (_panelScroll == null)
+        {
+            _panelScroll = GetComponentInParent<ScrollRect>();
+        }
+        
+        TryBeginPanelScrollDrag(eventData, _isDragging);
     }
 
-    public void SetPositionToPointer(PointerEventData eventData)
-    {
-        RectTransform parentRect = transform.parent.GetComponent<RectTransform>();
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parentRect,
-                eventData.position,
-                eventData.pressEventCamera,
-                out Vector2 localPoint);
-
-        GetComponent<RectTransform>().anchoredPosition = localPoint;
-    }
-
-    public void OnDrag(PointerEventData eventData)
+    protected override void OnSlotDrag(PointerEventData eventData)
     {
         if (_isDragging)
         {
@@ -161,20 +185,36 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             return;
         }
 
-        if (_isScrolling && _parentScroll != null)
-        {
-            _parentScroll.OnDrag(eventData);
-        }
+        ForwardPanelScrollDrag(eventData, _isDragging);
     }
+
+    protected override void OnSlotEndDrag(PointerEventData eventData)
+    {
+        if (EndPanelScrollDrag(eventData))
+        {
+            return;
+        }
+
+        CancelHold();
+    }
+
+    protected override void CancelHold()
+    {
+        transform.SetParent(originalParent);
+        _isDragging = false;
+        base.CancelHold();
+    }
+
+    #endregion
+
+    #region Private Methods
 
     private void CheckForPlaceHolder(PointerEventData eventData)
     {
-        // 드래그 중인 위치 아래에 LayoutGroup이 있는지 체크
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventData, results);
+        RaycastAll(eventData);
 
         CycleHorizontalLayout foundLayout = null;
-        foreach (var result in results)
+        foreach (RaycastResult result in RaycastBuffer)
         {
             if (result.gameObject.TryGetComponent(out CycleHorizontalLayout layout))
             {
@@ -182,6 +222,7 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
                 break;
             }
         }
+
         if (foundLayout != null)
         {
             UpdatePlaceholder(foundLayout.transform, eventData);
@@ -196,13 +237,12 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
     {
         if (_placeholder == null)
         {
-            // 1. Placeholder 초기 생성
             _placeholder = new GameObject("Placeholder");
             _placeholder.transform.SetParent(parent, false);
-            var le = _placeholder.AddComponent<LayoutElement>();
-            var rect = GetComponent<RectTransform>();
-            le.preferredWidth = rect.rect.width;
-            le.preferredHeight = rect.rect.height;
+            LayoutElement layoutElement = _placeholder.AddComponent<LayoutElement>();
+            RectTransform rect = GetComponent<RectTransform>();
+            layoutElement.preferredWidth = rect.rect.width;
+            layoutElement.preferredHeight = rect.rect.height;
         }
 
         if (_placeholder.transform.parent != parent)
@@ -210,7 +250,6 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
             _placeholder.transform.SetParent(parent, false);
         }
 
-        // 2. 마우스 위치에 따른 순서(SiblingIndex) 결정
         RectTransform parentRect = parent.GetComponent<RectTransform>();
         if (parentRect == null)
         {
@@ -245,18 +284,16 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
                 {
                     newIndex--;
                 }
+
                 break;
             }
         }
 
-        // 4. 인덱스가 변했을 때만 실행하여 불필요한 연산 방지
         if (_placeholder.transform.GetSiblingIndex() != newIndex)
         {
             _placeholder.transform.SetSiblingIndex(newIndex);
 
-            // [중요] ContentSizeFitter와 LayoutGroup을 즉시 재계산하게 강제함
-            // 이 코드가 없으면 한 박자 늦게 반응하는 현상이 발생합니다.
-            var rectParent = parent.GetComponent<CycleHorizontalLayout>();
+            CycleHorizontalLayout rectParent = parent.GetComponent<CycleHorizontalLayout>();
             if (rectParent != null)
             {
                 rectParent.ReBuildLayout();
@@ -264,91 +301,10 @@ public class CycleSlot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, 
         }
     }
 
-    //SelectSlot에서 사용하는 메서드
-    public int GetPlaceHolderIndex()
-    {
-        return _placeholder != null ? _placeholder.transform.GetSiblingIndex() : -1;
-    }
-
-    private void CancelHold()
-    {
-        transform.SetParent(originalParent);
-        _isCanceled = true;
-        _isDragging = false;
-        if (_holdCoroutine != null)
-        {
-            StopCoroutine(_holdCoroutine);
-            _holdCoroutine = null;
-        }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (_isScrolling && _parentScroll != null)
-        {
-            _parentScroll.OnEndDrag(eventData);
-            _isScrolling = false;
-            return;
-        }
-
-        CancelHold();
-    }
-
-    private bool ProcessDrop(PointerEventData eventData, int targetIndex)
-    {
-        List<RaycastResult> results = new();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (var result in results)
-        {
-            if (result.gameObject.CompareTag("CycleHorizontalLayout"))
-            {
-                CycleHorizontalLayout hz = result.gameObject.GetComponent<CycleHorizontalLayout>();
-                hz.AddSlotAndCheckExplode(this, targetIndex);
-                
-                return true;
-            }
-            else if (result.gameObject.CompareTag("CyclePanel"))
-            {
-                CyclePanel cyclePanel = result.gameObject.GetComponent<CyclePanel>();
-                cyclePanel.AddSlotToNewRow(this);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public void ClearPlaceHolder()
-    {
-        if (_placeholder != null)
-        {
-            //Destroy가 한 프레임에서 즉각 실행되지 않기 때문에 Row에 남아 있어서 다른 부분에서 문제가 생기기 때문에 추가
-            _placeholder.transform.SetParent(UIManager.Instance.GetUI<UI_Panel>().forGhostParent);
-            Destroy(_placeholder);
-            _placeholder = null;
-        }
-    }
-
-    public void SetSlotCount(int count)
-    {
-        countBackground.SetActive(true);
-        countText.SetText($"{count}");
-    }
-
-    public void ResetSlot()
-    {
-        countBackground.SetActive(false);
-    }
-
     private void SetFontColor(Color color)
     {
         nameText.color = color;
     }
 
-    public void ClearSlot()
-    {
-        onFontColorChanged.UnregisterListener(SetFontColor);
-    }
+    #endregion
 }
