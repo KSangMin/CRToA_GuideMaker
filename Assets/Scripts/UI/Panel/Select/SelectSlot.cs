@@ -3,24 +3,29 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SelectSlot : DraggableSlot
+public class SelectSlot : SelectBaseSlot
 {
     #region Serialized Fields
 
-    [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private GameObject chargeBackground;
-    [SerializeField] private Image icon;
-    [SerializeField] protected Image head;
+    [SerializeField] protected Image icon;
+    [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
 
     #endregion
 
     #region Private Fields
 
-    protected string _id = "";
     private ControlType _controlType = ControlType.Normal;
-    private CycleSlot _ghostSlot;
-    private int _targetIndex = -1;
+
+    #endregion
+
+    #region Protected Properties
+
+    protected override Sprite GhostSkillIcon => icon.sprite;
+    protected override ControlType GhostControlType => _controlType;
+    protected override Sprite GhostHeadIcon => head.sprite;
+    protected override string GhostName => nameText.text;
 
     #endregion
 
@@ -60,64 +65,6 @@ public class SelectSlot : DraggableSlot
 
     #endregion
 
-    #region Protected Methods
-
-    protected override void OnSlotPointerDown(PointerEventData eventData)
-    {
-        WaitHoldThen(eventData, () => _ghostSlot = CreateSlot(eventData));
-    }
-
-    protected override void OnSlotPointerUp(PointerEventData eventData)
-    {
-        CancelHold();
-
-        if (_ghostSlot == null && !eventData.dragging)
-        {
-            UIManager.Instance.GetUI<UI_Result>().cyclePanel.AddSlotToLast(CreateSlot(eventData));
-        }
-
-        if (_ghostSlot != null)
-        {
-            _targetIndex = _ghostSlot.GetPlaceHolderIndex();
-            _ghostSlot.ClearPlaceHolder();
-
-            if (!TryDropOnCycleLayouts(_ghostSlot, _targetIndex, eventData))
-            {
-                Destroy(_ghostSlot.gameObject);
-            }
-
-            _ghostSlot = null;
-        }
-    }
-
-    protected override void OnSlotBeginDrag(PointerEventData eventData)
-    {
-        TryBeginPanelScrollDrag(eventData, _ghostSlot != null);
-    }
-
-    protected override void OnSlotDrag(PointerEventData eventData)
-    {
-        if (_ghostSlot != null)
-        {
-            _ghostSlot.Drag(eventData);
-            return;
-        }
-
-        ForwardPanelScrollDrag(eventData, _ghostSlot != null);
-    }
-
-    protected override void OnSlotEndDrag(PointerEventData eventData)
-    {
-        if (EndPanelScrollDrag(eventData))
-        {
-            return;
-        }
-
-        CancelHold();
-    }
-
-    #endregion
-
     #region Private Methods
 
     private string GetAttackText(SkillType skillType)
@@ -143,17 +90,6 @@ public class SelectSlot : DraggableSlot
         }
 
         return result;
-    }
-
-    private CycleSlot CreateSlot(PointerEventData eventData)
-    {
-        CycleSlot slot = Instantiate(ghostPrefab, GetGhostParent())
-            .GetComponent<CycleSlot>();
-        slot.name = $"Slot_{head.sprite.name}_{nameText.text}";
-        slot.SetSlot(icon.sprite, _controlType, head.sprite, nameText.text);
-        slot.SetPositionToPointer(eventData);
-
-        return slot;
     }
 
     #endregion

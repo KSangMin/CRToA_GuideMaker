@@ -51,6 +51,7 @@ readonly: false
 ### ❌ 수행 금지 (절대 권한 밖)
 - C# 구현 및 리팩토링 (→ Builder 에이전트에게 위임)
 - 버그 수정 및 에디터 셋업 가이드 작성 (→ QA_Debugger 에이전트에게 위임)
+- `cur_task.md`의 `## 💬 User Feedback & Requests` 하위 항목 및 `**[전체 피드백]**` 섹션 수정 (→ 유저 전용 공간이므로 **절대 쓰지 말고 읽기만 할 것**. 새로운 태스크는 반드시 `## 📝 Todo List`에 추가할 것)
 - `cur_task.md`의 `## ⚠️ User Ad-hoc Notes & Change Logs` 수정 (→ 메인 에이전트 전용; 읽기만 하고 수정하지 말 것)
 
 ---

@@ -49,12 +49,12 @@ readonly: false
 - 변경된 `Assets/Scripts/**/*.cs` 정적·런타임 관점 리뷰 및 검증
 - `cur_task.md` 3단계 체크리스트 검증 및 `[x]` 실시간 갱신
 - 신규 버그·회귀 패턴 발견 시 `.ai_context/memory.md` 항목 추가 (날짜·Issue·Root Cause·Resolution 템플릿 준수)
+- **검증 완료 후 태스크 종료(Wrap-up) 시점에 `cur_task.md`의 `## ⚠️ User Ad-hoc Notes & Change Logs` 섹션에 오늘 날짜와 함께 최종 작업 내역(릴리즈 노트) 기록**
 - **🎮 Unity Editor Setup Guide** 작성 및 최종 출력
 
 ### ❌ [수행 금지 사항] — 절대 권한 밖 (위임 필수)
 - **신규 기능 기획, 시스템 아키텍처 설계, 태스크 분해 금지** ➡️ 즉시 `Planner` 에이전트에게 위임한다.
 - **대규모 C# 신규 기능 구현 및 리팩토링 금지** ➡️ 코드 변경이 검증 범위를 넘으면 부모 에이전트나 `Builder`에게 위임한다.
-- **`cur_task.md`의 `## ⚠️ User Ad-hoc Notes & Change Logs` 수정 금지** ➡️ 해당 섹션은 메인 오케스트레이터 및 유저 전용 공간이므로 절대 수정하지 않는다.
 - **Unity Editor Setup Guide 없이 검증만 종료하는 행위 금지** ➡️ 어떤 검증이든 최종 가이드를 항시 동반해야 한다.
 
 ---
@@ -74,7 +74,7 @@ readonly: false
 - **이슈**:
   - Critical: [...]
   - Warning: [...]
-- **cur_task.md**: [3단계 완료 항목]
+- **cur_task.md**: [3단계 완료 항목] 및 [Change Log 업데이트 내역]
 - **memory.md 갱신**: [없음 / 추가한 항목 제목]
 ```
 
