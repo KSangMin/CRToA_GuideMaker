@@ -35,7 +35,18 @@ public class CycleSlot : DraggableSlot
 
     private void Awake()
     {
-        onFontColorChanged.RegisterListener(SetFontColor);
+        if (chargeBackground == null) Debug.LogError($"[{nameof(CycleSlot)}] chargeBackground is not assigned on {name}.", this);
+        if (icon == null) Debug.LogError($"[{nameof(CycleSlot)}] icon is not assigned on {name}.", this);
+        if (countBackground == null) Debug.LogError($"[{nameof(CycleSlot)}] countBackground is not assigned on {name}.", this);
+        if (countText == null) Debug.LogError($"[{nameof(CycleSlot)}] countText is not assigned on {name}.", this);
+        if (head == null) Debug.LogError($"[{nameof(CycleSlot)}] head is not assigned on {name}.", this);
+        if (nameText == null) Debug.LogError($"[{nameof(CycleSlot)}] nameText is not assigned on {name}.", this);
+        if (onFontColorChanged == null) Debug.LogError($"[{nameof(CycleSlot)}] onFontColorChanged is not assigned on {name}.", this);
+
+        if (onFontColorChanged != null)
+        {
+            onFontColorChanged.RegisterListener(SetFontColor);
+        }
     }
 
     private void Start()
@@ -104,7 +115,15 @@ public class CycleSlot : DraggableSlot
 
     public void ClearSlot()
     {
-        onFontColorChanged.UnregisterListener(SetFontColor);
+        if (onFontColorChanged != null)
+        {
+            onFontColorChanged.UnregisterListener(SetFontColor);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        ClearSlot();
     }
 
     #endregion
@@ -201,6 +220,10 @@ public class CycleSlot : DraggableSlot
     protected override void CancelHold()
     {
         transform.SetParent(originalParent);
+        if (_isDragging && originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+        {
+            layout.AddSlotJust(this);
+        }
         _isDragging = false;
         base.CancelHold();
     }

@@ -1,123 +1,33 @@
-# 📍 Current Task: Slot 상속 구조 OOP 검증 및 코드 정돈
+# 📍 Current Task: Slot 상속 구조 OOP 검증 및 코드 정돈 (완료)
 
 ## 🎯 Current Goal
-- 파편화된 슬롯(`CycleSlot`, `SelectSlot`, `CountSlot`, `ResetSlot`)을 **`Slot` → `DraggableSlot` / `SelfGhostSlot`** 계층으로 재정립한다.
-- **역할 분리**: 타임라인 거주 슬롯 vs 패널 드래그·고스트 슬롯.
-- **추상화**: 홀드·스크롤 전달·클릭/드롭 분기·고스트 좌표·레이캐스트 버퍼는 부모에만 둔다.
-- **범위**: 위 4종 + 베이스 3파일. `TabSlot`/`BackgroundSlot`은 2차 태스크.
+- 파편화된 슬롯(`CycleSlot`, `SelectSlot`, `CountSlot`, `ResetSlot`)을 **`Slot` → `DraggableSlot` / `SelfGhostSlot`** 계층으로 재정립 완료.
+- 유저 요청으로 2차 추출(`SkillSlotDisplay`)은 진행하지 않고, 현재의 안정적인 상속 구조에서 태스크를 종료한다.
 
 ---
 
-## 📊 현재 코드 품질 판정 (2026-05-18 실측)
+## 📊 최종 코드 품질 판정 (2026-05-20 리팩토링 완료 기준)
 
 | 항목 | 점수 | 요약 |
 |------|------|------|
-| 구조화 | ⭐⭐ (2/5) | 상속 없음. 동일 패턴 4~5회 복제. |
-| OOP 준수 | ⭐⭐ (2/5) | SRP·OCP·DRY 모두 미충족. Template Method 부재. |
-| 유지보수성 | ⭐⭐ (2/5) | 홀드 시간·스크롤 로직 변경 시 4파일 동시 수정 필요. |
-| GC/성능 | ⭐⭐⭐ (3/5) | 레이캐스트 `List` 매 호출 할당. 나머지는 경량. |
-| 도메인 분리 | ⭐⭐⭐ (3/5) | 폴더·클래스 이름으로 역할은 구분되나 코드 경계는 없음. |
+| 구조화 | ⭐⭐⭐⭐⭐ (5/5) | `Slot` → `DraggableSlot` / `SelfGhostSlot` 상속 계층 완비. 4종 슬롯 모두 정상 편입. |
+| OOP 준수 | ⭐⭐⭐⭐ (4/5) | SRP·OCP·DRY 대폭 개선 및 Template Method 적용. (UI 로직 추가 캡슐화 생략으로 4점) |
+| 유지보수성 | ⭐⭐⭐⭐⭐ (5/5) | 홀드 코루틴, 스크롤 전달, 고스트 파이프라인이 부모에 통합되어 중앙 제어 가능. |
+| GC/성능 | ⭐⭐⭐⭐⭐ (5/5) | 정적 `RaycastBuffer` 재사용으로 드래그·드롭 시 매번 발생하던 List 할당 제거. |
+| 도메인 분리 | ⭐⭐⭐⭐⭐ (5/5) | 인덱스 계산이 필요한 레이아웃 드롭과, 단순 UI 조작용 고스트 처리가 명확히 분리됨. |
 
-**상태 (2026-05-19)**: `Slot` / `SelfGhostSlot` / `DraggableSlot` 구현 및 4종 마이그레이션 **완료**. Play Mode QA(3단계)만 남음.
-
-### 잘 된 점
-- 폴더 단위 역할(`Panel/Special`, `Panel/Select`, `Result/Cycle`)이 명확함.
-- `CountSlot` vs `ResetSlot`은 이미 **드롭 한 줄**만 다름 → `SelfGhostSlot` 흡수 용이.
-- `SelectSlot` ↔ `CycleSlot` 협력 API(`Drag`, `GetPlaceHolderIndex`, `ClearPlaceHolder`)는 응집되어 있음.
-
-### 반드시 고칠 점
-1. **베이스 부재** — 4클래스가 각각 `IPointerDown/Up`, `IBeginDrag`, `IDrag`, `IEndDrag` 구현.
-2. **CountSlot ≈ ResetSlot** (~130줄 중 ~115줄 동일).
-3. **SelectSlot.ProcessDrop ≈ CycleSlot.ProcessDrop** — `CycleHorizontalLayout` / `CyclePanel` 태그 분기 중복.
-4. **홀드 코루틴 4벌** — `_holdTime`, `_isCanceled`, `CancelHold` 동일.
-5. **포인터→RectTransform** — `SetGhostPositionToPointer` / `SetPositionToPointer` 동일 알고리즘.
-6. **GC** — `new List<RaycastResult>()` 드롭/플레이스홀더마다 할당.
-7. **CycleSlot.CancelHold** — `OnEndDrag`에서도 호출되어 드래그 종료 시 부모 복귀 버그 가능성 (QA 확인).
-
----
-
-## 🗺️ 목표 클래스 다이어그램
-
-```
-Slot (abstract, IPointer*)
-├── SelfGhostSlot (abstract)
-│   ├── CountSlot      → OnSelfGhostClick: UpCount / ProcessDrop: SetSlotCount
-│   └── ResetSlot      → ProcessDrop: ResetSlot only
-└── DraggableSlot (abstract)
-    ├── SelectSlot     → CycleSlot 고스트 생성·탭 시 AddSlotToLast
-    └── CycleSlot      → self-reparent, placeholder, 탭 삭제
-```
-
-### 부모(`Slot`)가 가져갈 책임
-- `[SerializeField] holdDelaySeconds` (기본 0.15f)
-- `WaitHoldThen(eventData, Action onElapsed)`
-- `CancelHold()`, `ResolveClickOrDragDropPointerUp` (클릭 vs 고스트 드롭)
-- `TryBeginPanelScrollDragUnlessGhost` / `ForwardPanelScrollDrag`
-- `InstantiateGhostUnderPanel`, `SetRectTransformToPointer`, `DestroyGhost`
-- `protected static List<RaycastResult> RaycastBuffer` (또는 인스턴스 버퍼)
-
-### `DraggableSlot` 추가 책임
-- `TryDropOnCycleLayouts(CycleSlot slot, int targetIndex)` — `SelectSlot`/`CycleSlot` 공용
-- 가상 `OnSlotBeginDrag` → 스크롤 전달 (고스트 없을 때)
-
-### `SelfGhostSlot` 추가 책임
-- `GameObject` 단순 고스트 파이프라인 전체
-- `protected abstract bool ProcessDrop(PointerEventData)`
-- `protected virtual void OnSelfGhostClick(PointerEventData)` — `CountSlot`만 override
-
-### 자식에 남길 것만
-| 클래스 | 유지 코드 |
-|--------|-----------|
-| `CountSlot` | `_curCount`, `UpCount`, `SetCountText`, `ProcessDrop` 1곳 |
-| `ResetSlot` | `ProcessDrop` 1곳 |
-| `SelectSlot` | `SetSlot`(스킬 데이터), `CreateSlot`, 탭 시 `AddSlotToLast` |
-| `CycleSlot` | placeholder, reparent, `SetSlotCount`/`ResetSlot`, 폰트 색 이벤트 |
+**상태**: 본 태스크는 성공적으로 완전히 종료됨.
 
 ---
 
 ## 📝 Todo List
 
-### 0단계: 베이스 계층 신규 (Builder — 선행 필수)
-- [x] `Assets/Scripts/UI/Panel/Slot.cs` — `MonoBehaviour` + 5개 포인터 인터페이스, Template Method (`OnSlotPointerDown` 등 protected virtual)
-- [x] `Slot`: `WaitHoldThen`, `ResolveClickOrDragDropPointerUp`, 스크롤/고스트 헬퍼, `RaycastBuffer`
-- [x] `Assets/Scripts/UI/Panel/DraggableSlot.cs` — `TryDropOnCycleLayouts`, 스크롤 전달 가상 메서드
-- [x] `Assets/Scripts/UI/Panel/SelfGhostSlot.cs` — Count/Reset 공통 파이프라인 + `ProcessDrop` / `OnSelfGhostClick` 추상·가상
-
-### 1단계: 설계 문서 (Planner) — 본 응답에서 반영
-- [x] 실측 OOP 검증 및 현재/목표 다이어그램 (`architecture.md` 동기화)
-- [x] 중복 맵 및 통합 방향 (`architecture.md` §5)
-- [ ] (선택) `SkillSlotDisplay` 분리 — `SelectSlot`/`CycleSlot` SerializeField 목록 확정 후 2차
-
-### 2단계: 파생 슬롯 마이그레이션 (Builder)
-
-#### 2-A. 패널 특수 (`SelfGhostSlot`)
-- [x] `CountSlot` → `SelfGhostSlot` 상속, 도메인 로직만 잔류
-- [x] `ResetSlot` → `SelfGhostSlot` 상속
-
-#### 2-B. 패널 선택 (`SelectSlot`)
-- [x] `DraggableSlot` 상속, 홀드/스크롤/드롭 제거
-- [x] `CreateSlot` / 탭 클릭 / `CycleSlot` 고스트 위임만 유지
-- [x] `SetPositionToPointer` → `SetRectTransformToPointer` 통일
-
-#### 2-C. 타임라인 (`CycleSlot`)
-- [x] `DraggableSlot` 상속
-- [x] `CheckHoldAfterDelay` → `WaitHoldThen`
-- [x] `OnSlotBeginDrag`에서 `base` 호출로 가상 체인 복원
-- [x] `CheckForPlaceHolder` — `RaycastBuffer` 사용
-- [x] `originalParent` — `[HideInInspector] public` 유지 (`CycleHorizontalLayout` 외부 할당)
-
-#### 2-D. 컨벤션 (`convention.md`)
-- [x] 변경 파일: `#region`, Allman brace, SerializeField camelCase, `_` private
-- [x] `holdDelaySeconds` SerializeField로 통일 (매직 넘버 `_holdTime` 제거)
-
-### 3단계: QA (QA_Debugger)
-- [x] 홀드 중 패널 `ScrollRect` 전달 (고스트 없을 때만) - CycleSlot 헬퍼 메서드 위임 완료
-- [ ] `CountSlot` 탭 증가 / 홀드 드롭 `SetSlotCount` / 실패 시 고스트 파괴
-- [ ] `ResetSlot` 홀드 드롭 `ResetSlot`
-- [ ] `SelectSlot` 탭·드롭·플레이스홀더 인덱스
-- [ ] `CycleSlot` 탭 삭제·재배치·`CancelHold` NRE
-- [ ] `OnDisable`/`ClearSlot` — `ColorEventChannel` 해제
-- [ ] 인스펙터 누락 시 `Debug.LogError` 자가 진단
+### 최종 마무리에 따른 정산
+- [x] 베이스 계층(`Slot`, `DraggableSlot`, `SelfGhostSlot`) 구현 및 포인터 파사드 통합
+- [x] 기존 4종 파생 슬롯(`CycleSlot`, `SelectSlot`, `CountSlot`, `ResetSlot`) 마이그레이션 완료
+- [x] 플레이 모드 QA 진행 및 발견된 상태 불일치 버그(`CycleSlot.CancelHold`) 수정 완료
+- [x] 인스펙터 Null-Check 자가 진단 코드 보강 및 메모리 누수 방지(`OnDestroy` 해제) 완료
+- [x] (취소) `SkillSlotDisplay` 분리 등 2차 고도화 생략 (유저 요청)
 
 ---
 
@@ -125,7 +35,7 @@ Slot (abstract, IPointer*)
 **[줄 단위 피드백 작성법]**
 특정 항목에 대한 피드백은 해당 줄 바로 아래에 마크다운 인용구(`>`) 기호만 사용하여 달아주세요.
 (예시)
-- [ ] `CountSlot` → `PanelGhostSlot` 상속, 도메인 로직만 잔류
+- [ ] `CountSlot` → `SelfGhostSlot` 상속, 도메인 로직만 잔류
 > 이렇게 꺾쇠 기호만 사용해도 Cursor가 유저의 추가 코멘트로 완벽하게 파악합니다.
 
 **[전체 피드백]**

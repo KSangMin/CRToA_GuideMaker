@@ -24,6 +24,19 @@ public class SelectSlot : DraggableSlot
 
     #endregion
 
+    #region Unity Lifecycle
+
+    protected virtual void Awake()
+    {
+        if (ghostPrefab == null) Debug.LogError($"[{nameof(SelectSlot)}] ghostPrefab is not assigned on {name}.", this);
+        if (chargeBackground == null) Debug.LogError($"[{nameof(SelectSlot)}] chargeBackground is not assigned on {name}.", this);
+        if (icon == null) Debug.LogError($"[{nameof(SelectSlot)}] icon is not assigned on {name}.", this);
+        if (head == null) Debug.LogError($"[{nameof(SelectSlot)}] head is not assigned on {name}.", this);
+        if (nameText == null) Debug.LogError($"[{nameof(SelectSlot)}] nameText is not assigned on {name}.", this);
+    }
+
+    #endregion
+
     #region Public Methods
 
     public void SetSlot(ScrollRect panelScroll, string id, SkillType skillType, ControlType controlType, Sprite skillIcon, Sprite headIcon)

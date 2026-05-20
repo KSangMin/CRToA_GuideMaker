@@ -86,9 +86,10 @@ Slot
     └── CycleSlot
 ```
 
-**2차 추출 후보:**
+**2차 추출 및 보완 대상:**
 
-- `SkillSlotDisplay` — `SelectSlot`/`CycleSlot` charge·icon UI
+- `SkillSlotDisplay` (Component) — `SelectSlot`과 `CycleSlot`에 중복된 시각적 UI 요소(`chargeBackground`, `icon`, `head`, `nameText`, `countBackground` 등)와 `SetSlot` 로직을 별도 컴포넌트로 분리. 이를 통해 Slot 계열은 '드래그 앤 드롭 및 이벤트 처리'라는 본연의 역할에만 집중(SRP 준수).
+- `Slot.holdDelaySeconds` — 컨벤션에 맞춰 직렬화 변수로 수정 (`_` 제거 및 `[SerializeField]` 부착).
 
 ## 3. Dependencies & Third-Party Libraries
 
