@@ -10,14 +10,14 @@ public class SelectSlot : DraggableSlot
     [SerializeField] private GameObject ghostPrefab;
     [SerializeField] private GameObject chargeBackground;
     [SerializeField] private Image icon;
-    [SerializeField] private Image head;
+    [SerializeField] protected Image head;
     [SerializeField] private TextMeshProUGUI nameText;
 
     #endregion
 
     #region Private Fields
 
-    private string _id = "";
+    protected string _id = "";
     private ControlType _controlType = ControlType.Normal;
     private CycleSlot _ghostSlot;
     private int _targetIndex = -1;

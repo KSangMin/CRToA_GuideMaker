@@ -217,6 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4bba80849fd77c41bb64485ba80e186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectPanel
+  _swapSlotPrefab: {fileID: 5419680777328014943, guid: 7f91b822aa4049f43b392fb41fc5a1d6, type: 3}
   _slotPrefab: {fileID: 5419680777328014943, guid: c841702f3517ddc419b80770d0dbc59a, type: 3}
   icon: {fileID: 4366245623233195630}
   nameText: {fileID: 2435880763977273794}

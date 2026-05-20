@@ -7,6 +7,7 @@ public class SelectPanel : MonoBehaviour
     private string _id = "";
     private CookieData _data;
 
+    [SerializeField] private GameObject _swapSlotPrefab;
     [SerializeField] private GameObject _slotPrefab;
 
     [Header("상단")]
@@ -53,10 +54,17 @@ public class SelectPanel : MonoBehaviour
         panelBackground.sprite = spriteData.GetSprite(spriteData.elementalType_frame[(int)data.Type]);
         elementalTypeIcon.sprite = spriteData.GetSprite(spriteData.elementalType[(int)data.Type]);
 
+        SetSwapSlot();
         SetSkillSlots();
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(nameText.rectTransform);
         LayoutRebuilder.ForceRebuildLayoutImmediate(rarityText.rectTransform);
+    }
+
+    private void SetSwapSlot()
+    {
+        SwapSlot slot = Instantiate(_swapSlotPrefab, content).GetComponent<SwapSlot>();
+        slot.SetSlot(scrollRect, _id, icon.sprite);
     }
 
     private void SetSkillSlots()
