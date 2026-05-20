@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# 🗺️ Global Project Rules & Agent Hierarchy
+# 🗺️ Project Rules & Agent Hierarchy
 
 이 프로젝트는 메인 오케스트레이터(Main Orchestrator)와 전문 서브 에이전트(Sub-agents) 간의 유기적인 협업 체계로 구동됩니다. 각 에이전트는 독립된 인격체로서 자신의 역할 정의에만 몰입하여 행동해야 합니다.
 
@@ -25,7 +25,7 @@ trigger: always_on
    - **호출 시점:** 설계가 완료된 후 구체적인 Unity C# 코드 구현, 기능 리팩토링, 스크립트 생성이 필요할 때 호출하십시오.
 
 3. **`@qa-debugger` (버그 리뷰, MEMORY.md 업데이트, Unity Editor Setup Guide 생성)**
-   - **컨텍스트 소스:** `.agents/agents/qa_debugger.md`
+   - **컨텍스트 소스:** `.agents/agents/qa-debugger.md`
    - **호출 시점:** 작성된 코드의 검증, 컴파일 에러 및 런타임 버그 분석, 프로젝트 컨텍스트(MEMORY.md) 동기화가 필요할 때 호출하십시오.
 
 ## ⚠️ 3. Sub-Agent Core Constraints (서브 에이전트 제약 사항)
