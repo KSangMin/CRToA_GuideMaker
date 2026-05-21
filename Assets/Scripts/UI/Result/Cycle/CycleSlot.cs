@@ -18,6 +18,9 @@ public class CycleSlot : DraggableSlot
     [Header("색깔 변경")]
     [SerializeField] private ColorEventChannel onFontColorChanged;
 
+    [Header("주석")]
+    [SerializeField] private TMP_InputField commentInput;
+
     #endregion
 
     #region Private Fields
@@ -47,11 +50,17 @@ public class CycleSlot : DraggableSlot
         {
             onFontColorChanged.RegisterListener(SetFontColor);
         }
+
+        if (commentInput != null)
+        {
+            commentInput.onValueChanged.AddListener(OnCommentValueChanged);
+        }
     }
 
     private void Start()
     {
         countBackground.SetActive(false);
+        commentInput.gameObject.SetActive(false);
         SetFontColor(UIManager.Instance.GetUI<UI_Result>().optionPanel.colorSelectPanel.CurFontColor);
     }
 
@@ -108,9 +117,31 @@ public class CycleSlot : DraggableSlot
         countText.SetText($"{count}");
     }
 
+    public void EnableComment()
+    {
+        if (commentInput != null)
+        {
+            commentInput.text = "주석 입력";
+            commentInput.gameObject.SetActive(true);
+            if (originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+            {
+                layout.ReBuildLayout();
+            }
+        }
+    }
+
     public void ResetSlot()
     {
         countBackground.SetActive(false);
+        if (commentInput != null)
+        {
+            commentInput.text = "";
+            commentInput.gameObject.SetActive(false);
+            if (originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+            {
+                layout.ReBuildLayout();
+            }
+        }
     }
 
     public void ClearSlot()
@@ -118,6 +149,10 @@ public class CycleSlot : DraggableSlot
         if (onFontColorChanged != null)
         {
             onFontColorChanged.UnregisterListener(SetFontColor);
+        }
+        if (commentInput != null)
+        {
+            commentInput.onValueChanged.RemoveListener(OnCommentValueChanged);
         }
     }
 
@@ -327,6 +362,14 @@ public class CycleSlot : DraggableSlot
     private void SetFontColor(Color color)
     {
         nameText.color = color;
+    }
+
+    private void OnCommentValueChanged(string text)
+    {
+        if (originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+        {
+            layout.ReBuildLayout();
+        }
     }
 
     #endregion
