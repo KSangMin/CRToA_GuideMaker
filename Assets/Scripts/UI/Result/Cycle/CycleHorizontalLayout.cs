@@ -4,9 +4,6 @@ using UnityEngine.UI;
 
 public class CycleHorizontalLayout : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private IntEventChannel onRowLengthChangedEvent;
-
     private int _id = -1;
     private int _maxSlotCount = 8;
     private CycleVerticalLayout _cycleVerticalLayout;
@@ -16,10 +13,11 @@ public class CycleHorizontalLayout : MonoBehaviour
     [SerializeField] private Image backgroundImage;
     [SerializeField] private ColorEventChannel onBackgroundColorChanged;
 
+    [Header("오버레이 패딩 설정")]
+    [SerializeField] private float levelOffset = 30f;
+
     private void Awake()
     {
-        onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
-
         onBackgroundColorChanged.RegisterListener(SetBackgroundColor);
 
         foreach (Transform child in transform)
@@ -96,10 +94,13 @@ public class CycleHorizontalLayout : MonoBehaviour
         _cycleVerticalLayout.RebuildLayout();
     }
 
-    private void OnRowLengthChanged(int value)
+    public void UpdateMaxSlotCount(int value)
     {
         _maxSlotCount = value;
+    }
 
+    public void ProcessOverflow()
+    {
         if(_slots.Count > _maxSlotCount)
         {
             int repeatCount = _slots.Count - _maxSlotCount;
@@ -131,7 +132,22 @@ public class CycleHorizontalLayout : MonoBehaviour
 
     private void OnDestroy()
     {
-        onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
         onBackgroundColorChanged.UnregisterListener(SetBackgroundColor);
+    }
+
+    public bool SetDynamicPadding(int maxOverlapLevel, bool hasNameField)
+    {
+        if (TryGetComponent(out HorizontalLayoutGroup hlg))
+        {
+            float basePadding = hasNameField ? 35f : 10f;
+            float requiredSpace = maxOverlapLevel < 0 ? 0f : (maxOverlapLevel * levelOffset) + basePadding; 
+            
+            if (Mathf.Abs(hlg.padding.top - requiredSpace) > 1f)
+            {
+                hlg.padding = new RectOffset(hlg.padding.left, hlg.padding.right, Mathf.RoundToInt(requiredSpace), hlg.padding.bottom);
+                return true;
+            }
+        }
+        return false;
     }
 }

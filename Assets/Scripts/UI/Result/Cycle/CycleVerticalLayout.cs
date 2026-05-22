@@ -8,6 +8,7 @@ public class CycleVerticalLayout : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject rowPanelPrefab;
     [SerializeField] private IntEventChannel onRowLengthChangedEvent;
+    [SerializeField] private EventChannel onLayoutRebuiltEvent;
 
     private List<CycleHorizontalLayout> _rows = new();
     private Transform _verticalLayout;
@@ -15,6 +16,33 @@ public class CycleVerticalLayout : MonoBehaviour
     private void Awake()
     {
         _verticalLayout = GetComponent<Transform>();
+        if (onRowLengthChangedEvent != null)
+        {
+            onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (onRowLengthChangedEvent != null)
+        {
+            onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
+        }
+    }
+
+    private void OnRowLengthChanged(int value)
+    {
+        foreach (var row in _rows)
+        {
+            row.UpdateMaxSlotCount(value);
+        }
+        
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            _rows[i].ProcessOverflow();
+        }
+
+        RebuildLayout();
     }
 
     public void AddSlotToLast(CycleSlot slot)
@@ -84,7 +112,22 @@ public class CycleVerticalLayout : MonoBehaviour
 
     public void RebuildLayout()
     {
+        // 중첩 레이아웃의 타이밍 이슈 해결을 위해 자식 레이아웃부터 바텀업으로 즉시 리빌드
+        foreach (var row in _rows)
+        {
+            if (row != null && row.gameObject.activeInHierarchy)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(row.GetComponent<RectTransform>());
+            }
+        }
+        
+        // 이후 부모 레이아웃 리빌드
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+
+        if (onLayoutRebuiltEvent != null)
+        {
+            onLayoutRebuiltEvent.RaiseEvent();
+        }
     }
 
     public void ResetCycle()

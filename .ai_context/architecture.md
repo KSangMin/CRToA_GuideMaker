@@ -27,6 +27,10 @@ classDiagram
     #OnSelfGhostClick()
   }
   class CycleSlot {
+    +IsAreaStart
+    +IsAreaEnd
+    +SetAreaStart()
+    +SetAreaEnd()
     placeholder drag
     self reparent
   }
@@ -39,21 +43,34 @@ classDiagram
   class ResetSlot {
     reset ghost
   }
+  class CommentSlot {
+    comment ghost
+  }
+  class AreaStartSlot {
+    area start ghost
+  }
+  class AreaEndSlot {
+    area end ghost
+  }
   Slot <|-- DraggableSlot
   Slot <|-- SelfGhostSlot
   DraggableSlot <|-- CycleSlot
   DraggableSlot <|-- SelectSlot
   SelfGhostSlot <|-- CountSlot
   SelfGhostSlot <|-- ResetSlot
+  SelfGhostSlot <|-- CommentSlot
+  SelfGhostSlot <|-- AreaStartSlot
+  SelfGhostSlot <|-- AreaEndSlot
 ```
 
 ### 역할 분리 (도메인)
 
 | 구분 | 클래스 | 위치 | 책임 |
 |------|--------|------|------|
-| **타임라인 거주 슬롯** | `CycleSlot` | `UI/Result/Cycle/` | 배치된 스킬 표시, 재정렬, 탭 삭제, 반복 카운트 UI |
+| **타임라인 거주 슬롯** | `CycleSlot` | `UI/Result/Cycle/` | 배치된 스킬 표시, 재정렬, 탭 삭제, 반복 카운트 UI, 영역 지정 데이터 마킹 |
 | **패널 → 타임라인 공급** | `SelectSlot` | `UI/Panel/Select/` | 스킬 선택 후 `CycleSlot` 고스트 생성·드롭 |
-| **패널 특수 고스트** | `CountSlot`, `ResetSlot` | `UI/Panel/Special/` | 단순 프리팹 고스트 + `CycleSlot` 태그 대상 조작 |
+| **패널 특수 고스트** | `CountSlot`, `ResetSlot`, `CommentSlot`, `AreaStartSlot`, `AreaEndSlot` | `UI/Panel/Special/` | 단순 프리팹 고스트 + `CycleSlot` 태그 대상 조작 |
+| **오버레이 가이드라인** | `AreaOverlayPanel`, `AreaHighlightBox` | `UI/Result/Cycle/` | 시작/끝 지정 슬롯 추적 및 오버레이 브래킷, 구간 배경 렌더링 |
 | **미마이그레이션** | `TabSlot`, `BackgroundSlot` | `UI/Grid/`, `UI/Panel/TabMenu/` | 별도 홀드/스크롤 구현 (향후 `Slot` 계열 편입 후보) |
 
 ## 2. Key Components & Class Responsibilities
@@ -61,7 +78,7 @@ classDiagram
 ### 현재 구현 (코드 기준 2026-05-19)
 
 - **`Slot.cs`**: 포인터 파사드, `WaitHoldThen`, 패널 스크롤 전달, `RaycastBuffer`, `SetRectTransformToPointer`
-- **`SelfGhostSlot.cs`**: `CountSlot`/`ResetSlot` — 단순 `GameObject` 고스트 파이프라인, `ProcessDrop` / `OnSelfGhostClick`
+- **`SelfGhostSlot.cs`**: `CountSlot`/`ResetSlot`/`CommentSlot`/`AreaStartSlot`/`AreaEndSlot` — 단순 `GameObject` 고스트 파이프라인, `ProcessDrop` / `OnSelfGhostClick`
 - **`DraggableSlot.cs`**: `TryDropOnCycleLayouts` — `SelectSlot`/`CycleSlot` 공용
 - **`CycleSlot`**: self-reparent, placeholder, 표시·폰트·카운트 UI (2차 `SkillSlotDisplay` 후보)
 
@@ -80,7 +97,10 @@ classDiagram
 Slot
 ├── SelfGhostSlot
 │   ├── CountSlot
-│   └── ResetSlot
+│   ├── ResetSlot
+│   ├── CommentSlot
+│   ├── AreaStartSlot
+│   └── AreaEndSlot
 └── DraggableSlot
     ├── SelectSlot
     └── CycleSlot
@@ -102,17 +122,24 @@ Slot
 ```txt
 Assets/Scripts/UI/
 ├── Panel/
-│   ├── Slot.cs                 # [신규] 베이스
-│   ├── DraggableSlot.cs        # [신규] 스크롤 전달 + 사이클 드롭
+│   ├── Slot.cs                 # 베이스
+│   ├── DraggableSlot.cs        # 스크롤 전달 + 사이클 드롭
 │   ├── SelfGhostSlot.cs        # Count/Reset 공통 고스트 베이스
 │   ├── Select/SelectSlot.cs
 │   └── Special/
 │       ├── CountSlot.cs
-│       └── ResetSlot.cs
+│       ├── ResetSlot.cs
+│       ├── CommentSlot.cs      # 주석 슬롯
+│       ├── AreaStartSlot.cs    # [신규] 영역 시작 마커 드롭
+│       ├── AreaEndSlot.cs      # [신규] 영역 끝 마커 드롭
+│       └── SpecialPanel.cs
 ├── Result/Cycle/
 │   ├── CycleSlot.cs
 │   ├── CyclePanel.cs
-│   └── CycleHorizontalLayout.cs
+│   ├── CycleHorizontalLayout.cs
+│   ├── CycleVerticalLayout.cs
+│   ├── AreaOverlayPanel.cs     # [신규] 영역 총괄 (AreaOverlayPanel 컴포넌트)
+│   └── AreaHighlightBox.cs     # [신규] 영역 오버레이 렌더러
 ├── Grid/BackgroundSlot.cs      # Slot 미편입
 └── Panel/TabMenu/TabSlot.cs    # Slot 미편입
 ```

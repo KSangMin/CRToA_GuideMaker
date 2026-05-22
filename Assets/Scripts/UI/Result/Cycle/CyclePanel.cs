@@ -113,7 +113,7 @@ public class CyclePanel : MonoBehaviour
 
     public Texture2D GetCycleTexture(Camera captureCamera, Canvas captureCanvas, Canvas canvas)
     {
-        RectTransform targetRect = _vert.GetComponent<RectTransform>();
+        RectTransform targetRect = GetComponent<RectTransform>();
 
         var camState = new CameraState(captureCamera);
         var rectState = new RectTransformState(targetRect);

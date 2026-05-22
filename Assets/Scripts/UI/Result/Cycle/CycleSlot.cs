@@ -23,6 +23,13 @@ public class CycleSlot : DraggableSlot
 
     #endregion
 
+    #region Public Properties
+
+    public List<string> StartAreaIds { get; } = new();
+    public List<string> EndAreaIds { get; } = new();
+
+    #endregion
+
     #region Private Fields
 
     [HideInInspector]
@@ -142,6 +149,7 @@ public class CycleSlot : DraggableSlot
                 layout.ReBuildLayout();
             }
         }
+        ResetAreaStateCascade();
     }
 
     public void ClearSlot()
@@ -154,6 +162,7 @@ public class CycleSlot : DraggableSlot
         {
             commentInput.onValueChanged.RemoveListener(OnCommentValueChanged);
         }
+        ResetAreaStateCascade();
     }
 
     private void OnDestroy()
@@ -217,6 +226,7 @@ public class CycleSlot : DraggableSlot
             {
                 MarkHoldCanceled();
                 _isDragging = false;
+                TriggerLayoutRebuild();
             }
         }
     }
@@ -258,6 +268,7 @@ public class CycleSlot : DraggableSlot
         if (_isDragging && originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
         {
             layout.AddSlotJust(this);
+            TriggerLayoutRebuild();
         }
         _isDragging = false;
         base.CancelHold();
@@ -365,6 +376,62 @@ public class CycleSlot : DraggableSlot
     }
 
     private void OnCommentValueChanged(string text)
+    {
+        if (originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
+        {
+            layout.ReBuildLayout();
+        }
+    }
+
+    #endregion
+
+    #region Area Overlay Support
+
+    public void AddAreaStart(string areaId, bool triggerRebuild = true)
+    {
+        if (!StartAreaIds.Contains(areaId)) StartAreaIds.Add(areaId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void AddAreaEnd(string areaId, bool triggerRebuild = true)
+    {
+        if (!EndAreaIds.Contains(areaId)) EndAreaIds.Add(areaId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void RemoveArea(string areaId, bool triggerRebuild = true)
+    {
+        StartAreaIds.Remove(areaId);
+        EndAreaIds.Remove(areaId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void ResetAreaStateCascade()
+    {
+        var idsToReset = new List<string>(StartAreaIds);
+        idsToReset.AddRange(EndAreaIds);
+        
+        StartAreaIds.Clear();
+        EndAreaIds.Clear();
+
+        if (originalParent != null && originalParent.parent != null && originalParent.parent.TryGetComponent(out CycleVerticalLayout layout))
+        {
+            var allSlots = layout.GetComponentsInChildren<CycleSlot>();
+            foreach (var slot in allSlots)
+            {
+                if (slot != this)
+                {
+                    foreach (var id in idsToReset)
+                    {
+                        slot.RemoveArea(id);
+                    }
+                }
+            }
+        }
+        TriggerLayoutRebuild();
+    }
+
+    private void TriggerLayoutRebuild()
     {
         if (originalParent != null && originalParent.TryGetComponent(out CycleHorizontalLayout layout))
         {
