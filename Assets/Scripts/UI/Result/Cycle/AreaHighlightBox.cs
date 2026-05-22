@@ -106,6 +106,18 @@ public class AreaHighlightBox : MonoBehaviour
             RectTransform firstSlotRect = slotsInRow[0].GetComponent<RectTransform>();
             RectTransform lastSlotRect = slotsInRow[^1].GetComponent<RectTransform>();
 
+            // 영역이 이전 행에서 이어져 내려온 경우, 무조건 현재 행의 맨 앞 슬롯부터 선을 그림
+            if (!slotsInRow.Contains(startSlot) && rowTransform.childCount > 0)
+            {
+                firstSlotRect = rowTransform.GetChild(0).GetComponent<RectTransform>();
+            }
+
+            // 영역이 다음 행으로 이어져 넘어가는 경우, 무조건 현재 행의 맨 끝 슬롯까지 선을 그림
+            if (!slotsInRow.Contains(endSlot) && rowTransform.childCount > 0)
+            {
+                lastSlotRect = rowTransform.GetChild(rowTransform.childCount - 1).GetComponent<RectTransform>();
+            }
+
             // 월드 좌표를 connectingLinesParent 로컬 좌표로 변환
             Vector2 firstLocalPos = GetLocalPos(connectingLinesParent, firstSlotRect, new Vector2(0f, 1f)); // Left Top
             Vector2 lastLocalPos = GetLocalPos(connectingLinesParent, lastSlotRect, new Vector2(1f, 1f));   // Right Top

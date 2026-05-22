@@ -204,8 +204,11 @@ public class CycleSlot : DraggableSlot
     {
         if (!_isDragging && !eventData.dragging)
         {
+            originalParent = transform.parent; // Set for cleanup context
             originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromHorizontalLayout(this);
             CancelHold();
+
+            ClearSlot(); // Explicitly clear areas and trigger rebuild before destroying
 
             transform.SetParent(null);
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();

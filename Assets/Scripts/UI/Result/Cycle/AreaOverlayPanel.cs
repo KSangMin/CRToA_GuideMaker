@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ public class AreaOverlayPanel : MonoBehaviour
     private readonly List<AreaHighlightBox> _activeBoxes = new();
     private readonly List<CycleSlot> _flatSlots = new();
     private readonly Dictionary<string, string> _savedAreaNames = new();
+    private Coroutine _updateCoroutine;
 
     #endregion
 
@@ -35,17 +37,19 @@ public class AreaOverlayPanel : MonoBehaviour
 
     private void Start()
     {
-        if (onLayoutRebuiltEvent != null)
+        var cycleVerticalLayout = UIManager.Instance.GetUI<UI_Result>().cyclePanel.GetComponentInChildren<CycleVerticalLayout>();
+        if (cycleVerticalLayout != null && cycleVerticalLayout.onLayoutRebuiltEvent != null)
         {
-            onLayoutRebuiltEvent.RegisterListener(UpdateOverlays);
+            cycleVerticalLayout.onLayoutRebuiltEvent.RegisterListener(OnLayoutRebuilt);
         }
     }
 
     private void OnDestroy()
     {
-        if (onLayoutRebuiltEvent != null)
+        var cycleVerticalLayout = UIManager.Instance.GetUI<UI_Result>().cyclePanel.GetComponentInChildren<CycleVerticalLayout>();
+        if (cycleVerticalLayout != null && cycleVerticalLayout.onLayoutRebuiltEvent != null)
         {
-            onLayoutRebuiltEvent.UnregisterListener(UpdateOverlays);
+            cycleVerticalLayout.onLayoutRebuiltEvent.UnregisterListener(OnLayoutRebuilt);
         }
     }
 
@@ -74,7 +78,6 @@ public class AreaOverlayPanel : MonoBehaviour
     {
         _flatSlots.Clear();
 
-        // 씬 내의 CycleVerticalLayout을 찾거나 참조를 받아서 스캔
         var cycleVerticalLayout = UIManager.Instance.GetUI<UI_Result>().cyclePanel.GetComponentInChildren<CycleVerticalLayout>();
         if (cycleVerticalLayout == null) return;
 
@@ -104,14 +107,14 @@ public class AreaOverlayPanel : MonoBehaviour
             {
                 if (!idCount.ContainsKey(id)) idCount[id] = 0;
                 idCount[id]++;
-                if (!isStartForNewMarker) candidates.Add(id); // End 마커를 놓았다면, Start 마커를 찾음
+                if (!isStartForNewMarker) candidates.Add(id);
             }
 
             foreach (var id in s.EndAreaIds)
             {
                 if (!idCount.ContainsKey(id)) idCount[id] = 0;
                 idCount[id]++;
-                if (isStartForNewMarker) candidates.Add(id); // Start 마커를 놓았다면, End 마커를 찾음
+                if (isStartForNewMarker) candidates.Add(id);
             }
         }
 
@@ -123,8 +126,27 @@ public class AreaOverlayPanel : MonoBehaviour
         return null;
     }
 
-    private void UpdateOverlays()
+    private void OnLayoutRebuilt()
     {
+        if (!gameObject.activeInHierarchy) return;
+        
+        if (_updateCoroutine != null)
+        {
+            StopCoroutine(_updateCoroutine);
+        }
+        _updateCoroutine = StartCoroutine(UpdateOverlaysCoroutine());
+    }
+
+    public void UpdateOverlays()
+    {
+        OnLayoutRebuilt();
+    }
+
+    private IEnumerator UpdateOverlaysCoroutine()
+    {
+        // 첫 번째 대기: 슬롯 추가/삭제 등 외부 레이아웃 변경사항이 계층 구조에 반영되도록 1프레임 대기
+        yield return null;
+
         BuildFlatSlotList();
 
         var areaDict = new Dictionary<string, List<CycleSlot>>();
@@ -187,12 +209,11 @@ public class AreaOverlayPanel : MonoBehaviour
         var cycleVerticalLayout = UIManager.Instance.GetUI<UI_Result>().cyclePanel.GetComponentInChildren<CycleVerticalLayout>();
         if (cycleVerticalLayout != null)
         {
-            // 모든 줄을 기본 패딩(-1)과 NameField 없음(false)으로 초기화 세팅
             foreach (Transform child in cycleVerticalLayout.transform)
             {
                 if (child.TryGetComponent(out CycleHorizontalLayout row))
                 {
-                    rowLevels[row] = -1; // -1 means default
+                    rowLevels[row] = -1;
                     rowHasName[row] = false;
                 }
             }
@@ -214,7 +235,6 @@ public class AreaOverlayPanel : MonoBehaviour
             }
             levels[area.areaId] = maxLevel;
 
-            // 이 영역이 걸쳐 있는 모든 줄을 찾아 maxLevel 업데이트, 시작 줄은 hasName 업데이트
             var startRow = area.sSlot.transform.parent.GetComponent<CycleHorizontalLayout>();
             
             for (int i = area.start; i <= area.end; i++)
@@ -245,12 +265,20 @@ public class AreaOverlayPanel : MonoBehaviour
             }
         }
 
-        if (layoutChanged && cycleVerticalLayout != null)
+        if (cycleVerticalLayout != null)
         {
+            // 유니티 ContentSizeFitter 버그(자식 삭제 시 높이가 줄어들 때 Y좌표 정렬이 1프레임/1리빌드 지연되는 현상)를
+            // 방지하기 위해, 패딩 변경 여부와 상관없이 무조건 부모 레이아웃을 더블 리빌드합니다.
+            Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(cycleVerticalLayout.GetComponent<RectTransform>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(cycleVerticalLayout.GetComponent<RectTransform>()); // 핵심: 두 번 강제 호출
+            Canvas.ForceUpdateCanvases();
+            
+            // 패딩 변경, 또는 삭제로 인한 높이 수축(Shrink) 시 부모 ScrollRect가 LateUpdate에서
+            // Content Y좌표를 보정(Shift)할 수 있도록 무조건 1프레임을 대기합니다.
+            // 이 대기가 없으면 ScrollRect가 보정하기 전의 옛날 좌표를 읽게 되어 영역이 어긋납니다.
+            yield return null;
         }
-
-        Canvas.ForceUpdateCanvases();
 
         foreach (var box in _activeBoxes)
         {
@@ -285,6 +313,11 @@ public class AreaOverlayPanel : MonoBehaviour
         if (highlightBoxPrefab == null) return;
 
         var boxObj = Instantiate(highlightBoxPrefab, transform);
+        
+        // 새로 생성된 박스의 RectTransform 행렬이 완벽히 초기화되도록 강제 갱신
+        // (초기화되지 않은 상태에서 Init 내부의 GetLocalPos를 호출하면 행렬 오차로 인해 좌표가 어긋날 수 있음)
+        Canvas.ForceUpdateCanvases();
+        
         if (boxObj.TryGetComponent(out AreaHighlightBox box))
         {
             box.Init(areaId, areaName, startSlot, endSlot, _flatSlots, level);

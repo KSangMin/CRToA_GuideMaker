@@ -8,7 +8,7 @@ public class CycleVerticalLayout : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject rowPanelPrefab;
     [SerializeField] private IntEventChannel onRowLengthChangedEvent;
-    [SerializeField] private EventChannel onLayoutRebuiltEvent;
+    public EventChannel onLayoutRebuiltEvent;
 
     private List<CycleHorizontalLayout> _rows = new();
     private Transform _verticalLayout;
@@ -105,6 +105,7 @@ public class CycleVerticalLayout : MonoBehaviour
             if (row.transform.childCount <= 0)
             {
                 _rows.RemoveAt(i);
+                row.transform.SetParent(null);
                 Destroy(row.gameObject);
             }
         }
@@ -112,6 +113,9 @@ public class CycleVerticalLayout : MonoBehaviour
 
     public void RebuildLayout()
     {
+        // 새로 생성된 슬롯들의 내부 컴포넌트(TMP_Text 등)가 우선 자신의 크기를 정확히 계산하도록 강제 업데이트
+        Canvas.ForceUpdateCanvases();
+
         // 중첩 레이아웃의 타이밍 이슈 해결을 위해 자식 레이아웃부터 바텀업으로 즉시 리빌드
         foreach (var row in _rows)
         {
@@ -124,6 +128,10 @@ public class CycleVerticalLayout : MonoBehaviour
         // 이후 부모 레이아웃 리빌드
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
 
+        // 최종적으로 정렬된 레이아웃의 위치(Transform)를 글로벌하게 갱신
+        Canvas.ForceUpdateCanvases();
+
+        // 이제 모든 좌표가 100% 정확하므로 영역(Area) 렌더링 이벤트 호출
         if (onLayoutRebuiltEvent != null)
         {
             onLayoutRebuiltEvent.RaiseEvent();
