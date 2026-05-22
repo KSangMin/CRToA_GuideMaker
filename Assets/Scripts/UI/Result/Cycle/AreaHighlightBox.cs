@@ -44,7 +44,7 @@ public class AreaHighlightBox : MonoBehaviour
 
     #region Public Methods
 
-    public void Init(string areaId, string areaName, CycleSlot startSlot, CycleSlot endSlot, List<CycleSlot> flatSlots, int level)
+    public void Init(string areaId, string areaName, CycleSlot startSlot, CycleSlot endSlot, List<CycleSlot> flatSlots, int level, Color areaColor)
     {
         _areaId = areaId;
         _initialName = string.IsNullOrEmpty(areaName) ? "영역 이름" : areaName;
@@ -128,6 +128,11 @@ public class AreaHighlightBox : MonoBehaviour
 
             // 라인 인스턴스 생성
             var lineObj = Instantiate(linePiecePrefab, connectingLinesParent);
+            if (lineObj.TryGetComponent(out Image lineImage))
+            {
+                lineImage.color = areaColor;
+            }
+
             var lineRect = lineObj.GetComponent<RectTransform>();
             RectTransform lineParent = connectingLinesParent;
             lineRect.anchorMin = lineParent.pivot;
@@ -155,10 +160,18 @@ public class AreaHighlightBox : MonoBehaviour
             }
         }
 
-        // 3. NameInputField 위치 갱신 (StartSlot 상단, 가이드라인 바로 위)
+        // 3. NameInputField 위치 및 색상 갱신 (StartSlot 상단, 가이드라인 바로 위)
         RectTransform startSlotRect = startSlot.GetComponent<RectTransform>();
         Vector2 startLocalTop = GetLocalPos(nameInputParent, startSlotRect, new Vector2(0.5f, 1f));
         nameInputField.GetComponent<RectTransform>().anchoredPosition = new Vector2(startLocalTop.x, startLocalTop.y + levelYOffset);
+        
+        if (nameInputField.textComponent != null)
+        {
+            nameInputField.textComponent.color = areaColor;
+        }
+
+        if (startBracket.TryGetComponent(out Image sBracketImg)) sBracketImg.color = areaColor;
+        if (endBracket.TryGetComponent(out Image eBracketImg)) eBracketImg.color = areaColor;
     }
 
     #endregion

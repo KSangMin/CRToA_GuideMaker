@@ -17,6 +17,7 @@ public class AreaOverlayPanel : MonoBehaviour
     private readonly List<AreaHighlightBox> _activeBoxes = new();
     private readonly List<CycleSlot> _flatSlots = new();
     private readonly Dictionary<string, string> _savedAreaNames = new();
+    private readonly Dictionary<string, Color> _savedAreaColors = new();
     private Coroutine _updateCoroutine;
 
     #endregion
@@ -293,7 +294,17 @@ public class AreaOverlayPanel : MonoBehaviour
         foreach (var area in activeAreas)
         {
             string oldName = _savedAreaNames.ContainsKey(area.areaId) ? _savedAreaNames[area.areaId] : "";
-            CreateHighlightBox(area.areaId, oldName, area.sSlot, area.eSlot, levels[area.areaId]);
+            Color areaColor;
+            if (_savedAreaColors.ContainsKey(area.areaId))
+            {
+                areaColor = _savedAreaColors[area.areaId];
+            }
+            else
+            {
+                areaColor = Random.ColorHSV(0f, 1f, 0.5f, 1f, 0.8f, 1f); // Vibrant pastel colors
+                _savedAreaColors[area.areaId] = areaColor;
+            }
+            CreateHighlightBox(area.areaId, oldName, area.sSlot, area.eSlot, levels[area.areaId], areaColor);
         }
 
         if (toResetIds.Count > 0)
@@ -308,7 +319,7 @@ public class AreaOverlayPanel : MonoBehaviour
         }
     }
 
-    private void CreateHighlightBox(string areaId, string areaName, CycleSlot startSlot, CycleSlot endSlot, int level)
+    private void CreateHighlightBox(string areaId, string areaName, CycleSlot startSlot, CycleSlot endSlot, int level, Color areaColor)
     {
         if (highlightBoxPrefab == null) return;
 
@@ -320,7 +331,7 @@ public class AreaOverlayPanel : MonoBehaviour
         
         if (boxObj.TryGetComponent(out AreaHighlightBox box))
         {
-            box.Init(areaId, areaName, startSlot, endSlot, _flatSlots, level);
+            box.Init(areaId, areaName, startSlot, endSlot, _flatSlots, level, areaColor);
             _activeBoxes.Add(box);
         }
     }
