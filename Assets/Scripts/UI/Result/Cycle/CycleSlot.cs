@@ -27,6 +27,11 @@ public class CycleSlot : DraggableSlot
 
     public List<string> StartAreaIds { get; } = new();
     public List<string> EndAreaIds { get; } = new();
+    
+    public List<string> StartArrowIds { get; } = new();
+    public List<string> EndArrowIds { get; } = new();
+    
+    public RectTransform IconRect => icon.rectTransform;
 
     #endregion
 
@@ -150,6 +155,7 @@ public class CycleSlot : DraggableSlot
             }
         }
         ResetAreaStateCascade();
+        ResetArrowStateCascade();
     }
 
     public void ClearSlot()
@@ -163,6 +169,7 @@ public class CycleSlot : DraggableSlot
             commentInput.onValueChanged.RemoveListener(OnCommentValueChanged);
         }
         ResetAreaStateCascade();
+        ResetArrowStateCascade();
     }
 
     private void OnDestroy()
@@ -440,6 +447,54 @@ public class CycleSlot : DraggableSlot
         {
             layout.ReBuildLayout();
         }
+    }
+
+    #endregion
+
+    #region Arrow Overlay Support
+
+    public void AddArrowStart(string arrowId, bool triggerRebuild = true)
+    {
+        if (!StartArrowIds.Contains(arrowId)) StartArrowIds.Add(arrowId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void AddArrowEnd(string arrowId, bool triggerRebuild = true)
+    {
+        if (!EndArrowIds.Contains(arrowId)) EndArrowIds.Add(arrowId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void RemoveArrow(string arrowId, bool triggerRebuild = true)
+    {
+        StartArrowIds.Remove(arrowId);
+        EndArrowIds.Remove(arrowId);
+        if (triggerRebuild) TriggerLayoutRebuild();
+    }
+
+    public void ResetArrowStateCascade()
+    {
+        var idsToReset = new List<string>(StartArrowIds);
+        idsToReset.AddRange(EndArrowIds);
+        
+        StartArrowIds.Clear();
+        EndArrowIds.Clear();
+
+        if (originalParent != null && originalParent.parent != null && originalParent.parent.TryGetComponent(out CycleVerticalLayout layout))
+        {
+            var allSlots = layout.GetComponentsInChildren<CycleSlot>();
+            foreach (var slot in allSlots)
+            {
+                if (slot != this)
+                {
+                    foreach (var id in idsToReset)
+                    {
+                        slot.RemoveArrow(id, false);
+                    }
+                }
+            }
+        }
+        TriggerLayoutRebuild();
     }
 
     #endregion

@@ -9,6 +9,8 @@ public class SpecialPanel : MonoBehaviour
     [SerializeField] private CommentSlot commentSlot;
     [SerializeField] private AreaStartSlot areaStartSlot;
     [SerializeField] private AreaEndSlot areaEndSlot;
+    [SerializeField] private ArrowStartSlot arrowStartSlot;
+    [SerializeField] private ArrowEndSlot arrowEndSlot;
 
     private void Start()
     {
@@ -17,5 +19,7 @@ public class SpecialPanel : MonoBehaviour
         commentSlot.SetSlot(scrollRect);
         areaStartSlot.SetSlot(scrollRect);
         areaEndSlot.SetSlot(scrollRect);
+        arrowStartSlot.SetSlot(scrollRect);
+        arrowEndSlot.SetSlot(scrollRect);
     }
 }

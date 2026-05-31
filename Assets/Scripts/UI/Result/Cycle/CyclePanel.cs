@@ -5,8 +5,11 @@ using UnityEngine.UI;
 public class CyclePanel : MonoBehaviour
 {
     [Header("References")]
+    public CycleVerticalLayout vert;
+    public AreaOverlayPanel area;
+    public ArrowOverlayPanel arrow;
     [SerializeField] private Transform verticalLayout;
-    private CycleVerticalLayout _vert;
+    [SerializeField] private Transform content;
     private float _captureScale = 1.8286f;
 
     private readonly struct CameraState
@@ -86,34 +89,29 @@ public class CyclePanel : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        _vert = verticalLayout.GetComponent<CycleVerticalLayout>();
-    }
-
     public void AddSlotToLast(CycleSlot slot)
     {
-        _vert.AddSlotToLast(slot);
+        vert.AddSlotToLast(slot);
     }
 
     public void AddSlotToNewRow(CycleSlot slot)
     {
-        _vert.AddSlotToNewRow(slot);
+        vert.AddSlotToNewRow(slot);
     }
 
     public void CheckRowEmpty()
     {
-        _vert.CheckRowEmpty();
+        vert.CheckRowEmpty();
     }
 
     public void RebuildLayout()
     {
-        _vert.RebuildLayout();
+        vert.RebuildLayout();
     }
 
     public Texture2D GetCycleTexture(Camera captureCamera, Canvas captureCanvas, Canvas canvas)
     {
-        RectTransform targetRect = GetComponent<RectTransform>();
+        RectTransform targetRect = content.GetComponent<RectTransform>();
 
         var camState = new CameraState(captureCamera);
         var rectState = new RectTransformState(targetRect);
@@ -200,6 +198,6 @@ public class CyclePanel : MonoBehaviour
 
     public void ResetCycle()
     {
-        _vert.ResetCycle();
+        vert.ResetCycle();
     }
 }

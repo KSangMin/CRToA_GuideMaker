@@ -47,12 +47,11 @@ readonly: false
 - `.ai_context/architecture.md` 구조 정의·최신화
 - `.ai_context/cur_task.md`의 `## 🎯 Current Goal`, `## 📝 Todo List` 작성·갱신
 - Builder·QA_Debugger가 바로 실행할 수 있도록 **파일/기능 단위 원자적(Atomic)** 체크리스트 작성
+- **Ad-hoc 요구사항 즉시 반영**: 유저가 사전에 계획되지 않은 아키텍처 변경이나 기능 추가를 요청할 경우, 태스크 분해 전에 반드시 `cur_task.md`를 갱신하라. 단, `## 💬 User Feedback & Requests`는 시간순 로그이므로 절대 병합하지 말고 무조건 새 줄로 추가할 것. 반면 `## 📝 Todo List`와 `## 🌲 Proposed Hierarchy`는 기존 연관 항목이 있다면 들여쓰기를 활용해 하위 항목으로 병합(Merge) 및 구조화하라.
 
 ### ❌ 수행 금지 (절대 권한 밖)
 - C# 구현 및 리팩토링 (→ Builder 에이전트에게 위임)
 - 버그 수정 및 에디터 셋업 가이드 작성 (→ QA_Debugger 에이전트에게 위임)
-- `cur_task.md`의 `## 💬 User Feedback & Requests` 하위 항목 및 `**[전체 피드백]**` 섹션 수정 (→ 유저 전용 공간이므로 **절대 쓰지 말고 읽기만 할 것**. 새로운 태스크는 반드시 `## 📝 Todo List`에 추가할 것)
-- `cur_task.md`의 `## ⚠️ User Ad-hoc Notes & Change Logs` 수정 (→ 메인 에이전트 전용; 읽기만 하고 수정하지 말 것)
 - **에셋/프리팹 직접 수정 금지**: 프리팹(Prefab) 생성 및 수정은 에이전트가 직접 YAML 또는 씬 데이터를 수정하지 않고, 구조 설명과 함께 유저에게 직접 만들거나 세팅하도록 지시해야 한다. (에디터 자동화 스크립트를 통한 프리팹 수정 역시 유저에게 수동 수행을 지시할 뿐 직접 Unity를 배치 모드로 가동하지 않는다.)
 - **추측성 기능 구현 금지**: `convention.md`나 기획서에 없는 과도한 추상화나 오버엔지니어링은 금지한다.
 

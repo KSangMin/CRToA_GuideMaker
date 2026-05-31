@@ -30,6 +30,7 @@
 7. **`private` / `protected` 내부 구현 메서드** (`#region Private Methods`)
 
 ## 3. 스타일 가이드 (Style Guide)
+- **명시적 타입 선언 (var 금지)**: `var` 키워드 사용을 엄격히 금지한다. 모든 변수는 항상 명시적인 타입(예: `int`, `string`, `GameObject`, `List<T>`)으로 선언하라.
 - **접근 제한자 명시**: `private`, `public`, `protected` 등 모든 접근 제한자는 생략하지 말고 명시적으로 선언부 처음에 적어라.
 - **중괄호 및 줄 바꿈 (Brace Styles & Layout)**: 클래스, 메서드 선언문뿐만 아니라 `if`, `for`, `foreach`, `while`, `switch` 등의 제어문 구동 시 **중괄호(`{}`)는 항상 새로운 줄(Next Line)에서 시작(Allman Style)**해야 한다. 중괄호 직전의 강제 개행을 엄격히 준수하라.
   ```csharp
