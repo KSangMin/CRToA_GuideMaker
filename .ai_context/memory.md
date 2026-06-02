@@ -40,3 +40,10 @@ This document records critical engineering mistakes, resolved bugs, and strict o
 - **Issue**: Arrow 마커로 인해 최상단 컨테이너 여백이 늘어나 있는 상태에서, Area 마커를 드롭해 내부 행(Row) 패딩이 크게 늘어나면, 기존 화살표 여백이 흡수되거나 0으로 재조정되지 않고 방치되어 패딩이 무식하게 중복 합산되는 버그.
 - **Root Cause**: 퍼포먼스 오버헤드를 막는답시고 `HandleMarkerDropped` 내부에서 슬롯에 마커를 추가할 때 `AddAreaStart(id, false)`처럼 `false` 플래그를 넘겨 레이아웃 전체 리빌드 이벤트(`onLayoutRebuiltEvent.RaiseEvent()`) 전파를 의도적으로 단절시키고 있었음. 이 때문에 상대방 패널이 레이아웃을 변형시켰음에도 다른 패널들은 레이아웃이 변했다는 사실 자체를 통보받지 못해 여백 재계산 코루틴 자체가 실행조차 되지 못하고 완전히 스킵되었음.
 - **Resolution**: 뷰나 UI 구조에 물리적인 변화(패딩 조절 등)를 야기하는 컴포넌트 간 상호작용에서는 절대 이벤트 전파를 인위적으로 막아서는 안 됨. 타겟 플래그를 `true`로 설정하여 글로벌 이벤트 채널을 통해 모든 리스너 오버레이들이 한날한시에 같이 깨어나 레이아웃 변화를 공동으로 감지하고 각자의 패딩을 재동기화하도록 아키텍처를 바로잡아야 함.
+
+### 🚨 [2026-06-02] Unity UI: TMP_InputField (CycleTitle) 줄바꿈 레이아웃 어긋남 및 텍스트 삭제 시 축소 불가 버그
+- **Issue**: InputField에 텍스트를 입력하여 줄바꿈이 발생할 때 홀수/짝수 번째마다 레이아웃이 지연되어 어긋나고, 텍스트를 한 번에 다 지우면 Title 영역 높이가 줄어들지 않고 그대로 방치되는 현상 발생.
+- **Root Cause & Resolution**:
+  1. **캐시된 낡은 높이 참조**: 텍스트 입력이나 가로폭 변화 시점의 Canvas 물리 갱신 전에 `preferredHeight`를 가져오면서 엇박자가 났음. `LateUpdate`에서 `text` 문자열 및 `rectTransform.rect.width`의 변화를 캐싱하여 실제 변화가 발생했을 때만 `textComponent.ForceMeshUpdate()`를 강제 호출해 정확한 높이를 가져오도록 해결.
+  2. **공백 입력 시의 예외**: 텍스트가 완전히 지워졌을 때 Preferred Height 갱신이 보장되지 않는 문제를 막기 위해, `string.IsNullOrEmpty` 상태일 때는 타겟 높이를 0f로 강제하여 최소 높이(50f)로 수축되게 유도함.
+  3. **ContentSizeFitter 수축 지연 및 비효율적인 전체 리빌드**: 변경 사항이 최상위 부모인 `Content`로 즉각 전파되지 못해 발생한 문제. `CycleTitle`이 변할 때는 무의미한 슬롯 행들(`_rows`)의 리빌드 순회를 생략하고, 자식(`TitleWrapper`)과 최상위 부모(`Content`)에 대해서만 **2연속 강제 리빌드**(`LayoutRebuilder.ForceRebuildLayoutImmediate` 2회 호출)를 돌려 즉각 동기화되도록 수정.

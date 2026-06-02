@@ -212,13 +212,18 @@ public class CycleSlot : DraggableSlot
         if (!_isDragging && !eventData.dragging)
         {
             originalParent = transform.parent; // Set for cleanup context
-            originalParent.GetComponent<CycleHorizontalLayout>().RemoveFromHorizontalLayout(this);
+            var horizontalLayout = originalParent.GetComponent<CycleHorizontalLayout>();
+            horizontalLayout.RemoveFromHorizontalLayout(this);
             CancelHold();
 
             ClearSlot(); // Explicitly clear areas and trigger rebuild before destroying
 
             transform.SetParent(null);
             UIManager.Instance.GetUI<UI_Result>().cyclePanel.CheckRowEmpty();
+            
+            // Layout MUST be rebuilt AFTER SetParent(null) so the slot is no longer counted in width
+            horizontalLayout.ReBuildLayout();
+            
             Destroy(gameObject);
             return;
         }

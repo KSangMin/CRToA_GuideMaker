@@ -79,11 +79,18 @@ classDiagram
 | **패널 → 타임라인 공급** | `SelectSlot` | `UI/Panel/Select/` | 스킬 선택 후 `CycleSlot` 고스트 생성·드롭 |
 | **패널 특수 고스트** | `CountSlot`, `ResetSlot`, `CommentSlot`, `AreaStartSlot`, `AreaEndSlot`, `ArrowStartSlot`, `ArrowEndSlot` | `UI/Panel/Special/` | 단순 프리팹 고스트 + `CycleSlot` 태그 대상 조작 |
 | **오버레이 가이드라인** | `AreaOverlayPanel`, `AreaHighlightBox`, `ArrowOverlayPanel`, `ArrowRenderer` | `UI/Result/Cycle/` | 시작/끝 지정 슬롯 추적 및 오버레이 브래킷, 구간 배경, 화살표 연결선 렌더링 |
+| **이미지 캡처 및 사이클 총괄** | `CyclePanel` | `UI/Result/Cycle/` | 사이클 이름(`TMP_InputField`)과 슬롯 컨테이너 캡처 관리 및 UI 레이아웃 갱신 오케스트레이션 |
 | **미마이그레이션** | `TabSlot`, `BackgroundSlot` | `UI/Grid/`, `UI/Panel/TabMenu/` | 별도 홀드/스크롤 구현 (향후 `Slot` 계열 편입 후보) |
 
 ## 2. Key Components & Class Responsibilities
 
-### 현재 구현 (코드 기준 2026-05-23)
+### UI Layout Architecture (Cycle)
+- **`Content` (ScrollView)**: 최상위 컨테이너. 내부 `VerticalLayoutGroup`과 `ContentSizeFitter`를 통해 전체 세로 길이 제어.
+  - **`CycleTitle (TitleWrapper)`**: 타이틀을 감싸는 래퍼. `LayoutElement`를 통해 최소 너비(500) 보장 및 텍스트 줄바꿈 폭 기준점 제공.
+    - **`titleInput (TMP_InputField)`**: 실제 타이틀 텍스트 컴포넌트. `CyclePanel.cs`가 `LateUpdate`에서 높이를 감시하며 `LayoutElement.preferredHeight` 동적 주입.
+  - **`CycleHorizontalLayout (Rows)`**: 동적으로 쪼개지는 슬롯 행 컨테이너들. `CycleVerticalLayout`에 의해 오케스트레이션 됨.
+
+### 현재 구현 (코드 기준 2026-06)
 
 - **`Slot.cs`**: 포인터 파사드, `WaitHoldThen`, 패널 스크롤 전달, `RaycastBuffer`, `SetRectTransformToPointer`
 - **`SelfGhostSlot.cs`**: `CountSlot`/`ResetSlot`/`CommentSlot`/`AreaStartSlot`/`AreaEndSlot` — 단순 `GameObject` 고스트 파이프라인, `ProcessDrop` / `OnSelfGhostClick`
@@ -91,6 +98,8 @@ classDiagram
 - **`CycleSlot`**: self-reparent, placeholder, 표시·폰트·카운트 UI (2차 `SkillSlotDisplay` 후보), AreaStart/End 마킹
 - **`AreaOverlayPanel.cs`**: 영역(Area)의 레이아웃 동기화 통제(Coroutine, ForceRebuildLayoutImmediate, ScrollRect LateUpdate 대기), 다중/불규칙 행 영역 분할 추적, 랜덤 색상(`_savedAreaColors`) 캐싱 및 유지
 - **`AreaHighlightBox.cs`**: 영역 데이터 기반 UI 요소(Bracket, Line, Text) 배치 및 색상 깔맞춤 적용
+- **`ArrowOverlayPanel.cs`**: 화살표 마커 추적 및 연결선 동적 생성. `ApplyExactPadding`을 통해 화살표 UI가 화면(마스크) 바깥으로 잘리지 않도록 Exact Bounds 알고리즘 기반 부모(Vert) 패딩 강제 주입 통제. `AreaOverlayPanel`과 동일 이벤트 채널(`onLayoutRebuiltEvent`)로 동기화.
+- **`ArrowRenderer.cs`**: 스킬 간의 연결선을 베지어 및 직각 선(줄바꿈 시)으로 렌더링. UI 레이아웃 동적 갱신에 따른 1프레임 밀림 방지를 위한 강제 좌표 재계산(`ForceUpdatePositions`) 제공.
 
 ### OOP 검증 요약 (리팩토링 후)
 

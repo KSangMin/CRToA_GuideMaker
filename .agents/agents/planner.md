@@ -68,17 +68,27 @@ readonly: false
 
 ### [cur_task.md 표준 작성 템플릿]
 
-#### 1단계: 설계 및 데이터 구조화 (Planner)
+#### 1. Objective (목표)
+- 이번 태스크의 목적과 유저 요구사항 요약
+
+#### 2. Implementation Design (구현 설계 / 아키텍처 변경점)
+- 변경/추가될 클래스 및 메서드 시그니처
+- `architecture.md`의 기존 구조 중 수정이 발생하는 부분
+- 핵심 데이터 흐름 (예: UI Input -> Data Model -> Image Export)
+
+#### 3. Tasks (작업 리스트)
+
+##### 1단계: 설계 및 데이터 구조화 (Planner)
 - [ ] `.ai_context/architecture.md` 최신화 및 구조 정의
 - [ ] 확장성과 유연성을 위한 데이터 분리 (`ScriptableObject` 및 기본 데이터 정의)
 - [ ] 오브젝트 풀링(Object Pooling)이 필요한 컴포넌트 식별 및 구조 설계
 
-#### 2단계: 핵심 로직 구현 (Builder)
+##### 2단계: 핵심 로직 구현 (Builder)
 - [ ] 데이터 로드 및 관리 매니저 스크립트 구현 (UniTask 활용 및 가비지 컬렉션 최적화)
 - [ ] 핵심 인게임/UI 기능 구현 및 MVP 패턴 적용 구조화 (UI View와 Logic 분리)
 - [ ] 구조 확장성을 위한 인터페이스 정의 및 이벤트/델리게이트 기반 결합도 완화
 
-#### 3단계: 방어적 검증 및 예외 처리 (QA_Debugger)
+##### 3단계: 방어적 검증 및 예외 처리 (QA_Debugger)
 - [ ] `memory.md` 기반 과거 버그 재발 방지 검증 (인스펙터 Null-Check 자가진단 로직 포함)
 - [ ] 비정상 데이터 입력 및 플랫폼 특화(WebGL 등) 예외 케이스 테스트 계획 수립
 - [ ] 협업 및 인계 목적의 유니티 에디터 세팅 가이드라인 작성

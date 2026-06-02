@@ -125,8 +125,19 @@ public class CycleVerticalLayout : MonoBehaviour
             }
         }
         
-        // 이후 부모 레이아웃 리빌드
+        // 이후 자기 자신 레이아웃 리빌드
         LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+
+        // 부모(Content) 레이아웃 리빌드 (2연속 강제 리빌드로 수축 지연 해결)
+        if (transform.parent != null)
+        {
+            var parentRect = transform.parent.GetComponent<RectTransform>();
+            if (parentRect != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+            }
+        }
 
         // 최종적으로 정렬된 레이아웃의 위치(Transform)를 글로벌하게 갱신
         Canvas.ForceUpdateCanvases();
