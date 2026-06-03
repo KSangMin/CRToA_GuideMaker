@@ -13,6 +13,7 @@ public class CycleSlot : DraggableSlot
     [SerializeField] private GameObject countBackground;
     [SerializeField] private TextMeshProUGUI countText;
     [SerializeField] private GameObject chargeCountBackground;
+    [SerializeField] private Image chargeCountGauge;
     [SerializeField] private TextMeshProUGUI chargeCountText;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -139,14 +140,11 @@ public class CycleSlot : DraggableSlot
         if (chargeCountBackground != null)
         {
             chargeCountBackground.SetActive(true);
-            if (chargeCountBackground.TryGetComponent<Image>(out var img))
+            if (chargeCountGauge != null)
             {
-                img.type = Image.Type.Filled;
-                img.fillMethod = Image.FillMethod.Horizontal;
-                img.fillOrigin = (int)Image.OriginHorizontal.Left;
                 if (maxCount > 0)
                 {
-                    img.fillAmount = (float)count / maxCount;
+                    chargeCountGauge.fillAmount = (float)count / maxCount;
                 }
             }
         }
