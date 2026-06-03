@@ -1,7 +1,7 @@
-public class CountSlot : BaseCountSlot
+public class ChargeCountSlot : BaseCountSlot
 {
     protected override void ApplyToCycleSlot(CycleSlot cycleSlot, int count, int maxCount)
     {
-        cycleSlot.SetSlotCount(count);
+        cycleSlot.SetChargeCount(count, maxCount);
     }
 }

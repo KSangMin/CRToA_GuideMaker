@@ -6,6 +6,7 @@ public class SpecialPanel : MonoBehaviour
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private ResetSlot resetSlot;
     [SerializeField] private CountSlot countSlot;
+    [SerializeField] private ChargeCountSlot chargeCountSlot;
     [SerializeField] private CommentSlot commentSlot;
     [SerializeField] private AreaStartSlot areaStartSlot;
     [SerializeField] private AreaEndSlot areaEndSlot;
@@ -16,6 +17,7 @@ public class SpecialPanel : MonoBehaviour
     {
         resetSlot.SetSlot(scrollRect);
         countSlot.SetSlot(scrollRect);
+        chargeCountSlot.SetSlot(scrollRect);
         commentSlot.SetSlot(scrollRect);
         areaStartSlot.SetSlot(scrollRect);
         areaEndSlot.SetSlot(scrollRect);

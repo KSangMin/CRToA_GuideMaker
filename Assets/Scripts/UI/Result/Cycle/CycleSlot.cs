@@ -12,6 +12,8 @@ public class CycleSlot : DraggableSlot
     [SerializeField] private Image icon;
     [SerializeField] private GameObject countBackground;
     [SerializeField] private TextMeshProUGUI countText;
+    [SerializeField] private GameObject chargeCountBackground;
+    [SerializeField] private TextMeshProUGUI chargeCountText;
     [SerializeField] private Image head;
     [SerializeField] private TextMeshProUGUI nameText;
 
@@ -54,6 +56,8 @@ public class CycleSlot : DraggableSlot
         if (icon == null) Debug.LogError($"[{nameof(CycleSlot)}] icon is not assigned on {name}.", this);
         if (countBackground == null) Debug.LogError($"[{nameof(CycleSlot)}] countBackground is not assigned on {name}.", this);
         if (countText == null) Debug.LogError($"[{nameof(CycleSlot)}] countText is not assigned on {name}.", this);
+        if (chargeCountBackground == null) Debug.LogWarning($"[{nameof(CycleSlot)}] chargeCountBackground is not assigned on {name}.", this);
+        if (chargeCountText == null) Debug.LogWarning($"[{nameof(CycleSlot)}] chargeCountText is not assigned on {name}.", this);
         if (head == null) Debug.LogError($"[{nameof(CycleSlot)}] head is not assigned on {name}.", this);
         if (nameText == null) Debug.LogError($"[{nameof(CycleSlot)}] nameText is not assigned on {name}.", this);
         if (onFontColorChanged == null) Debug.LogError($"[{nameof(CycleSlot)}] onFontColorChanged is not assigned on {name}.", this);
@@ -72,6 +76,7 @@ public class CycleSlot : DraggableSlot
     private void Start()
     {
         countBackground.SetActive(false);
+        if (chargeCountBackground != null) chargeCountBackground.SetActive(false);
         commentInput.gameObject.SetActive(false);
         SetFontColor(UIManager.Instance.GetUI<UI_Result>().optionPanel.colorSelectPanel.CurFontColor);
     }
@@ -129,6 +134,25 @@ public class CycleSlot : DraggableSlot
         countText.SetText($"{count}");
     }
 
+    public void SetChargeCount(int count, int maxCount)
+    {
+        if (chargeCountBackground != null)
+        {
+            chargeCountBackground.SetActive(true);
+            if (chargeCountBackground.TryGetComponent<Image>(out var img))
+            {
+                img.type = Image.Type.Filled;
+                img.fillMethod = Image.FillMethod.Horizontal;
+                img.fillOrigin = (int)Image.OriginHorizontal.Left;
+                if (maxCount > 0)
+                {
+                    img.fillAmount = (float)count / maxCount;
+                }
+            }
+        }
+        if (chargeCountText != null) chargeCountText.SetText($"{count}");
+    }
+
     public void EnableComment()
     {
         if (commentInput != null)
@@ -145,6 +169,7 @@ public class CycleSlot : DraggableSlot
     public void ResetSlot()
     {
         countBackground.SetActive(false);
+        if (chargeCountBackground != null) chargeCountBackground.SetActive(false);
         if (commentInput != null)
         {
             commentInput.text = "";
