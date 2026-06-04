@@ -11,6 +11,7 @@ public class OptionPanel : MonoBehaviour
     [SerializeField] private Button resetCycleButton;
     [SerializeField] private Button resetOptionButton;
     [SerializeField] private Button downloadButton;
+    [SerializeField] private Toggle titleToggle;
     public RowLengthPanel rowLengthPanel;
     public ColorSelectPanel colorSelectPanel;
 
@@ -21,9 +22,25 @@ public class OptionPanel : MonoBehaviour
 
     private void Awake()
     {
+        if (titleToggle == null) Debug.LogError("[OptionPanel] titleToggle is missing!");
+
         resetCycleButton.onClick.AddListener(ResetCycle);
         downloadButton.onClick.AddListener(DownLoad);
         resetOptionButton.onClick.AddListener(ResetOption);
+        
+        if (titleToggle != null)
+        {
+            titleToggle.onValueChanged.AddListener(OnTitleToggleChanged);
+        }
+    }
+
+    private void OnTitleToggleChanged(bool isOn)
+    {
+        GameObject cyclePanel = UIManager.Instance.GetUI<UI_Result>().cyclePanel.cycleTitle;
+        if (cyclePanel != null)
+        {
+            cyclePanel.SetActive(isOn);
+        }
     }
 
     private void DownLoad()

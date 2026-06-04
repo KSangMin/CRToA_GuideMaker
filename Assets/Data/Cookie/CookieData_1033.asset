@@ -56,4 +56,11 @@ MonoBehaviour:
       m_SubObjectGUID: 
       m_EditorAssetChanged: 0
     controlType: 0
+  - sprite:
+      m_AssetGUID: 895dd6dba1ab8db4aad8a9bc4056bd15
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    controlType: 0
   Dash: []

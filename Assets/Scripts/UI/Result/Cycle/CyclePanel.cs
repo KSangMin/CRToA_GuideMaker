@@ -1,13 +1,104 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class CyclePanel : MonoBehaviour
 {
     [Header("References")]
+    public CycleVerticalLayout vert;
+    public AreaOverlayPanel area;
+    public ArrowOverlayPanel arrow;
     [SerializeField] private Transform verticalLayout;
-    private CycleVerticalLayout _vert;
+    [SerializeField] private Transform content;
+    public GameObject cycleTitle;
+    [SerializeField] private TMP_InputField titleInput;
+    [SerializeField] private ColorEventChannel onFontColorChanged;
+    
     private float _captureScale = 1.8286f;
+
+    private void Awake()
+    {
+        if (titleInput == null) Debug.LogError("[CyclePanel] titleInput is missing!");
+        if (content == null) Debug.LogError("[CyclePanel] content is missing!");
+
+        if (onFontColorChanged != null)
+        {
+            onFontColorChanged.RegisterListener(SetTitleColor);
+        }
+
+        // onValueChanged 대신 LateUpdate에서 높이 변화를 완벽하게 감지합니다.
+    }
+
+    private void OnDestroy()
+    {
+        if (onFontColorChanged != null)
+        {
+            onFontColorChanged.UnregisterListener(SetTitleColor);
+        }
+    }
+
+    private float _lastTitleHeight = -1f;
+    private string _lastText = null;
+    private float _lastWidth = -1f;
+
+    private void LateUpdate()
+    {
+        if (titleInput != null && titleInput.textComponent != null)
+        {
+            string currentText = titleInput.text;
+            float currentWidth = titleInput.textComponent.rectTransform.rect.width;
+
+            // 텍스트 내용 또는 가로폭이 변했을 때만 갱신 검사 수행
+            if (currentText != _lastText || Mathf.Abs(currentWidth - _lastWidth) > 0.1f)
+            {
+                _lastText = currentText;
+                _lastWidth = currentWidth;
+
+                // 레이아웃 계산을 위해 TMP_Text 메시 강제 갱신
+                titleInput.textComponent.ForceMeshUpdate();
+                float currentHeight = titleInput.textComponent.preferredHeight;
+
+                // 텍스트가 완전히 비었을 때는 강제로 0으로 지정하여 최소 크기(50f)로 수축되도록 함
+                if (string.IsNullOrEmpty(currentText))
+                {
+                    currentHeight = 0f;
+                }
+
+                if (Mathf.Abs(_lastTitleHeight - currentHeight) > 1f)
+                {
+                    _lastTitleHeight = currentHeight;
+                    ApplyTitleHeight(currentHeight);
+                    RebuildLayout();
+                }
+            }
+        }
+    }
+
+    private void ApplyTitleHeight(float targetHeight)
+    {
+        var layoutElement = titleInput.GetComponent<LayoutElement>();
+        if (layoutElement != null)
+        {
+            float padding = 0f;
+            if (titleInput.textViewport != null)
+            {
+                padding = Mathf.Abs(titleInput.textViewport.offsetMax.y) + Mathf.Abs(titleInput.textViewport.offsetMin.y);
+            }
+            layoutElement.preferredHeight = Mathf.Max(50f, targetHeight + padding + 10f);
+        }
+
+        // TMP 내부 스크롤 로직 무력화
+        titleInput.textComponent.rectTransform.anchoredPosition = Vector2.zero;
+    }
+
+    private void SetTitleColor(Color color)
+    {
+        if (titleInput != null && titleInput.textComponent != null)
+        {
+            titleInput.textComponent.color = color;
+        }
+    }
 
     private readonly struct CameraState
     {
@@ -86,34 +177,66 @@ public class CyclePanel : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        _vert = verticalLayout.GetComponent<CycleVerticalLayout>();
-    }
-
     public void AddSlotToLast(CycleSlot slot)
     {
-        _vert.AddSlotToLast(slot);
+        vert.AddSlotToLast(slot);
     }
 
     public void AddSlotToNewRow(CycleSlot slot)
     {
-        _vert.AddSlotToNewRow(slot);
+        vert.AddSlotToNewRow(slot);
     }
 
     public void CheckRowEmpty()
     {
-        _vert.CheckRowEmpty();
+        vert.CheckRowEmpty();
     }
 
     public void RebuildLayout()
     {
-        _vert.RebuildLayout();
+        // 1. 자식(TitleWrapper) 리빌드
+        if (titleInput != null && titleInput.transform.parent != null)
+        {
+            var titleWrapperRect = titleInput.transform.parent.GetComponent<RectTransform>();
+            if (titleWrapperRect != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(titleWrapperRect);
+            }
+        }
+
+        // 2. 최상위 content의 레이아웃 리빌드 (2연속 리빌드로 ContentSizeFitter 지연 해결)
+        if (content != null)
+        {
+            var contentRect = content.GetComponent<RectTransform>();
+            if (contentRect != null)
+            {
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+                LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+                Canvas.ForceUpdateCanvases();
+            }
+        }
+
+        // 3. 레이아웃 리빌드 완료 이벤트 전파
+        if (vert.onLayoutRebuiltEvent != null)
+        {
+            vert.onLayoutRebuiltEvent.RaiseEvent();
+        }
     }
 
     public Texture2D GetCycleTexture(Camera captureCamera, Canvas captureCanvas, Canvas canvas)
     {
-        RectTransform targetRect = _vert.GetComponent<RectTransform>();
+        bool wasTitleActive = cycleTitle != null && cycleTitle.activeSelf;
+        bool isTitleEmpty = titleInput != null && string.IsNullOrWhiteSpace(titleInput.text);
+
+        // 제목이 비어있다면 캡처본에서 아예 영역 자체를 날려버림 (OptionPanel 토글 끄는 것과 동일한 효과)
+        if (isTitleEmpty && wasTitleActive && cycleTitle != null)
+        {
+            cycleTitle.SetActive(false);
+            RebuildLayout();
+        }
+
+        RectTransform targetRect = content.GetComponent<RectTransform>();
 
         var camState = new CameraState(captureCamera);
         var rectState = new RectTransformState(targetRect);
@@ -151,6 +274,13 @@ public class CyclePanel : MonoBehaviour
             {
                 rt.Release();
                 Destroy(rt);
+            }
+
+            // 캡처가 끝나면 유저가 OptionPanel에서 설정했던 상태(wasTitleActive)로 완벽하게 원상 복구
+            if (isTitleEmpty && wasTitleActive && cycleTitle != null)
+            {
+                cycleTitle.SetActive(true);
+                RebuildLayout();
             }
 
             Canvas.ForceUpdateCanvases();
@@ -200,6 +330,6 @@ public class CyclePanel : MonoBehaviour
 
     public void ResetCycle()
     {
-        _vert.ResetCycle();
+        vert.ResetCycle();
     }
 }
