@@ -882,6 +882,8 @@ MonoBehaviour:
   cycleTitle: {fileID: 1504206026}
   titleInput: {fileID: 2052711123}
   onFontColorChanged: {fileID: 11400000, guid: 73b97523775c5f24f9c9e1f59d98f428, type: 2}
+  contentBackgroundImage: {fileID: 1820405146}
+  onBackgroundColorChanged: {fileID: 11400000, guid: 9d1336dc4e8cc8b4280d3a1813c0193d, type: 2}
 --- !u!114 &228891297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4575,6 +4577,8 @@ MonoBehaviour:
   rowPanelPrefab: {fileID: 4596172119022157341, guid: 2b71b568bae75884fa418f737d9fc873, type: 3}
   onRowLengthChangedEvent: {fileID: 11400000, guid: c9e668c80741a4d40931c5914b250448, type: 2}
   onLayoutRebuiltEvent: {fileID: 11400000, guid: cc91ea75640def443a4f102b44c20985, type: 2}
+  backgroundImage: {fileID: 1153112574}
+  onBackgroundColorChanged: {fileID: 11400000, guid: 9d1336dc4e8cc8b4280d3a1813c0193d, type: 2}
 --- !u!1 &1220015917
 GameObject:
   m_ObjectHideFlags: 0
@@ -5724,7 +5728,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -145, y: -42.499996}
+  m_AnchoredPosition: {x: -145, y: -42.5}
   m_SizeDelta: {x: 110, y: 65}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1630736529

@@ -13,12 +13,20 @@ public class CycleVerticalLayout : MonoBehaviour
     private List<CycleHorizontalLayout> _rows = new();
     private Transform _verticalLayout;
 
+    [Header("색깔 변경")]
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private ColorEventChannel onBackgroundColorChanged;
+
     private void Awake()
     {
         _verticalLayout = GetComponent<Transform>();
         if (onRowLengthChangedEvent != null)
         {
             onRowLengthChangedEvent.RegisterListener(OnRowLengthChanged);
+        }
+        if (onBackgroundColorChanged != null)
+        {
+            onBackgroundColorChanged.RegisterListener(SetBackgroundColor);
         }
     }
 
@@ -27,6 +35,10 @@ public class CycleVerticalLayout : MonoBehaviour
         if (onRowLengthChangedEvent != null)
         {
             onRowLengthChangedEvent.UnregisterListener(OnRowLengthChanged);
+        }
+        if (onBackgroundColorChanged != null)
+        {
+            onBackgroundColorChanged.UnregisterListener(SetBackgroundColor);
         }
     }
 
@@ -161,5 +173,13 @@ public class CycleVerticalLayout : MonoBehaviour
         }
 
         _rows.Clear();
+    }
+
+    private void SetBackgroundColor(Color color)
+    {
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = color;
+        }
     }
 }

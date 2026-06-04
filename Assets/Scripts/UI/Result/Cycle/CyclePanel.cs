@@ -14,6 +14,10 @@ public class CyclePanel : MonoBehaviour
     public GameObject cycleTitle;
     [SerializeField] private TMP_InputField titleInput;
     [SerializeField] private ColorEventChannel onFontColorChanged;
+
+    [Header("색깔 변경")]
+    [SerializeField] private Image contentBackgroundImage;
+    [SerializeField] private ColorEventChannel onBackgroundColorChanged;
     
     private float _captureScale = 1.8286f;
 
@@ -26,6 +30,10 @@ public class CyclePanel : MonoBehaviour
         {
             onFontColorChanged.RegisterListener(SetTitleColor);
         }
+        if (onBackgroundColorChanged != null)
+        {
+            onBackgroundColorChanged.RegisterListener(SetBackgroundColor);
+        }
 
         // onValueChanged 대신 LateUpdate에서 높이 변화를 완벽하게 감지합니다.
     }
@@ -35,6 +43,10 @@ public class CyclePanel : MonoBehaviour
         if (onFontColorChanged != null)
         {
             onFontColorChanged.UnregisterListener(SetTitleColor);
+        }
+        if (onBackgroundColorChanged != null)
+        {
+            onBackgroundColorChanged.UnregisterListener(SetBackgroundColor);
         }
     }
 
@@ -331,5 +343,13 @@ public class CyclePanel : MonoBehaviour
     public void ResetCycle()
     {
         vert.ResetCycle();
+    }
+
+    private void SetBackgroundColor(Color color)
+    {
+        if (contentBackgroundImage != null)
+        {
+            contentBackgroundImage.color = color;
+        }
     }
 }
