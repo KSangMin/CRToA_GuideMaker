@@ -132,8 +132,8 @@ MonoBehaviour:
   headImage: {fileID: 1310489678182432263}
   loopCountButton: {fileID: 5955708684008391714}
   loopCountText: {fileID: 5654475773294239521}
-  lineWidth: 10
-  headSize: 20
+  lineWidth: 8
+  headSize: 22
   countSize: 60
   textSpacing: 2
 --- !u!1 &2542444245754202312
@@ -201,7 +201,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 8ca9ffe4446bdde4da831c51c380af11, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

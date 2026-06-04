@@ -81,9 +81,9 @@ classDiagram
 
 | 구분 | 클래스 | 위치 | 책임 |
 |------|--------|------|------|
-| **타임라인 거주 슬롯** | `CycleSlot` | `UI/Result/Cycle/` | 배치된 스킬 표시, 재정렬, 탭 삭제, 반복 카운트 UI, 영역 지정 데이터 마킹 |
+| **타임라인 거주 슬롯** | `CycleSlot` | `UI/Result/Cycle/` | 배치된 스킬 표시, 재정렬, 탭 삭제, 반복 카운트 UI, 차지 카운트 Image Fill 반영, 영역 지정 데이터 마킹 |
 | **패널 → 타임라인 공급** | `SelectSlot` | `UI/Panel/Select/` | 스킬 선택 후 `CycleSlot` 고스트 생성·드롭 |
-| **패널 특수 고스트** | `BaseCountSlot`(추상), `CountSlot`, `ChargeCountSlot`, `ResetSlot`, `CommentSlot`, `AreaStartSlot`, `AreaEndSlot`, `ArrowStartSlot`, `ArrowEndSlot` | `UI/Panel/Special/` | 단순 프리팹 고스트 + `CycleSlot` 태그 대상 조작 |
+| **패널 특수 고스트** | `BaseCountSlot`(추상), `CountSlot`, `ChargeCountSlot`, `ResetSlot`, `CommentSlot`, `AreaStartSlot`, `AreaEndSlot`, `ArrowStartSlot`, `ArrowEndSlot` | `UI/Panel/Special/` | 단순 프리팹 고스트 + `CycleSlot` 태그 대상 조작 (`maxCount` 파라미터 연동) |
 | **오버레이 가이드라인** | `AreaOverlayPanel`, `AreaHighlightBox`, `ArrowOverlayPanel`, `ArrowRenderer` | `UI/Result/Cycle/` | 시작/끝 지정 슬롯 추적 및 오버레이 브래킷, 구간 배경, 화살표 연결선 렌더링 |
 | **이미지 캡처 및 사이클 총괄** | `CyclePanel` | `UI/Result/Cycle/` | 사이클 이름(`TMP_InputField`)과 슬롯 컨테이너 캡처 관리 및 UI 레이아웃 갱신 오케스트레이션 |
 | **미마이그레이션** | `TabSlot`, `BackgroundSlot` | `UI/Grid/`, `UI/Panel/TabMenu/` | 별도 홀드/스크롤 구현 (향후 `Slot` 계열 편입 후보) |
