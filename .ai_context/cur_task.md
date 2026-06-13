@@ -1,35 +1,33 @@
 #### 1. Objective (목표)
-- OptionPanel에서 배경 색깔을 변경할 때, `CycleHorizontalLayout`(row)뿐만 아니라 `CycleVerticalLayout`(vert)과 `CyclePanel`(content)의 배경 색상도 함께 변경되도록 수정.
-- 설정 초기화(ResetOption) 시 vert와 content의 배경 색상도 초기값으로 롤백되도록 처리.
+- 화살표 반복 횟수(count)가 maxCount를 초과할 때 무한(∞)으로 표시되고, 다음 클릭 시 1로 돌아가는 기능 추가.
 
 #### 2. Implementation Design (구현 설계 / 아키텍처 변경점)
-- 변경/추가될 클래스:
-  - `Assets/Scripts/UI/Result/Cycle/CycleVerticalLayout.cs`
-  - `Assets/Scripts/UI/Result/Cycle/CyclePanel.cs`
+- 변경/추가될 클래스: `Assets/Scripts/UI/Result/Cycle/ArrowRenderer.cs`
 - 설계 개요:
-  - `CycleVerticalLayout`과 `CyclePanel` 내부에 배경 이미지(`Image backgroundImage`) 참조 추가.
-  - `onBackgroundColorChanged` 이벤트 리스너를 `Awake`에 등록하고 `OnDestroy`에서 해제.
-  - 리스너에 연결된 `SetBackgroundColor(Color color)` 메서드를 구현하여 `backgroundImage.color` 값을 갱신.
-  - 초기화 로직은 기존 `ColorSelectPanel`의 `ResetColor()`가 `onBackgroundColorChanged` 이벤트를 발생시키므로 자동 해결됨.
+  - `[SerializeField] private int maxLoopCount = 9;` 추가.
+  - 무한대 상태를 `-1`로 정의.
+  - `OnLoopCountClicked()` 로직을 수정하여 `LoopCount > maxLoopCount`일 때 `-1`이 되도록 함.
+  - `UpdateLoopCountText()`에서 `LoopCount == -1`일 경우 "∞" 기호 출력.
 
 #### 3. Tasks (작업 리스트)
 
 ##### 1단계: 설계 및 데이터 구조화 (Planner)
-- [x] `.ai_context/cur_task.md` 갱신 (배경색 적용 버그 수정)
+- [x] `.ai_context/cur_task.md` 갱신 (무한 반복 횟수 표기 기능 요구사항 추가)
 
 ##### 2단계: 핵심 로직 구현 (Builder)
-- [ ] `Assets/Scripts/UI/Result/Cycle/CycleVerticalLayout.cs` 수정 (`backgroundImage`, `onBackgroundColorChanged` 직렬화 변수 추가, `Awake`/`OnDestroy`에 이벤트 리스닝 로직 추가, `SetBackgroundColor` 구현)
-- [ ] `Assets/Scripts/UI/Result/Cycle/CyclePanel.cs` 수정 (`backgroundImage`, `onBackgroundColorChanged` 직렬화 변수 추가, 이벤트 리스닝 및 갱신 로직 추가)
+- [x] `ArrowRenderer.cs`에 `maxLoopCount` 필드 추가 및 반복 횟수 무한 갱신 로직 구현.
 
 ##### 3단계: 방어적 검증 및 예외 처리 (QA_Debugger)
-- [ ] `CycleVerticalLayout`과 `CyclePanel`이 부착된 유니티 프리팹(인스펙터)에서 `backgroundImage`와 `onBackgroundColorChanged` EventChannel 할당 상태 검증 계획 수립
-- [ ] 색상 변경 후 `CyclePanel` 및 `CycleVerticalLayout`의 배경색 적용 테스트
-- [ ] 초기화 버튼 동작 후 롤백 정상 작동 여부 검증
+- [x] 에디터에서 화살표를 여러 번 클릭하여 9 다음 ∞, 그다음 1로 정상 순환하는지 검증.
 
 ---
 
 ## 💬 User Feedback & Requests
-- 2026-06-04 12:46: OptionPanel에서 배경 색깔을 바꾸면, row의 배경 색깔만 바뀌고, vert와 content의 배경 색깔은 안 바뀌어. vert와 content도 배경 색깔이 바뀌게 해 주고, 설정 초기화 시 vert와 content의 배경 색깔도 같이 초기화되게 해 줘.
+- 2026-06-13 16:52: 화살표 시작 슬롯이나 끝 슬롯 이동시켜서 레이아웃 수정될 때 화살표 횟수 유지 안 되는 버그 수정.
+- 2026-06-13 16:57: 화살표 count가 maxCount 초과 시 무한(∞) 기호 표시 후 다음 클릭 시 1로 초기화되는 기능 추가.
 
 ## ⚠️ User Ad-hoc Notes & Change Logs
-- 2026-06-04 12:47: 배경 색상 동기화 누락 수정 태스크 분석 및 cur_task.md 반영
+- 2026-06-13 16:52: 화살표 횟수 유실 버그 태스크 분석 및 cur_task.md 갱신
+- 2026-06-13 16:53: ArrowOverlayPanel.cs 코드 수정 완료
+- 2026-06-13 16:58: 화살표 무한 루프 횟수 기능 구현 및 cur_task.md 갱신
+- 2026-06-13 17:04: 유저 확인 후 QA 검증 완료 및 태스크 종료

@@ -16,6 +16,7 @@ public class ArrowRenderer : MonoBehaviour
     [SerializeField] private float headSize = 30f;
     [SerializeField] private float countSize = 24f;
     [SerializeField] private float textSpacing = 2f;
+    [SerializeField] private int maxLoopCount = 9;
 
     #endregion
 
@@ -165,10 +166,17 @@ public class ArrowRenderer : MonoBehaviour
 
     private void OnLoopCountClicked()
     {
-        LoopCount++;
-        if (LoopCount > 9)
+        if (LoopCount == -1) 
         {
             LoopCount = 1;
+        }
+        else 
+        {
+            LoopCount++;
+            if (LoopCount > maxLoopCount)
+            {
+                LoopCount = -1;
+            }
         }
         
         UpdateLoopCountText();
@@ -178,7 +186,14 @@ public class ArrowRenderer : MonoBehaviour
     {
         if (loopCountText != null)
         {
-            loopCountText.text = LoopCount.ToString();
+            if (LoopCount == -1)
+            {
+                loopCountText.text = "∞";
+            }
+            else
+            {
+                loopCountText.text = LoopCount.ToString();
+            }
         }
     }
 

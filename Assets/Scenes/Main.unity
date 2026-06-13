@@ -7835,6 +7835,7 @@ GameObject:
   - component: {fileID: 2052711124}
   - component: {fileID: 2052711123}
   - component: {fileID: 2052711127}
+  - component: {fileID: 2052711128}
   m_Layer: 8
   m_Name: CycleTitleInput
   m_TagString: Untagged
@@ -8021,6 +8022,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &2052711128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052711121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc33a39070010f94fb1c2dd721c1286d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WebGLInput::WebGLSupport.WebGLInput
+  showHtmlElement: 0
 --- !u!1 &2065687314
 GameObject:
   m_ObjectHideFlags: 0
