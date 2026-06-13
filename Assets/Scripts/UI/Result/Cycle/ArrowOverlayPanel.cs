@@ -18,6 +18,7 @@ public class ArrowOverlayPanel : MonoBehaviour
     private readonly List<ArrowRenderer> _activeArrows = new();
     private readonly List<CycleSlot> _flatSlots = new();
     private readonly Dictionary<string, Color> _savedArrowColors = new();
+    private readonly Dictionary<string, int> _savedArrowCounts = new();
     private Coroutine _updateCoroutine;
 
     #endregion
@@ -244,12 +245,11 @@ public class ArrowOverlayPanel : MonoBehaviour
             yield return null;
         }
 
-        var savedLoopCounts = new Dictionary<string, int>();
         foreach (var arrow in _activeArrows)
         {
             if (arrow != null)
             {
-                savedLoopCounts[arrow.ArrowId] = arrow.LoopCount;
+                _savedArrowCounts[arrow.ArrowId] = arrow.LoopCount;
                 Destroy(arrow.gameObject);
             }
         }
@@ -270,7 +270,7 @@ public class ArrowOverlayPanel : MonoBehaviour
                 _savedArrowColors[arrow.arrowId] = arrowColor;
             }
 
-            int prevCount = savedLoopCounts.ContainsKey(arrow.arrowId) ? savedLoopCounts[arrow.arrowId] : 1;
+            int prevCount = _savedArrowCounts.ContainsKey(arrow.arrowId) ? _savedArrowCounts[arrow.arrowId] : 1;
             CreateArrowRenderer(arrow.arrowId, arrow.sSlot, arrow.eSlot, arrowColor, prevCount);
         }
 
