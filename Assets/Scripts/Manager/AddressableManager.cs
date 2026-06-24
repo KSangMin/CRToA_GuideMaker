@@ -98,7 +98,7 @@ public class AddressableManager : Singleton<AddressableManager>
         {
             Debug.Log($"Addressables catalogs to update: {catalogsToUpdate.Count}");
 
-            var updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate);
+            var updateHandle = Addressables.UpdateCatalogs(catalogsToUpdate, false);
 
             while (!updateHandle.IsDone)
             {

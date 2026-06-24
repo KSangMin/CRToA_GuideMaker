@@ -68,5 +68,6 @@ public enum ElementalType
     Land,
     Light,
     Water,
-    Wind
+    Wind,
+    Mystic,
 }

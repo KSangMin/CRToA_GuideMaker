@@ -109,6 +109,11 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
+  - m_AssetGUID: f5c5a43fa2e18b948aa89d0596c122eb
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   elementalType_frame:
   - m_AssetGUID: b942f1bbc5c256b43a98211387fa9db0
     m_SubObjectName: 
@@ -136,6 +141,11 @@ MonoBehaviour:
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
   - m_AssetGUID: 8fbe2c402a956bf46afb3931db27a95e
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: cede5e1eac3ec2b4f8f839261766db4a
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
